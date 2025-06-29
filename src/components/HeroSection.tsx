@@ -30,22 +30,6 @@ export default function HeroSection() {
     );
   }, []);
 
-  // Slider state
-  const banners = [
-    "/images/banner-1.png",
-    "/images/banner-2.png",
-    "/images/banner-3.png",
-  ];
-  const [current, setCurrent] = useState(0);
-
-  // Auto slide every 5 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrent((prev) => (prev + 1) % banners.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [banners.length]);
-
   return (
     <section
       className="relative text-[#f3e9d2] overflow-hidden bg-transparent"
@@ -55,55 +39,30 @@ export default function HeroSection() {
         <div className="absolute inset-0 bg-gradient-to-br from-[#B34A1F99] via-[#E67E3E66] to-[#FFD27F33] opacity-80 blur-2xl" />
         <div className="absolute inset-0 bg-gradient-to-tl from-[#4A1A0A44] via-transparent to-[#F9A65A33] opacity-60 blur-3xl" />
       </div>
-      {/* Slider Banner */}
+      {/* Video Banner */}
       <div className="relative w-full aspect-[21/9] mx-auto z-0">
-        {banners.map((src, idx) => (
-          <Image
-            key={src}
-            src={src}
-            alt={`Banner ${idx + 1}`}
-            fill
-            className={`object-cover object-top absolute top-0 left-0 w-full h-full transition-opacity duration-700 ${
-              current === idx ? "opacity-100" : "opacity-0"
-            }`}
-            draggable={false}
-            priority={idx === 0}
-            sizes="100vw"
-          />
-        ))}
+        <video
+          className="absolute top-0 left-0 w-full h-full object-cover"
+          src="/images/maja-video.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+          poster="/images/banner-1.png"
+          preload="none"
+        />
         {/* Caption & CTA Centered */}
         <div className="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none">
           <div className="w-full max-w-2xl mx-auto mb-8 pointer-events-auto">
-            {current === 0 && (
-              <div className="bg-black/40 rounded-xl py-6 px-4 md:px-12 flex flex-col items-center animate-fade-in">
-                <h1 className="text-2xl md:text-4xl font-bold mb-2 drop-shadow-lg font-[var(--font-bhutuka)] text-[#ffd700]">
-                  Kemegahan Warisan Majapahit
-                </h1>
-                <p className="text-lg md:text-2xl text-[#f3e9d2] font-semibold">
-                  Candi, budaya, dan teknologi bersatu dalam ekosistem $MAJA.
-                </p>
-              </div>
-            )}
-            {current === 1 && (
-              <div className="bg-black/40 rounded-xl py-6 px-4 md:px-12 flex flex-col items-center animate-fade-in">
-                <h1 className="text-2xl md:text-4xl font-bold mb-2 drop-shadow-lg font-[var(--font-bhutuka)] text-[#ffd700]">
-                  Raja & Pahlawan Digital
-                </h1>
-                <p className="text-lg md:text-2xl text-[#f3e9d2] font-semibold">
-                  NFT, voting, dan kolaborasi untuk masa depan budaya Indonesia.
-                </p>
-              </div>
-            )}
-            {current === 2 && (
-              <div className="bg-black/40 rounded-xl py-6 px-4 md:px-12 flex flex-col items-center animate-fade-in">
-                <h1 className="text-2xl md:text-4xl font-bold mb-2 drop-shadow-lg font-[var(--font-bhutuka)] text-[#ffd700]">
-                  Komunitas Majapahit Baru
-                </h1>
-                <p className="text-lg md:text-2xl text-[#f3e9d2] font-semibold">
-                  Bersama membangun ekosistem Web3 yang inklusif dan berakar budaya.
-                </p>
-              </div>
-            )}
+            {/* Slider caption tetap, hanya slide pertama yang tampil */}
+            <div className="bg-black/40 rounded-xl py-6 px-4 md:px-12 flex flex-col items-center animate-fade-in">
+              <h1 className="text-2xl md:text-4xl font-bold mb-2 drop-shadow-lg font-[var(--font-bhutuka)] text-[#ffd700]">
+                Kemegahan Warisan Majapahit
+              </h1>
+              <p className="text-lg md:text-2xl text-[#f3e9d2] font-semibold">
+                Candi, budaya, dan teknologi bersatu dalam ekosistem $MAJA.
+              </p>
+            </div>
           </div>
           {/* Tombol CTA */}
           <div className="relative z-10 flex gap-4 justify-center mb-8 md:mb-12 pointer-events-auto">
@@ -126,19 +85,6 @@ export default function HeroSection() {
               Gabung Komunitas
             </motion.a>
           </div>
-        </div>
-        {/* Slider Dots */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-          {banners.map((_, idx) => (
-            <button
-              key={idx}
-              className={`w-3 h-3 rounded-full border-2 border-[#ffd700] ${
-                current === idx ? "bg-[#ffd700]" : "bg-transparent"
-              }`}
-              onClick={() => setCurrent(idx)}
-              aria-label={`Go to slide ${idx + 1}`}
-            />
-          ))}
         </div>
       </div>
       {/* Background Siluet Candi & Partikel */}
