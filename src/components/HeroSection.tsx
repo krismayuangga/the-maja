@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import Image from "next/image";
 
 export default function HeroSection() {
   // Parallax efek siluet candi
@@ -40,9 +39,9 @@ export default function HeroSection() {
         <div className="absolute inset-0 bg-gradient-to-tl from-[#4A1A0A44] via-transparent to-[#F9A65A33] opacity-60 blur-3xl" />
       </div>
       {/* Video Banner */}
-      <div className="relative w-full aspect-[21/9] mx-auto z-0">
+      <div className="relative w-full aspect-[21/9] sm:aspect-[21/9] md:aspect-[21/9] lg:aspect-[21/9] mx-auto z-0 min-h-[220px] sm:min-h-[260px] md:min-h-[340px] lg:min-h-[420px]">
         <video
-          className="absolute top-0 left-0 w-full h-full object-cover"
+          className="absolute top-0 left-0 w-full h-full object-cover object-center"
           src="/images/maja-video.mp4"
           autoPlay
           loop
@@ -52,7 +51,7 @@ export default function HeroSection() {
           preload="none"
         />
         {/* Caption & CTA Centered */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none">
+        <div className="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none px-2">
           <div className="w-full max-w-2xl mx-auto mb-8 pointer-events-auto">
             {/* Slider caption tetap, hanya slide pertama yang tampil */}
             <div className="bg-black/40 rounded-xl py-6 px-4 md:px-12 flex flex-col items-center animate-fade-in">

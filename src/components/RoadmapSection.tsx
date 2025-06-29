@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import { motion } from "framer-motion";
-import Image from "next/image";
 
 export default function RoadmapSection() {
 	return (
@@ -9,13 +8,12 @@ export default function RoadmapSection() {
 			<span className="hidden md:block absolute right-8 top-4 text-5xl md:text-7xl font-serif text-[#ffd700] opacity-15 select-none pointer-events-none z-10" style={{lineHeight:'1'}}>ꦩꦗ</span>
       {/* Background ukiran-maja.png seperti The Team */}
       <div className="absolute inset-0 z-0 pointer-events-none">
-        <Image
+        <img
           src="/images/ukiran-maja.png"
           alt="Ornamen Ukiran Majapahit"
-          fill
           className="object-cover object-center w-full h-full opacity-10"
           style={{mixBlendMode:'multiply'}}
-          priority
+          loading="eager"
         />
       </div>
       <div className="w-full max-w-[98vw] md:max-w-[1500px] mx-auto px-0 relative z-10">

@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import { motion } from "framer-motion";
-import Image from "next/image";
 
 const team = [
 	{ name: "Angga Adrianto", role: "Founder & Cultural Innovator", avatar: "/images/angga.png" },
@@ -30,13 +29,13 @@ export default function TeamSection() {
 							whileHover={{ scale: 1.08, boxShadow: "0 0 16px #ffd700" }}
 						>
 							<div className="w-28 h-28 rounded-full border-4 border-[#b08d57] overflow-hidden mb-3 bg-[#2a1a3a] transition-transform duration-300">
-								<Image
+								<img
 									src={member.avatar}
 									alt={member.name}
 									width={128}
 									height={128}
 									className="w-full h-full object-cover"
-									priority={idx === 0}
+									loading={idx === 0 ? "eager" : "lazy"}
 								/>
 							</div>
 							<span className="font-bold text-lg text-[#ffd700]">

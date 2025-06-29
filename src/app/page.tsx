@@ -1,4 +1,3 @@
-import { cormorant, inter } from "@/fonts";
 import { bhutuka } from "@/fonts-bhutuka";
 // Semua section di bawah ini harus menggunakan background transparent.
 // Gradasi hanya ada di parent wrapper ini.

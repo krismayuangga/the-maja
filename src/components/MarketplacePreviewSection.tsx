@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import { motion } from "framer-motion";
-import Image from "next/image";
 
 export default function MarketplacePreviewSection() {
   return (
@@ -25,14 +24,14 @@ export default function MarketplacePreviewSection() {
             viewport={{ once: true }}
           >
             <div className="relative mb-4">
-              <Image
+              <img
                 src="/images/nft1.png"
                 alt="Majapahit Royal Warrior NFT"
                 width={180}
                 height={180}
                 className="w-44 h-44 object-cover rounded-xl border-4 border-[#ffd700] shadow-lg"
                 draggable={false}
-                priority
+                loading="eager"
               />
               <span className="absolute bottom-2 right-3 text-3xl text-[#b08d57]/40 select-none pointer-events-none font-serif group-hover:scale-110 transition-transform">ꦩꦗ</span>
             </div>
@@ -49,13 +48,14 @@ export default function MarketplacePreviewSection() {
             viewport={{ once: true }}
           >
             <div className="relative mb-4">
-              <Image
+              <img
                 src="/images/nft2.png"
                 alt="Majapahit Queen with Batik Veil NFT"
                 width={180}
                 height={180}
                 className="w-44 h-44 object-cover rounded-xl border-4 border-[#ffd700] shadow-lg"
                 draggable={false}
+                loading="lazy"
               />
               <span className="absolute bottom-2 right-3 text-3xl text-[#b08d57]/40 select-none pointer-events-none font-serif group-hover:scale-110 transition-transform">ꦩꦗ</span>
             </div>
@@ -72,13 +72,14 @@ export default function MarketplacePreviewSection() {
             viewport={{ once: true }}
           >
             <div className="relative mb-4">
-              <Image
+              <img
                 src="/images/nft3.png"
                 alt="Majapahit Mythical Creature NFT"
                 width={180}
                 height={180}
                 className="w-44 h-44 object-cover rounded-xl border-4 border-[#ffd700] shadow-lg"
                 draggable={false}
+                loading="lazy"
               />
               <span className="absolute bottom-2 right-3 text-3xl text-[#b08d57]/40 select-none pointer-events-none font-serif group-hover:scale-110 transition-transform">ꦩꦗ</span>
             </div>
