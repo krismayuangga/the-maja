@@ -20,7 +20,20 @@
 }
 
 body {
-  background: var(--background);
+  background: #1a1320;
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', 'Poppins', Arial, Helvetica, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Merriweather', serif;
+}
+
+/* Dekorasi font aksara Jawa sebagai watermark */
+.javanese-watermark {
+  font-family: 'Noto Sans Javanese', serif;
+  opacity: 0.08;
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
 }

@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# $MAJA (Majapahit Heritage Token) Landing Page
 
-## Getting Started
+Landing page modern, profesional, dan informatif untuk proyek $MAJA (Majapahit Heritage Token) dengan nuansa visual Majapahit, animasi interaktif, slider, tokenomics chart, dan desain modular. Dibangun dengan Next.js, Tailwind CSS, dan Framer Motion.
 
-First, run the development server:
+## Fitur Utama
+- Nuansa visual Majapahit/Jawa yang kuat
+- Slider banner otomatis di Hero Section
+- Tokenomics interaktif (pie chart, tooltip, info singkat)
+- Section About, Feature, Token Utility, Marketplace Preview, Roadmap, Team, Community
+- Animasi Framer Motion di berbagai elemen
+- Modular, responsif, dan mudah dikembangkan
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Instalasi & Pengembangan
+
+### 1. Clone Repository
+
+```
+git clone https://github.com/krismayuangga/the-maja.git
+cd the-maja
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Install Dependencies
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+npm install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 3. Jalankan Development Server
 
-## Learn More
+```
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+Akses di [http://localhost:3000](http://localhost:3000)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 4. Build untuk Produksi
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+npm run build
+npm start
+```
 
-## Deploy on Vercel
+### 5. Struktur Folder Penting
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `src/components/` — Semua komponen section modular
+- `public/images/` — Gambar, ornamen, pattern, NFT, dsb
+- `src/app/page.tsx` — Entry point landing page
+- `src/fonts.ts` & `src/fonts-bhutuka.ts` — Font custom
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 6. Customisasi
+- Ganti gambar di `public/images/` sesuai kebutuhan
+- Edit copywriting di masing-masing komponen section
+- Ubah tokenomics di `TokenomicsSection.tsx`
+
+### 7. Deployment
+- Bisa deploy ke Vercel, Netlify, atau server Next.js lain
+- Pastikan variabel lingkungan (jika ada) sudah diatur
+
+## Stack
+- Next.js 14+
+- Tailwind CSS
+- Framer Motion
+- Recharts (untuk chart)
+
+## Kontribusi
+Pull request & issue sangat diterima!
+
+## Lisensi
+MIT
+
+---
+
+**Tim $MAJA**
