@@ -7,21 +7,21 @@ export const gameConfig = {
   type: Phaser.AUTO,
   parent: 'game-container',
   
-  // Portrait orientation for mobile (9:16)
-  width: 390,
-  height: 844,
+  // Portrait orientation - LARGER SIZE
+  width: 450,
+  height: 900,
   
   // Scaling - responsive to container
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
     min: {
-      width: 320,
-      height: 568
+      width: 360,
+      height: 640
     },
     max: {
-      width: 430,
-      height: 932
+      width: 540,
+      height: 1080
     }
   },
   
@@ -50,38 +50,38 @@ export const gameConfig = {
  */
 export const GAME = {
   // Screen dimensions
-  WIDTH: 390,
-  HEIGHT: 844,
+  WIDTH: 450,
+  HEIGHT: 900,
   
   // Player settings
   PLAYER: {
-    Y: 700,           // Near bottom of screen
-    SIZE: 60,
-    JUMP_HEIGHT: 150,
-    JUMP_DURATION: 400,
-    SLIDE_DURATION: 400
+    Y: 750,           // Near bottom of screen
+    SIZE: 70,
+    JUMP_HEIGHT: 180,
+    JUMP_DURATION: 500,
+    SLIDE_DURATION: 500
   },
   
   // 3 Lanes (Left, Center, Right)
   LANES: {
-    LEFT: 80,
-    CENTER: 195,
-    RIGHT: 310,
-    POSITIONS: [80, 195, 310]
+    LEFT: 100,
+    CENTER: 225,
+    RIGHT: 350,
+    POSITIONS: [100, 225, 350]
   },
   
   // Road/Track settings
   ROAD: {
-    WIDTH: 300,
-    LEFT_EDGE: 45,
-    RIGHT_EDGE: 345
+    WIDTH: 340,
+    LEFT_EDGE: 55,
+    RIGHT_EDGE: 395
   },
   
-  // Speed settings
+  // Speed settings - SLOWER!
   SPEED: {
-    INITIAL: 5,
-    MAX: 15,
-    INCREMENT: 0.001
+    INITIAL: 3,
+    MAX: 10,
+    INCREMENT: 0.0005
   },
   
   // Scoring
@@ -90,12 +90,12 @@ export const GAME = {
     PER_COIN: 10
   },
   
-  // Spawn settings
+  // Spawn settings - MORE TIME BETWEEN SPAWNS
   SPAWN: {
-    OBSTACLE_MIN: 800,
-    OBSTACLE_MAX: 2000,
-    COIN_MIN: 500,
-    COIN_MAX: 1500
+    OBSTACLE_MIN: 1500,
+    OBSTACLE_MAX: 3000,
+    COIN_MIN: 800,
+    COIN_MAX: 2000
   }
 };
 

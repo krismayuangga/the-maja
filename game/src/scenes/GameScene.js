@@ -70,26 +70,26 @@ export class GameScene extends Phaser.Scene {
     
     // Road background (brown/dirt)
     this.roadGraphics.fillStyle(0x8B4513, 1);
-    this.roadGraphics.fillRect(GAME.ROAD.LEFT_EDGE, height * 0.3, GAME.ROAD.WIDTH, height * 0.7);
+    this.roadGraphics.fillRect(GAME.ROAD.LEFT_EDGE, height * 0.25, GAME.ROAD.WIDTH, height * 0.75);
     
     // Road edges
     this.roadGraphics.fillStyle(0xFFD700, 1);
-    this.roadGraphics.fillRect(GAME.ROAD.LEFT_EDGE - 5, height * 0.3, 5, height * 0.7);
-    this.roadGraphics.fillRect(GAME.ROAD.RIGHT_EDGE, height * 0.3, 5, height * 0.7);
+    this.roadGraphics.fillRect(GAME.ROAD.LEFT_EDGE - 5, height * 0.25, 5, height * 0.75);
+    this.roadGraphics.fillRect(GAME.ROAD.RIGHT_EDGE, height * 0.25, 5, height * 0.75);
     
-    // Lane dividers (dashed lines)
+    // Lane dividers (dashed lines) - adjusted for wider lanes
     this.roadGraphics.fillStyle(0xFFF8DC, 0.5);
-    for (let y = height * 0.35; y < height; y += 40) {
-      this.roadGraphics.fillRect(130, y, 3, 20);
-      this.roadGraphics.fillRect(257, y, 3, 20);
+    for (let y = height * 0.3; y < height; y += 40) {
+      this.roadGraphics.fillRect(160, y, 4, 20);  // Between left and center
+      this.roadGraphics.fillRect(290, y, 4, 20);  // Between center and right
     }
     
     // Road lines that move (for motion effect)
     this.roadLines = [];
-    for (let i = 0; i < 15; i++) {
-      const y = height * 0.3 + (i * 50);
-      const line1 = this.add.rectangle(130, y, 3, 25, 0xFFFFFF, 0.4);
-      const line2 = this.add.rectangle(260, y, 3, 25, 0xFFFFFF, 0.4);
+    for (let i = 0; i < 18; i++) {
+      const y = height * 0.25 + (i * 50);
+      const line1 = this.add.rectangle(160, y, 4, 25, 0xFFFFFF, 0.4);
+      const line2 = this.add.rectangle(290, y, 4, 25, 0xFFFFFF, 0.4);
       this.roadLines.push(line1, line2);
     }
   }
@@ -101,21 +101,21 @@ export class GameScene extends Phaser.Scene {
     const playerX = GAME.LANES.POSITIONS[this.currentLane];
     const playerY = GAME.PLAYER.Y;
     
-    // Player body (rectangle placeholder)
-    this.player = this.add.rectangle(playerX, playerY, 50, 70, 0xFFD700);
+    // Player body (rectangle placeholder) - BIGGER
+    this.player = this.add.rectangle(playerX, playerY, 60, 80, 0xFFD700);
     this.player.setStrokeStyle(3, 0xB8860B);
     
-    // Player emoji
+    // Player emoji - BIGGER
     this.playerEmoji = this.add.text(playerX, playerY - 5, '🏃', {
-      fontSize: '40px'
+      fontSize: '50px'
     }).setOrigin(0.5);
     
     // Shadow
-    this.playerShadow = this.add.ellipse(playerX, playerY + 40, 50, 15, 0x000000, 0.3);
+    this.playerShadow = this.add.ellipse(playerX, playerY + 45, 60, 18, 0x000000, 0.3);
     
     // Physics body for collision
     this.physics.add.existing(this.player);
-    this.player.body.setSize(40, 60);
+    this.player.body.setSize(50, 70);
     this.player.body.setImmovable(true);
   }
 
@@ -499,13 +499,13 @@ export class GameScene extends Phaser.Scene {
     this.roadLines.forEach(line => {
       line.y += this.gameSpeed;
       if (line.y > this.scale.height) {
-        line.y = this.scale.height * 0.3;
+        line.y = this.scale.height * 0.25;
       }
     });
     
-    // Move obstacles down
+    // Move obstacles down - SLOWER (was 1.2x, now 1x)
     this.obstacles.getChildren().forEach(obstacle => {
-      obstacle.y += this.gameSpeed * 1.2;
+      obstacle.y += this.gameSpeed;
       
       // Remove if off screen
       if (obstacle.y > this.scale.height + 100) {
@@ -513,9 +513,9 @@ export class GameScene extends Phaser.Scene {
       }
     });
     
-    // Move coins down
+    // Move coins down - SLOWER
     this.coinsGroup.getChildren().forEach(coin => {
-      coin.y += this.gameSpeed * 1.2;
+      coin.y += this.gameSpeed;
       
       if (coin.y > this.scale.height + 50) {
         coin.destroy();
