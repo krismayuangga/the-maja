@@ -1,7 +1,8 @@
 /**
  * PreloadScene - Asset loading scene
  * 
- * Loads all game assets with progress bar
+ * Creates placeholder textures for development
+ * Real assets will be loaded when available
  */
 
 import Phaser from 'phaser';
@@ -15,11 +16,8 @@ export class PreloadScene extends Phaser.Scene {
     // Create loading UI
     this.createLoadingUI();
     
-    // Load all game assets
-    this.loadSprites();
-    this.loadBackgrounds();
-    this.loadUI();
-    this.loadAudio();
+    // Generate placeholder textures instead of loading files
+    this.generatePlaceholderTextures();
   }
 
   createLoadingUI() {
@@ -40,169 +38,104 @@ export class PreloadScene extends Phaser.Scene {
     // Loading bar background
     const barWidth = 400;
     const barHeight = 30;
-    const barX = (width - barWidth) / 2;
     const barY = height / 2;
     
     this.add.rectangle(width / 2, barY, barWidth + 4, barHeight + 4, 0x8B4513);
-    const progressBg = this.add.rectangle(width / 2, barY, barWidth, barHeight, 0x2d1810);
-    
-    // Loading bar fill
-    const progressBar = this.add.rectangle(
-      barX + 2,
-      barY,
-      0,
-      barHeight - 4,
-      0xffd700
-    ).setOrigin(0, 0.5);
+    this.add.rectangle(width / 2, barY, barWidth, barHeight, 0x2d1810);
     
     // Loading text
-    const loadingText = this.add.text(width / 2, barY + 40, 'Memuat...', {
+    this.add.text(width / 2, barY + 40, 'Mempersiapkan Game...', {
       fontSize: '18px',
       fontFamily: 'Arial',
       color: '#b08d57'
     }).setOrigin(0.5);
-    
-    // Percentage text
-    const percentText = this.add.text(width / 2, barY, '0%', {
-      fontSize: '16px',
-      fontFamily: 'Arial',
-      color: '#1a0a00',
-      fontStyle: 'bold'
-    }).setOrigin(0.5);
-    
-    // Update progress bar
-    this.load.on('progress', (value) => {
-      progressBar.width = (barWidth - 4) * value;
-      percentText.setText(`${Math.round(value * 100)}%`);
-    });
-    
-    // Update loading text with current file
-    this.load.on('fileprogress', (file) => {
-      loadingText.setText(`Memuat: ${file.key}`);
-    });
-    
-    // Complete
-    this.load.on('complete', () => {
-      loadingText.setText('Selesai!');
-    });
   }
 
-  loadSprites() {
-    // Player character sprites (placeholder - will use spritesheet)
-    this.load.spritesheet('player_run', 'assets/sprites/player_run.png', {
-      frameWidth: 64,
-      frameHeight: 64
-    });
-    this.load.spritesheet('player_jump', 'assets/sprites/player_jump.png', {
-      frameWidth: 64,
-      frameHeight: 64
-    });
-    this.load.spritesheet('player_slide', 'assets/sprites/player_slide.png', {
-      frameWidth: 64,
-      frameHeight: 64
-    });
+  generatePlaceholderTextures() {
+    const graphics = this.make.graphics({ x: 0, y: 0, add: false });
     
-    // Obstacles
-    this.load.image('obstacle_cart', 'assets/sprites/obstacle_cart.png');
-    this.load.image('obstacle_pot', 'assets/sprites/obstacle_pot.png');
-    this.load.image('obstacle_log', 'assets/sprites/obstacle_log.png');
+    // Player textures (64x64)
+    this.createPlayerTexture(graphics, 'player_run', 0xffd700);
+    this.createPlayerTexture(graphics, 'player_jump', 0xffaa00);
+    this.createPlayerTexture(graphics, 'player_slide', 0xff8800);
     
-    // Collectibles
-    this.load.spritesheet('coin', 'assets/sprites/coin.png', {
-      frameWidth: 32,
-      frameHeight: 32
-    });
-    this.load.image('lontar', 'assets/sprites/lontar.png');
+    // Obstacle textures
+    this.createObstacleTexture(graphics, 'obstacle_cart', 80, 50, 0x8B4513);
+    this.createObstacleTexture(graphics, 'obstacle_pot', 40, 40, 0xCD853F);
+    this.createObstacleTexture(graphics, 'obstacle_log', 60, 30, 0x654321);
+    this.createObstacleTexture(graphics, 'obstacle_low', 80, 30, 0x5D4037);
+    this.createObstacleTexture(graphics, 'obstacle_high', 60, 80, 0x795548);
     
-    // Power-ups
-    this.load.image('powerup_keris', 'assets/sprites/powerup_keris.png');
-    this.load.image('powerup_magnet', 'assets/sprites/powerup_magnet.png');
-    this.load.image('powerup_jimat', 'assets/sprites/powerup_jimat.png');
+    // Coin texture (32x32)
+    graphics.clear();
+    graphics.fillStyle(0xffd700, 1);
+    graphics.fillCircle(16, 16, 14);
+    graphics.fillStyle(0xffaa00, 1);
+    graphics.fillCircle(16, 16, 10);
+    graphics.generateTexture('coin', 32, 32);
+    
+    // Power-up textures
+    this.createPowerupTexture(graphics, 'powerup_keris', 0xff0000);
+    this.createPowerupTexture(graphics, 'powerup_magnet', 0x00ff00);
+    this.createPowerupTexture(graphics, 'powerup_jimat', 0x00ffff);
+    this.createPowerupTexture(graphics, 'powerup_kuda', 0xff00ff);
+    this.createPowerupTexture(graphics, 'powerup_speed', 0xffff00);
+    
+    // Background textures
+    this.createBackgroundTexture(graphics, 'bg_sky', 0x87CEEB);
+    this.createBackgroundTexture(graphics, 'bg_trowulan_far', 0x4a3728);
+    this.createBackgroundTexture(graphics, 'bg_trowulan_mid', 0x3d2817);
+    
+    // Ground texture
+    graphics.clear();
+    graphics.fillStyle(0x8B4513, 1);
+    graphics.fillRect(0, 0, 64, 64);
+    graphics.fillStyle(0x654321, 1);
+    graphics.fillRect(0, 0, 32, 32);
+    graphics.fillRect(32, 32, 32, 32);
+    graphics.generateTexture('ground_brick', 64, 64);
+    
+    graphics.destroy();
   }
 
-  loadBackgrounds() {
-    // Zone backgrounds (parallax layers)
-    // Layer 1 - Sky (farthest)
-    this.load.image('bg_sky', 'assets/backgrounds/sky.png');
-    
-    // Layer 2 - Mountains/Buildings
-    this.load.image('bg_trowulan_far', 'assets/backgrounds/trowulan_far.png');
-    this.load.image('bg_hutan_far', 'assets/backgrounds/hutan_far.png');
-    
-    // Layer 3 - Middle ground
-    this.load.image('bg_trowulan_mid', 'assets/backgrounds/trowulan_mid.png');
-    this.load.image('bg_hutan_mid', 'assets/backgrounds/hutan_mid.png');
-    
-    // Layer 4 - Ground/Road
-    this.load.image('ground_brick', 'assets/backgrounds/ground_brick.png');
-    this.load.image('ground_dirt', 'assets/backgrounds/ground_dirt.png');
+  createPlayerTexture(graphics, key, color) {
+    graphics.clear();
+    graphics.fillStyle(color, 1);
+    graphics.fillRoundedRect(8, 4, 48, 56, 8);
+    graphics.fillStyle(0x1a0a00, 1);
+    graphics.fillCircle(32, 20, 8);
+    graphics.generateTexture(key, 64, 64);
   }
 
-  loadUI() {
-    // UI elements
-    this.load.image('btn_play', 'assets/ui/btn_play.png');
-    this.load.image('btn_shop', 'assets/ui/btn_shop.png');
-    this.load.image('btn_leaderboard', 'assets/ui/btn_leaderboard.png');
-    this.load.image('btn_pause', 'assets/ui/btn_pause.png');
-    this.load.image('icon_coin', 'assets/ui/icon_coin.png');
-    this.load.image('icon_distance', 'assets/ui/icon_distance.png');
-    this.load.image('panel', 'assets/ui/panel.png');
+  createObstacleTexture(graphics, key, w, h, color) {
+    graphics.clear();
+    graphics.fillStyle(color, 1);
+    graphics.fillRect(0, 0, w, h);
+    graphics.lineStyle(2, 0x1a0a00, 1);
+    graphics.strokeRect(0, 0, w, h);
+    graphics.generateTexture(key, w, h);
   }
 
-  loadAudio() {
-    // Music
-    this.load.audio('music_menu', 'assets/audio/music_menu.mp3');
-    this.load.audio('music_game', 'assets/audio/music_game.mp3');
-    
-    // Sound effects
-    this.load.audio('sfx_jump', 'assets/audio/sfx_jump.mp3');
-    this.load.audio('sfx_slide', 'assets/audio/sfx_slide.mp3');
-    this.load.audio('sfx_coin', 'assets/audio/sfx_coin.mp3');
-    this.load.audio('sfx_crash', 'assets/audio/sfx_crash.mp3');
-    this.load.audio('sfx_powerup', 'assets/audio/sfx_powerup.mp3');
+  createPowerupTexture(graphics, key, color) {
+    graphics.clear();
+    graphics.fillStyle(color, 1);
+    graphics.fillCircle(20, 20, 18);
+    graphics.fillStyle(0xffffff, 0.5);
+    graphics.fillCircle(15, 15, 6);
+    graphics.generateTexture(key, 40, 40);
+  }
+
+  createBackgroundTexture(graphics, key, color) {
+    graphics.clear();
+    graphics.fillStyle(color, 1);
+    graphics.fillRect(0, 0, 64, 64);
+    graphics.generateTexture(key, 64, 64);
   }
 
   create() {
-    // Create animations
-    this.createAnimations();
-    
     // Small delay then go to menu
     this.time.delayedCall(500, () => {
       this.scene.start('MenuScene');
-    });
-  }
-
-  createAnimations() {
-    // Player run animation
-    this.anims.create({
-      key: 'run',
-      frames: this.anims.generateFrameNumbers('player_run', { start: 0, end: 7 }),
-      frameRate: 12,
-      repeat: -1
-    });
-    
-    // Player jump animation
-    this.anims.create({
-      key: 'jump',
-      frames: this.anims.generateFrameNumbers('player_jump', { start: 0, end: 3 }),
-      frameRate: 10,
-      repeat: 0
-    });
-    
-    // Player slide animation
-    this.anims.create({
-      key: 'slide',
-      frames: this.anims.generateFrameNumbers('player_slide', { start: 0, end: 3 }),
-      frameRate: 10,
-      repeat: 0
-    });
-    
-    // Coin spin animation
-    this.anims.create({
-      key: 'coin_spin',
-      frames: this.anims.generateFrameNumbers('coin', { start: 0, end: 5 }),
-      frameRate: 10,
-      repeat: -1
     });
   }
 }

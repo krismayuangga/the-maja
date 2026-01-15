@@ -41,9 +41,23 @@ window.addEventListener('load', () => {
 // Handle visibility change (pause when tab inactive)
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) {
-    game.scene.pause('GameScene');
+    try {
+      const gameScene = game.scene.getScene('GameScene');
+      if (gameScene && gameScene.scene.isActive()) {
+        game.scene.pause('GameScene');
+      }
+    } catch (e) {
+      // Ignore errors
+    }
   } else {
-    game.scene.resume('GameScene');
+    try {
+      const gameScene = game.scene.getScene('GameScene');
+      if (gameScene && gameScene.scene.isPaused()) {
+        game.scene.resume('GameScene');
+      }
+    } catch (e) {
+      // Ignore errors
+    }
   }
 });
 

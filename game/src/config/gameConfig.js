@@ -6,21 +6,21 @@ export const gameConfig = {
   type: Phaser.AUTO,
   parent: 'game-container',
   
-  // Game dimensions (4:3 aspect ratio)
-  width: 800,
-  height: 600,
+  // Game dimensions (16:9 for mobile/widescreen)
+  width: 720,
+  height: 480,
   
-  // Scaling
+  // Scaling - responsive to container
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
     min: {
-      width: 400,
-      height: 300
+      width: 320,
+      height: 213
     },
     max: {
-      width: 1600,
-      height: 1200
+      width: 1280,
+      height: 853
     }
   },
   
@@ -55,9 +55,9 @@ export const gameConfig = {
 export const GAME = {
   // Player settings
   PLAYER: {
-    START_X: 150,
-    GROUND_Y: 480,
-    JUMP_VELOCITY: -550,
+    START_X: 100,
+    GROUND_Y: 360,
+    JUMP_VELOCITY: -650,
     SLIDE_DURATION: 500,
     LANE_WIDTH: 100,
     LANES: [-100, 0, 100] // Left, Center, Right offset from center

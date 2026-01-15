@@ -12,13 +12,7 @@ export class BootScene extends Phaser.Scene {
   }
 
   preload() {
-    // Load minimal assets for loading screen
-    // These should be very small files
-    
-    // Loading bar background
-    this.load.image('loading_bg', 'assets/ui/loading_bg.png');
-    this.load.image('loading_bar', 'assets/ui/loading_bar.png');
-    this.load.image('logo', 'assets/ui/logo.png');
+    // No external assets needed - all generated in PreloadScene
   }
 
   create() {
