@@ -1,10 +1,6 @@
 /**
- * GameOverScene - Game over screen
- * 
- * Shows final score, coins collected, and options to retry or return to menu
+ * GameOverScene - Game Over Screen (Vertical Layout)
  */
-
-import Phaser from 'phaser';
 
 export class GameOverScene extends Phaser.Scene {
   constructor() {
@@ -18,196 +14,182 @@ export class GameOverScene extends Phaser.Scene {
   }
 
   create() {
-    const { width, height } = this.cameras.main;
+    const { width, height } = this.scale;
     
-    // Dark overlay background
-    this.add.rectangle(width / 2, height / 2, width, height, 0x1a0a00, 0.95);
+    // Check if new high score
+    const savedData = JSON.parse(localStorage.getItem('majapahitRunner') || '{}');
+    const isNewHighScore = this.finalScore > (savedData.highScore || 0);
     
-    // Decorative border
-    this.createBorder();
+    // Background
+    this.add.rectangle(width / 2, height / 2, width, height, 0x1a0a05);
+    
+    // Overlay effect
+    const overlay = this.add.graphics();
+    overlay.fillStyle(0x000000, 0.7);
+    overlay.fillRect(0, 0, width, height);
     
     // Game Over title
-    this.add.text(width / 2, 100, '💀 GAME OVER', {
-      fontSize: '48px',
-      fontFamily: 'Georgia, serif',
-      color: '#ff4444',
-      stroke: '#1a0a00',
+    this.add.text(width / 2, 150, '💀', { fontSize: '80px' }).setOrigin(0.5);
+    
+    this.add.text(width / 2, 250, 'GAME OVER', {
+      fontSize: '42px',
+      fontStyle: 'bold',
+      color: '#E74C3C',
+      stroke: '#000000',
       strokeThickness: 4
     }).setOrigin(0.5);
     
-    // Stats panel
-    this.createStatsPanel();
-    
-    // Check for new high score
-    this.checkHighScore();
-    
-    // Buttons
-    this.createButtons();
-    
-    // Play again hint
-    this.add.text(width / 2, height - 40, 'Tekan SPACE untuk main lagi', {
-      fontSize: '16px',
-      fontFamily: 'Arial',
-      color: '#666'
-    }).setOrigin(0.5);
-    
-    // Keyboard shortcut
-    this.input.keyboard.once('keydown-SPACE', () => {
-      this.scene.start('GameScene');
-    });
-  }
-
-  createBorder() {
-    const { width, height } = this.cameras.main;
-    const graphics = this.add.graphics();
-    
-    // Gold border
-    graphics.lineStyle(4, 0xffd700, 1);
-    graphics.strokeRect(30, 30, width - 60, height - 60);
-    
-    // Inner border
-    graphics.lineStyle(2, 0x8B4513, 1);
-    graphics.strokeRect(40, 40, width - 80, height - 80);
-  }
-
-  createStatsPanel() {
-    const { width, height } = this.cameras.main;
-    const centerY = height / 2 - 20;
-    
-    // Panel background
-    this.add.rectangle(width / 2, centerY, 350, 200, 0x2d1810)
-      .setStrokeStyle(3, 0xffd700);
-    
-    // Distance
-    this.add.text(width / 2, centerY - 60, '📍 Jarak', {
-      fontSize: '18px',
-      fontFamily: 'Arial',
-      color: '#b08d57'
-    }).setOrigin(0.5);
-    
-    this.add.text(width / 2, centerY - 30, `${this.distance.toLocaleString()} m`, {
-      fontSize: '36px',
-      fontFamily: 'Georgia, serif',
-      color: '#ffd700'
-    }).setOrigin(0.5);
-    
-    // Divider
-    this.add.rectangle(width / 2, centerY + 5, 280, 2, 0x8B4513);
-    
-    // Coins
-    this.add.text(width / 2 - 70, centerY + 40, '🪙 Koin', {
-      fontSize: '16px',
-      fontFamily: 'Arial',
-      color: '#b08d57'
-    }).setOrigin(0.5);
-    
-    this.add.text(width / 2 - 70, centerY + 65, this.coinsCollected.toString(), {
-      fontSize: '28px',
-      fontFamily: 'Georgia, serif',
-      color: '#ffd700'
-    }).setOrigin(0.5);
-    
-    // Score
-    this.add.text(width / 2 + 70, centerY + 40, '⭐ Skor', {
-      fontSize: '16px',
-      fontFamily: 'Arial',
-      color: '#b08d57'
-    }).setOrigin(0.5);
-    
-    this.add.text(width / 2 + 70, centerY + 65, this.finalScore.toLocaleString(), {
-      fontSize: '28px',
-      fontFamily: 'Georgia, serif',
-      color: '#ffd700'
-    }).setOrigin(0.5);
-  }
-
-  checkHighScore() {
-    const { width, height } = this.cameras.main;
-    
-    try {
-      const saved = JSON.parse(localStorage.getItem('majapahit_runner') || '{}');
-      const highScore = saved.highScore || 0;
+    // New High Score badge
+    if (isNewHighScore) {
+      this.add.text(width / 2, 300, '🎉 REKOR BARU! 🎉', {
+        fontSize: '24px',
+        fontStyle: 'bold',
+        color: '#FFD700'
+      }).setOrigin(0.5);
       
-      if (this.distance >= highScore && this.distance > 0) {
-        // New high score!
-        this.add.text(width / 2, 160, '🎉 REKOR BARU! 🎉', {
-          fontSize: '28px',
-          fontFamily: 'Arial',
-          color: '#ffd700'
-        }).setOrigin(0.5);
-        
-        // Animate
+      // Sparkle effect
+      for (let i = 0; i < 10; i++) {
+        const star = this.add.text(
+          Phaser.Math.Between(50, width - 50),
+          Phaser.Math.Between(100, 350),
+          '✨',
+          { fontSize: '20px' }
+        );
         this.tweens.add({
-          targets: this.children.list[this.children.list.length - 1],
-          scale: { from: 0.8, to: 1.1 },
-          duration: 500,
-          yoyo: true,
+          targets: star,
+          alpha: 0,
+          y: star.y - 50,
+          duration: 1000,
+          delay: i * 100,
           repeat: -1
         });
-      } else {
-        // Show current high score
-        this.add.text(width / 2, 160, `🏆 Rekor: ${highScore.toLocaleString()} m`, {
-          fontSize: '20px',
-          fontFamily: 'Arial',
-          color: '#b08d57'
-        }).setOrigin(0.5);
       }
-    } catch (e) {
-      console.log('No saved data');
     }
-  }
-
-  createButtons() {
-    const { width, height } = this.cameras.main;
-    const buttonY = height / 2 + 130;
     
-    // Retry button
-    this.createButton(width / 2 - 100, buttonY, '🔄 LAGI', () => {
-      this.scene.start('GameScene');
-    }, true);
+    // Score display
+    const scoreY = isNewHighScore ? 380 : 340;
     
-    // Menu button
-    this.createButton(width / 2 + 100, buttonY, '🏠 MENU', () => {
-      this.scene.start('MenuScene');
-    });
-  }
-
-  createButton(x, y, text, callback, isPrimary = false) {
-    const width = 150;
-    const height = 50;
-    
-    // Button background
-    const bg = this.add.rectangle(x, y, width, height, isPrimary ? 0xffd700 : 0x2d1810)
-      .setStrokeStyle(3, isPrimary ? 0x8B4513 : 0xffd700)
-      .setInteractive({ useHandCursor: true });
-    
-    // Button text
-    const label = this.add.text(x, y, text, {
-      fontSize: '20px',
-      fontFamily: 'Arial',
-      color: isPrimary ? '#1a0a00' : '#ffd700',
-      fontStyle: 'bold'
+    this.add.text(width / 2, scoreY, 'JARAK', {
+      fontSize: '18px',
+      color: '#888888'
     }).setOrigin(0.5);
     
-    // Hover effects
-    bg.on('pointerover', () => {
-      bg.setScale(1.05);
-      label.setScale(1.05);
-    });
+    this.add.text(width / 2, scoreY + 50, this.distance + 'm', {
+      fontSize: '64px',
+      fontStyle: 'bold',
+      color: '#FFD700',
+      stroke: '#000000',
+      strokeThickness: 4
+    }).setOrigin(0.5);
     
-    bg.on('pointerout', () => {
-      bg.setScale(1);
-      label.setScale(1);
-    });
+    // Stats row
+    const statsY = scoreY + 140;
     
-    bg.on('pointerdown', () => {
-      bg.setScale(0.95);
-    });
+    // Coins collected
+    this.add.text(width / 2 - 80, statsY, '🪙', { fontSize: '32px' }).setOrigin(0.5);
+    this.add.text(width / 2 - 40, statsY, '+' + this.coinsCollected, {
+      fontSize: '24px',
+      fontStyle: 'bold',
+      color: '#FFD700'
+    }).setOrigin(0, 0.5);
     
-    bg.on('pointerup', () => {
-      callback();
-    });
+    // Previous best
+    this.add.text(width / 2 + 40, statsY, '🏆', { fontSize: '32px' }).setOrigin(0.5);
+    this.add.text(width / 2 + 70, statsY, (savedData.highScore || 0) + 'm', {
+      fontSize: '20px',
+      color: '#AAAAAA'
+    }).setOrigin(0, 0.5);
     
-    return { bg, label };
+    // Buttons
+    const btnY = height - 250;
+    
+    // Retry button
+    const retryBtn = this.add.rectangle(width / 2, btnY, 220, 60, 0x27AE60)
+      .setStrokeStyle(3, 0x1E8449)
+      .setInteractive({ useHandCursor: true })
+      .on('pointerover', () => retryBtn.setScale(1.05))
+      .on('pointerout', () => retryBtn.setScale(1))
+      .on('pointerdown', () => {
+        this.cameras.main.fadeOut(300);
+        this.time.delayedCall(300, () => {
+          this.scene.start('GameScene');
+        });
+      });
+    
+    this.add.text(width / 2, btnY, '🔄 MAIN LAGI', {
+      fontSize: '24px',
+      fontStyle: 'bold',
+      color: '#FFFFFF'
+    }).setOrigin(0.5);
+    
+    // Menu button
+    const menuBtn = this.add.rectangle(width / 2, btnY + 80, 220, 50, 0x555555)
+      .setStrokeStyle(2, 0x333333)
+      .setInteractive({ useHandCursor: true })
+      .on('pointerover', () => menuBtn.setScale(1.05))
+      .on('pointerout', () => menuBtn.setScale(1))
+      .on('pointerdown', () => {
+        this.cameras.main.fadeOut(300);
+        this.time.delayedCall(300, () => {
+          this.scene.start('MenuScene');
+        });
+      });
+    
+    this.add.text(width / 2, btnY + 80, '🏠 MENU UTAMA', {
+      fontSize: '18px',
+      color: '#FFFFFF'
+    }).setOrigin(0.5);
+    
+    // Share button (placeholder)
+    const shareBtn = this.add.rectangle(width / 2, btnY + 150, 180, 45, 0x3498DB)
+      .setStrokeStyle(2, 0x2980B9)
+      .setInteractive({ useHandCursor: true })
+      .on('pointerdown', () => {
+        // Copy score to clipboard
+        const shareText = `🏃 Majapahit Runner\n📏 Jarak: ${this.distance}m\n🪙 Koin: ${this.coinsCollected}\n\n#MajapahitRunner #MAJA`;
+        navigator.clipboard.writeText(shareText).then(() => {
+          this.showToast('📋 Disalin ke clipboard!');
+        });
+      });
+    
+    this.add.text(width / 2, btnY + 150, '📤 Bagikan Skor', {
+      fontSize: '16px',
+      color: '#FFFFFF'
+    }).setOrigin(0.5);
+    
+    // Fade in
+    this.cameras.main.fadeIn(500);
+  }
+  
+  showToast(message) {
+    const { width, height } = this.scale;
+    
+    const toast = this.add.container(width / 2, height - 100);
+    
+    const bg = this.add.rectangle(0, 0, 250, 40, 0x27AE60, 0.9);
+    const text = this.add.text(0, 0, message, {
+      fontSize: '16px',
+      color: '#FFFFFF'
+    }).setOrigin(0.5);
+    
+    toast.add([bg, text]);
+    toast.setAlpha(0);
+    
+    this.tweens.add({
+      targets: toast,
+      alpha: 1,
+      y: height - 120,
+      duration: 300,
+      onComplete: () => {
+        this.time.delayedCall(2000, () => {
+          this.tweens.add({
+            targets: toast,
+            alpha: 0,
+            duration: 300,
+            onComplete: () => toast.destroy()
+          });
+        });
+      }
+    });
   }
 }

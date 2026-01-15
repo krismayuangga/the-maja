@@ -27,18 +27,22 @@ export class PreloadScene extends Phaser.Scene {
     this.add.rectangle(width / 2, height / 2, width, height, 0x1a0a00);
     
     // Title
-    this.add.text(width / 2, height / 2 - 100, '🏃 Majapahit Runner', {
-      fontSize: '48px',
+    this.add.text(width / 2, height / 2 - 100, '🏃', {
+      fontSize: '64px'
+    }).setOrigin(0.5);
+    
+    this.add.text(width / 2, height / 2 - 30, 'Majapahit Runner', {
+      fontSize: '28px',
       fontFamily: 'Georgia, serif',
       color: '#ffd700',
       stroke: '#8B4513',
-      strokeThickness: 4
+      strokeThickness: 3
     }).setOrigin(0.5);
     
     // Loading bar background
-    const barWidth = 400;
-    const barHeight = 30;
-    const barY = height / 2;
+    const barWidth = 280;
+    const barHeight = 20;
+    const barY = height / 2 + 50;
     
     this.add.rectangle(width / 2, barY, barWidth + 4, barHeight + 4, 0x8B4513);
     this.add.rectangle(width / 2, barY, barWidth, barHeight, 0x2d1810);

@@ -1,13 +1,10 @@
 /**
- * GameScene - Main gameplay
- * 
- * Endless runner: Player stays in place, world moves left
- * Player can JUMP (avoid ground obstacles) and SLIDE (avoid flying obstacles)
- * NO lane changing - single lane gameplay for mobile
+ * GameScene - Vertical Endless Runner
+ * Player runs FROM BOTTOM TO TOP
+ * Obstacles come from top, move down
  */
 
-import Phaser from 'phaser';
-import { GAME } from '../config/gameConfig.js';
+import { GAME, ZONES } from '../config/gameConfig.js';
 
 export class GameScene extends Phaser.Scene {
   constructor() {
@@ -24,508 +21,467 @@ export class GameScene extends Phaser.Scene {
     this.isPaused = false;
     
     // Player state
+    this.currentLane = 1; // 0=left, 1=center, 2=right
     this.isJumping = false;
     this.isSliding = false;
-    this.canJump = true;
+    this.canMove = true;
     
     // Current zone
-    this.currentZone = 'trowulan';
+    this.currentZone = ZONES.trowulan;
   }
 
   create() {
-    const { width, height } = this.cameras.main;
+    const { width, height } = this.scale;
     
-    // Create game layers (order matters!)
-    this.createBackground(width, height);
-    this.createGround(width, height);
-    this.createPlayer(width, height);
-    this.createUI(width, height);
+    // Create game elements
+    this.createBackground();
+    this.createRoad();
+    this.createPlayer();
+    this.createUI();
     this.createGroups();
-    
-    // Setup
     this.setupInput();
-    this.setupCollisions();
-    this.startSpawners();
+    this.setupTimers();
+    
+    // Start game
+    this.cameras.main.fadeIn(500);
   }
 
-  createBackground(width, height) {
+  createBackground() {
+    const { width, height } = this.scale;
+    
     // Sky gradient
     const sky = this.add.graphics();
     sky.fillGradientStyle(0x87CEEB, 0x87CEEB, 0xE0F7FA, 0xE0F7FA, 1);
-    sky.fillRect(0, 0, width, height * 0.6);
+    sky.fillRect(0, 0, width, height * 0.4);
     
-    // Distant mountains/temple silhouette
-    this.add.rectangle(width / 2, height * 0.35, width, height * 0.15, 0x5D4037);
-    
-    // Mid ground (trees/buildings)
-    this.add.rectangle(width / 2, height * 0.45, width, height * 0.1, 0x4E342E);
+    // Distant buildings/trees silhouette
+    for (let i = 0; i < 8; i++) {
+      const x = i * 60 + 20;
+      const h = Phaser.Math.Between(40, 80);
+      this.add.rectangle(x, height * 0.35, 40, h, 0x4A5568).setOrigin(0.5, 1);
+    }
   }
 
-  createGround(width, height) {
-    const groundY = height * 0.75;
-    this.groundY = groundY;
+  createRoad() {
+    const { width, height } = this.scale;
     
-    // Ground visual - brown earth
-    this.add.rectangle(width / 2, groundY + 50, width, 100, 0x8B4513);
+    // Main road area
+    this.roadGraphics = this.add.graphics();
     
-    // Ground top line
-    this.add.rectangle(width / 2, groundY, width, 6, 0x5D4037);
+    // Road background (brown/dirt)
+    this.roadGraphics.fillStyle(0x8B4513, 1);
+    this.roadGraphics.fillRect(GAME.ROAD.LEFT_EDGE, height * 0.3, GAME.ROAD.WIDTH, height * 0.7);
     
-    // Scrolling ground pattern (using graphics)
-    this.groundLines = this.add.graphics();
-    this.groundLines.lineStyle(2, 0x6D4C41, 0.5);
-    for (let i = 0; i < width + 100; i += 60) {
-      this.groundLines.lineBetween(i, groundY + 10, i - 30, groundY + 100);
+    // Road edges
+    this.roadGraphics.fillStyle(0xFFD700, 1);
+    this.roadGraphics.fillRect(GAME.ROAD.LEFT_EDGE - 5, height * 0.3, 5, height * 0.7);
+    this.roadGraphics.fillRect(GAME.ROAD.RIGHT_EDGE, height * 0.3, 5, height * 0.7);
+    
+    // Lane dividers (dashed lines)
+    this.roadGraphics.fillStyle(0xFFF8DC, 0.5);
+    for (let y = height * 0.35; y < height; y += 40) {
+      this.roadGraphics.fillRect(130, y, 3, 20);
+      this.roadGraphics.fillRect(257, y, 3, 20);
     }
     
-    // Physics ground (invisible)
-    const groundBody = this.add.rectangle(width / 2, groundY + 15, width, 30, 0x000000, 0);
-    this.physics.add.existing(groundBody, true);
-    this.ground = groundBody;
+    // Road lines that move (for motion effect)
+    this.roadLines = [];
+    for (let i = 0; i < 15; i++) {
+      const y = height * 0.3 + (i * 50);
+      const line1 = this.add.rectangle(130, y, 3, 25, 0xFFFFFF, 0.4);
+      const line2 = this.add.rectangle(260, y, 3, 25, 0xFFFFFF, 0.4);
+      this.roadLines.push(line1, line2);
+    }
   }
 
-  createPlayer(width, height) {
-    const playerX = width * 0.15; // Player at 15% from left
-    const playerY = this.groundY - 50;
+  createPlayer() {
+    const { width, height } = this.scale;
     
-    this.playerX = playerX;
+    // Player container
+    const playerX = GAME.LANES.POSITIONS[this.currentLane];
+    const playerY = GAME.PLAYER.Y;
     
-    // Player body (physics)
-    this.player = this.add.rectangle(playerX, playerY, 50, 90, 0xFFD700);
+    // Player body (rectangle placeholder)
+    this.player = this.add.rectangle(playerX, playerY, 50, 70, 0xFFD700);
     this.player.setStrokeStyle(3, 0xB8860B);
-    this.physics.add.existing(this.player);
-    this.player.body.setGravityY(1500);
-    this.player.body.setCollideWorldBounds(true);
     
     // Player emoji
-    this.playerEmoji = this.add.text(playerX, playerY - 10, '🏃', {
-      fontSize: '45px'
+    this.playerEmoji = this.add.text(playerX, playerY - 5, '🏃', {
+      fontSize: '40px'
     }).setOrigin(0.5);
     
-    // Store original size for slide
-    this.playerOriginalHeight = 90;
-    this.playerSlideHeight = 35;
+    // Shadow
+    this.playerShadow = this.add.ellipse(playerX, playerY + 40, 50, 15, 0x000000, 0.3);
+    
+    // Physics body for collision
+    this.physics.add.existing(this.player);
+    this.player.body.setSize(40, 60);
+    this.player.body.setImmovable(true);
   }
 
-  createUI(width, height) {
-    // Top bar background
-    this.add.rectangle(width / 2, 35, width, 70, 0x000000, 0.4);
+  createUI() {
+    const { width, height } = this.scale;
     
-    // Distance/Score (center)
-    this.scoreText = this.add.text(width / 2, 30, '0', {
-      fontSize: '42px',
-      fontFamily: 'Georgia, serif',
+    // Top UI bar background
+    this.add.rectangle(width / 2, 50, width, 100, 0x000000, 0.7);
+    
+    // Coin counter (top left)
+    this.add.text(20, 30, '🪙', { fontSize: '28px' });
+    this.coinText = this.add.text(55, 30, '0', {
+      fontSize: '24px',
+      fontStyle: 'bold',
+      color: '#FFD700'
+    });
+    
+    // Distance (center)
+    this.distanceText = this.add.text(width / 2, 25, '0', {
+      fontSize: '48px',
+      fontStyle: 'bold',
       color: '#FFD700',
       stroke: '#000000',
       strokeThickness: 4
-    }).setOrigin(0.5);
+    }).setOrigin(0.5, 0);
     
-    this.add.text(width / 2, 58, 'meter', {
-      fontSize: '12px',
-      fontFamily: 'Arial',
+    this.add.text(width / 2, 75, 'meter', {
+      fontSize: '16px',
       color: '#FFFFFF'
-    }).setOrigin(0.5);
+    }).setOrigin(0.5, 0);
     
-    // Coins (left)
-    this.coinText = this.add.text(15, 30, '🪙 0', {
-      fontSize: '22px',
-      fontFamily: 'Arial',
-      color: '#FFD700'
-    }).setOrigin(0, 0.5);
-    
-    // Zone indicator
-    this.zoneText = this.add.text(15, 55, '📍 Trowulan', {
-      fontSize: '12px',
-      fontFamily: 'Arial',
-      color: '#FFFFFF'
+    // Zone name (below coins)
+    this.zoneText = this.add.text(20, 65, '📍 ' + this.currentZone.name, {
+      fontSize: '14px',
+      color: '#FF6B6B'
     });
     
-    // Pause button (right)
-    const pauseBtn = this.add.text(width - 15, 35, '⏸️', {
-      fontSize: '32px',
-      backgroundColor: '#2196F3',
-      padding: { x: 8, y: 4 }
-    }).setOrigin(1, 0.5).setInteractive({ useHandCursor: true });
+    // Pause button (top right)
+    this.pauseBtn = this.add.rectangle(width - 40, 50, 50, 50, 0x4A90D9, 1)
+      .setInteractive({ useHandCursor: true })
+      .on('pointerdown', () => this.togglePause());
+    this.add.text(width - 40, 50, '⏸️', { fontSize: '24px' }).setOrigin(0.5);
     
-    pauseBtn.on('pointerup', () => this.togglePause());
-    
-    // Mobile controls hint
-    this.add.text(width / 2, height - 20, '⬆️ Tap = Lompat | ⬇️ Swipe Down = Slide', {
-      fontSize: '12px',
-      color: '#FFFFFF',
-      backgroundColor: '#00000066',
-      padding: { x: 10, y: 5 }
+    // Bottom control hints
+    this.add.rectangle(width / 2, height - 25, width - 40, 40, 0x000000, 0.6)
+      .setStrokeStyle(1, 0x333333);
+    this.add.text(width / 2, height - 25, '⬅️ KIRI  |  TAP = LOMPAT  |  KANAN ➡️', {
+      fontSize: '14px',
+      color: '#CCCCCC'
     }).setOrigin(0.5);
   }
 
   createGroups() {
-    this.obstacles = this.physics.add.group();
-    this.coinGroup = this.physics.add.group();
+    // Obstacles group
+    this.obstacles = this.add.group();
+    
+    // Coins group  
+    this.coinsGroup = this.add.group();
   }
 
   setupInput() {
-    // Keyboard
-    this.cursors = this.input.keyboard.createCursorKeys();
-    this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+    const { width, height } = this.scale;
     
-    // Touch - tap/swipe detection
+    // Touch/click zones
+    const leftZone = this.add.rectangle(width * 0.25, height / 2, width * 0.5, height, 0x000000, 0)
+      .setInteractive()
+      .on('pointerdown', (pointer) => {
+        if (pointer.x < width / 3) {
+          this.moveLeft();
+        } else if (pointer.x > width * 2/3) {
+          this.moveRight();
+        } else {
+          this.jump();
+        }
+      });
+    
+    // Keyboard controls
+    this.cursors = this.input.keyboard.createCursorKeys();
+    this.spaceKey = this.input.keyboard.addKey('SPACE');
+    
+    // Swipe detection
     this.input.on('pointerdown', (pointer) => {
-      this.touchStartY = pointer.y;
-      this.touchStartTime = Date.now();
+      this.swipeStart = { x: pointer.x, y: pointer.y };
     });
     
     this.input.on('pointerup', (pointer) => {
-      if (this.isGameOver || this.isPaused) return;
+      if (!this.swipeStart) return;
       
-      const deltaY = pointer.y - this.touchStartY;
-      const deltaTime = Date.now() - this.touchStartTime;
+      const dx = pointer.x - this.swipeStart.x;
+      const dy = pointer.y - this.swipeStart.y;
+      const absDx = Math.abs(dx);
+      const absDy = Math.abs(dy);
       
-      if (deltaTime < 300) {
-        if (deltaY > 40) {
-          this.slide(); // Swipe down
-        } else {
-          this.jump(); // Tap or swipe up = jump
-        }
+      if (absDx > 50 && absDx > absDy) {
+        // Horizontal swipe
+        if (dx > 0) this.moveRight();
+        else this.moveLeft();
+      } else if (absDy > 50 && absDy > absDx) {
+        // Vertical swipe
+        if (dy < 0) this.jump();  // Swipe up = jump
+        else this.slide();         // Swipe down = slide
       }
+      
+      this.swipeStart = null;
     });
   }
 
-  setupCollisions() {
-    // Player vs ground
-    this.physics.add.collider(this.player, this.ground, () => {
-      if (this.isJumping) {
-        this.isJumping = false;
-        this.canJump = true;
-      }
-    });
-    
-    // Player vs obstacles
-    this.physics.add.overlap(this.player, this.obstacles, this.hitObstacle, null, this);
-    
-    // Player vs coins
-    this.physics.add.overlap(this.player, this.coinGroup, this.collectCoin, null, this);
-  }
-
-  startSpawners() {
-    // Obstacle spawner
+  setupTimers() {
+    // Spawn obstacles
     this.obstacleTimer = this.time.addEvent({
-      delay: 1800,
+      delay: Phaser.Math.Between(GAME.SPAWN.OBSTACLE_MIN, GAME.SPAWN.OBSTACLE_MAX),
       callback: this.spawnObstacle,
       callbackScope: this,
       loop: true
     });
     
-    // Coin spawner
+    // Spawn coins
     this.coinTimer = this.time.addEvent({
-      delay: 1000,
+      delay: Phaser.Math.Between(GAME.SPAWN.COIN_MIN, GAME.SPAWN.COIN_MAX),
       callback: this.spawnCoin,
+      callbackScope: this,
+      loop: true
+    });
+    
+    // Update distance
+    this.distanceTimer = this.time.addEvent({
+      delay: 100,
+      callback: () => {
+        if (!this.isPaused && !this.isGameOver) {
+          this.distance += Math.floor(this.gameSpeed);
+          this.distanceText.setText(this.distance.toString());
+          this.checkZoneChange();
+        }
+      },
       callbackScope: this,
       loop: true
     });
   }
 
-  // === PLAYER ACTIONS ===
+  // ==================
+  // PLAYER MOVEMENT
+  // ==================
   
-  jump() {
-    if (!this.canJump || this.isSliding || this.isGameOver) return;
+  moveLeft() {
+    if (!this.canMove || this.isGameOver || this.isPaused) return;
+    if (this.currentLane > 0) {
+      this.currentLane--;
+      this.movePlayerToLane();
+    }
+  }
+  
+  moveRight() {
+    if (!this.canMove || this.isGameOver || this.isPaused) return;
+    if (this.currentLane < 2) {
+      this.currentLane++;
+      this.movePlayerToLane();
+    }
+  }
+  
+  movePlayerToLane() {
+    const targetX = GAME.LANES.POSITIONS[this.currentLane];
     
-    this.isJumping = true;
-    this.canJump = false;
-    this.player.body.setVelocityY(-700);
-    
-    // Jump animation
-    this.playerEmoji.setText('🦘');
-    this.time.delayedCall(500, () => {
-      if (!this.isSliding && !this.isGameOver) this.playerEmoji.setText('🏃');
+    this.tweens.add({
+      targets: [this.player, this.playerEmoji, this.playerShadow],
+      x: targetX,
+      duration: 150,
+      ease: 'Power2'
     });
   }
-
+  
+  jump() {
+    if (this.isJumping || this.isGameOver || this.isPaused) return;
+    
+    this.isJumping = true;
+    const startY = GAME.PLAYER.Y;
+    const jumpY = startY - GAME.PLAYER.JUMP_HEIGHT;
+    
+    // Jump up
+    this.tweens.add({
+      targets: [this.player, this.playerEmoji],
+      y: jumpY,
+      duration: GAME.PLAYER.JUMP_DURATION / 2,
+      ease: 'Power2.easeOut',
+      onComplete: () => {
+        // Fall down
+        this.tweens.add({
+          targets: [this.player, this.playerEmoji],
+          y: startY,
+          duration: GAME.PLAYER.JUMP_DURATION / 2,
+          ease: 'Power2.easeIn',
+          onComplete: () => {
+            this.isJumping = false;
+          }
+        });
+      }
+    });
+    
+    // Shadow effect
+    this.tweens.add({
+      targets: this.playerShadow,
+      scaleX: 0.5,
+      scaleY: 0.5,
+      alpha: 0.2,
+      yoyo: true,
+      duration: GAME.PLAYER.JUMP_DURATION
+    });
+  }
+  
   slide() {
-    if (this.isJumping || this.isSliding || this.isGameOver) return;
+    if (this.isSliding || this.isJumping || this.isGameOver || this.isPaused) return;
     
     this.isSliding = true;
     
     // Shrink player
-    this.player.setSize(50, this.playerSlideHeight);
-    this.player.y = this.groundY - this.playerSlideHeight / 2 - 5;
-    this.player.body.setSize(50, this.playerSlideHeight);
-    
-    this.playerEmoji.setText('🏊');
-    this.playerEmoji.y = this.player.y;
-    
-    // End slide
-    this.time.delayedCall(700, () => {
-      if (this.isGameOver) return;
-      this.isSliding = false;
-      this.player.setSize(50, this.playerOriginalHeight);
-      this.player.y = this.groundY - this.playerOriginalHeight / 2 + 5;
-      this.player.body.setSize(50, this.playerOriginalHeight);
-      this.playerEmoji.setText('🏃');
+    this.tweens.add({
+      targets: this.player,
+      scaleY: 0.4,
+      duration: 100,
+      onComplete: () => {
+        this.time.delayedCall(GAME.PLAYER.SLIDE_DURATION, () => {
+          this.tweens.add({
+            targets: this.player,
+            scaleY: 1,
+            duration: 100,
+            onComplete: () => {
+              this.isSliding = false;
+            }
+          });
+        });
+      }
     });
   }
 
-  // === SPAWNERS ===
+  // ==================
+  // SPAWNING
+  // ==================
   
   spawnObstacle() {
     if (this.isGameOver || this.isPaused) return;
     
-    const { width } = this.cameras.main;
-    const x = width + 60;
+    const lane = Phaser.Math.Between(0, 2);
+    const x = GAME.LANES.POSITIONS[lane];
+    const y = -50;
     
-    // Random obstacle type: ground (jump over) or flying (slide under)
-    const isFlying = Phaser.Math.Between(0, 100) < 25; // 25% flying
+    // Random obstacle type
+    const types = [
+      { width: 50, height: 50, color: 0xFF0000, emoji: '🪨' },   // Rock
+      { width: 60, height: 40, color: 0x8B4513, emoji: '📦' },   // Crate
+      { width: 40, height: 80, color: 0x228B22, emoji: '🌳' }    // Tree
+    ];
+    const type = Phaser.Math.RND.pick(types);
     
-    let obstacle;
-    if (isFlying) {
-      // Flying obstacle - need to slide under
-      const y = this.groundY - 90;
-      obstacle = this.add.rectangle(x, y, 70, 35, 0xFF5722);
-      obstacle.setStrokeStyle(3, 0xBF360C);
-      obstacle.obstacleType = 'flying';
-      
-      // Add icon
-      const icon = this.add.text(x, y, '🦅', { fontSize: '35px' }).setOrigin(0.5);
-      obstacle.icon = icon;
-    } else {
-      // Ground obstacle - need to jump over
-      const obstacleHeight = Phaser.Math.Between(45, 75);
-      const y = this.groundY - obstacleHeight / 2;
-      obstacle = this.add.rectangle(x, y, 45, obstacleHeight, 0xF44336);
-      obstacle.setStrokeStyle(3, 0xB71C1C);
-      obstacle.obstacleType = 'ground';
-      obstacle.obstacleHeight = obstacleHeight;
-      
-      // Add icon  
-      const icon = this.add.text(x, y - 5, '🪨', { fontSize: '32px' }).setOrigin(0.5);
-      obstacle.icon = icon;
-    }
+    // Create obstacle container
+    const obstacle = this.add.container(x, y);
     
+    // Obstacle body
+    const body = this.add.rectangle(0, 0, type.width, type.height, type.color);
+    body.setStrokeStyle(2, 0x000000);
+    
+    // Emoji on top
+    const emoji = this.add.text(0, 0, type.emoji, { fontSize: '32px' }).setOrigin(0.5);
+    
+    obstacle.add([body, emoji]);
+    obstacle.setSize(type.width, type.height);
+    
+    // Physics
     this.physics.add.existing(obstacle);
-    obstacle.body.setVelocityX(-this.gameSpeed);
-    obstacle.body.setAllowGravity(false);
-    obstacle.body.setImmovable(true);
+    obstacle.body.setSize(type.width - 10, type.height - 10);
     
     this.obstacles.add(obstacle);
     
-    // Vary spawn delay based on speed
-    const minDelay = Math.max(900, 1800 - this.distance);
-    const maxDelay = Math.max(1400, 2800 - this.distance);
-    this.obstacleTimer.delay = Phaser.Math.Between(minDelay, maxDelay);
+    // Collision
+    this.physics.add.overlap(this.player, obstacle, () => {
+      if (!this.isJumping && !this.isGameOver) {
+        this.gameOver();
+      }
+    });
   }
-
+  
   spawnCoin() {
     if (this.isGameOver || this.isPaused) return;
     
-    const { width } = this.cameras.main;
-    const x = width + 40;
+    const lane = Phaser.Math.Between(0, 2);
+    const x = GAME.LANES.POSITIONS[lane];
+    const y = -30;
     
-    // Random height: ground level, low jump, high jump
-    const heights = [
-      this.groundY - 35,   // Ground level
-      this.groundY - 90,   // Low jump
-      this.groundY - 150   // High jump
-    ];
-    const y = Phaser.Math.RND.pick(heights);
+    // Coin sprite
+    const coin = this.add.container(x, y);
     
-    // Create coin
-    const coin = this.add.circle(x, y, 16, 0xFFD700);
-    coin.setStrokeStyle(3, 0xFFA000);
+    const coinCircle = this.add.circle(0, 0, 18, 0xFFD700);
+    coinCircle.setStrokeStyle(2, 0xB8860B);
     
-    // Coin symbol
-    const symbol = this.add.text(x, y, '🪙', { fontSize: '22px' }).setOrigin(0.5);
-    coin.symbol = symbol;
+    const coinText = this.add.text(0, 0, '🪙', { fontSize: '24px' }).setOrigin(0.5);
     
+    coin.add([coinCircle, coinText]);
+    coin.setSize(36, 36);
+    
+    // Physics
     this.physics.add.existing(coin);
-    coin.body.setVelocityX(-this.gameSpeed);
-    coin.body.setAllowGravity(false);
-    coin.body.setCircle(16);
+    coin.body.setSize(30, 30);
     
-    this.coinGroup.add(coin);
+    this.coinsGroup.add(coin);
     
-    // Coin animation
+    // Rotation animation
     this.tweens.add({
-      targets: [coin, symbol],
-      y: y - 8,
-      duration: 250,
+      targets: coinText,
+      scaleX: -1,
       yoyo: true,
       repeat: -1,
-      ease: 'Sine.easeInOut'
-    });
-    
-    // Vary spawn delay
-    this.coinTimer.delay = Phaser.Math.Between(700, 1400);
-  }
-
-  // === COLLISIONS ===
-  
-  hitObstacle(playerRect, obstacle) {
-    // Flying obstacle - only hit if not sliding
-    if (obstacle.obstacleType === 'flying') {
-      if (this.isSliding) {
-        return; // Dodged!
-      }
-    }
-    
-    // Ground obstacle - only hit if not jumping high enough
-    if (obstacle.obstacleType === 'ground') {
-      const playerBottom = this.player.y + this.player.height / 2;
-      const obstacleTop = obstacle.y - obstacle.height / 2;
-      if (playerBottom < obstacleTop + 15) {
-        return; // Jumped over!
-      }
-    }
-    
-    this.gameOver();
-  }
-
-  collectCoin(playerRect, coin) {
-    // Remove coin and symbol
-    if (coin.symbol) coin.symbol.destroy();
-    coin.destroy();
-    
-    this.coins++;
-    this.score += 10;
-    this.coinText.setText(`🪙 ${this.coins}`);
-    
-    // Collect effect
-    this.tweens.add({
-      targets: this.coinText,
-      scale: { from: 1.3, to: 1 },
-      duration: 150
-    });
-  }
-
-  // === GAME STATE ===
-  
-  togglePause() {
-    this.isPaused = !this.isPaused;
-    
-    const { width, height } = this.cameras.main;
-    
-    if (this.isPaused) {
-      this.physics.pause();
-      
-      // Pause overlay
-      this.pauseOverlay = this.add.rectangle(width/2, height/2, width, height, 0x000000, 0.85);
-      this.pauseText = this.add.text(width/2, height/2 - 60, '⏸️ PAUSE', {
-        fontSize: '42px',
-        fontFamily: 'Georgia',
-        color: '#FFD700'
-      }).setOrigin(0.5);
-      
-      // Resume button
-      this.resumeBtn = this.add.text(width/2, height/2 + 10, '▶️ LANJUT', {
-        fontSize: '26px',
-        backgroundColor: '#4CAF50',
-        padding: { x: 25, y: 12 },
-        color: '#FFFFFF'
-      }).setOrigin(0.5).setInteractive({ useHandCursor: true });
-      
-      this.resumeBtn.on('pointerup', () => this.togglePause());
-      
-      // Menu button
-      this.menuBtn = this.add.text(width/2, height/2 + 80, '🏠 MENU UTAMA', {
-        fontSize: '22px',
-        backgroundColor: '#F44336',
-        padding: { x: 25, y: 12 },
-        color: '#FFFFFF'
-      }).setOrigin(0.5).setInteractive({ useHandCursor: true });
-      
-      this.menuBtn.on('pointerup', () => {
-        this.scene.start('MenuScene');
-      });
-      
-    } else {
-      this.physics.resume();
-      this.pauseOverlay?.destroy();
-      this.pauseText?.destroy();
-      this.resumeBtn?.destroy();
-      this.menuBtn?.destroy();
-    }
-  }
-
-  gameOver() {
-    if (this.isGameOver) return;
-    this.isGameOver = true;
-    
-    this.physics.pause();
-    this.obstacleTimer?.destroy();
-    this.coinTimer?.destroy();
-    
-    // Crash animation
-    this.playerEmoji.setText('💥');
-    this.tweens.add({
-      targets: this.player,
-      angle: 90,
-      alpha: 0.5,
       duration: 300
     });
     
-    // Save and go to game over
-    this.saveScore();
-    
-    this.time.delayedCall(1200, () => {
-      this.scene.start('GameOverScene', {
-        score: Math.floor(this.distance),
-        coins: this.coins,
-        distance: Math.floor(this.distance)
-      });
+    // Collision - collect coin
+    this.physics.add.overlap(this.player, coin, () => {
+      this.collectCoin(coin);
     });
   }
-
-  saveScore() {
-    try {
-      const saved = JSON.parse(localStorage.getItem('majapahit_runner') || '{}');
-      saved.coins = (saved.coins || 0) + this.coins;
-      saved.totalDistance = (saved.totalDistance || 0) + Math.floor(this.distance);
-      saved.totalRuns = (saved.totalRuns || 0) + 1;
-      if (this.distance > (saved.highScore || 0)) {
-        saved.highScore = Math.floor(this.distance);
-      }
-      localStorage.setItem('majapahit_runner', JSON.stringify(saved));
-    } catch (e) {
-      console.error('Save failed:', e);
-    }
-  }
-
-  // === UPDATE LOOP ===
   
-  update(time, delta) {
-    if (this.isGameOver || this.isPaused) return;
+  collectCoin(coin) {
+    this.coins++;
+    this.coinText.setText(this.coins.toString());
     
-    // Increase speed gradually
-    if (this.gameSpeed < GAME.SPEED.MAX) {
-      this.gameSpeed += 0.03;
-    }
-    
-    // Update distance
-    this.distance += (this.gameSpeed * delta) / 4000;
-    this.scoreText.setText(Math.floor(this.distance).toString());
-    
-    // Update obstacles and remove off-screen
-    this.obstacles.getChildren().forEach(obstacle => {
-      obstacle.body.setVelocityX(-this.gameSpeed);
-      if (obstacle.icon) {
-        obstacle.icon.x = obstacle.x;
-        obstacle.icon.y = obstacle.y - (obstacle.obstacleType === 'ground' ? 5 : 0);
-      }
-      if (obstacle.x < -80) {
-        if (obstacle.icon) obstacle.icon.destroy();
-        obstacle.destroy();
-      }
-    });
-    
-    // Update coins
-    this.coinGroup.getChildren().forEach(coin => {
-      coin.body.setVelocityX(-this.gameSpeed);
-      if (coin.symbol) coin.symbol.x = coin.x;
-      if (coin.x < -40) {
-        if (coin.symbol) coin.symbol.destroy();
+    // Collect effect
+    this.tweens.add({
+      targets: coin,
+      y: coin.y - 50,
+      alpha: 0,
+      scale: 1.5,
+      duration: 200,
+      onComplete: () => {
         coin.destroy();
       }
     });
     
+    // +10 popup
+    const popup = this.add.text(coin.x, coin.y, '+10', {
+      fontSize: '20px',
+      fontStyle: 'bold',
+      color: '#FFD700',
+      stroke: '#000000',
+      strokeThickness: 2
+    }).setOrigin(0.5);
+    
+    this.tweens.add({
+      targets: popup,
+      y: popup.y - 60,
+      alpha: 0,
+      duration: 500,
+      onComplete: () => popup.destroy()
+    });
+  }
+
+  // ==================
+  // GAME LOOP
+  // ==================
+  
+  update(time, delta) {
+    if (this.isGameOver || this.isPaused) return;
+    
     // Keyboard input
+    if (Phaser.Input.Keyboard.JustDown(this.cursors.left)) {
+      this.moveLeft();
+    }
+    if (Phaser.Input.Keyboard.JustDown(this.cursors.right)) {
+      this.moveRight();
+    }
     if (Phaser.Input.Keyboard.JustDown(this.cursors.up) || 
         Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
       this.jump();
@@ -534,22 +490,146 @@ export class GameScene extends Phaser.Scene {
       this.slide();
     }
     
-    // Sync emoji with player (when not sliding)
-    if (!this.isSliding) {
-      this.playerEmoji.x = this.player.x;
-      this.playerEmoji.y = this.player.y - 10;
+    // Increase speed over time
+    if (this.gameSpeed < GAME.SPEED.MAX) {
+      this.gameSpeed += GAME.SPEED.INCREMENT;
     }
     
-    // Zone changes based on distance
-    this.updateZone();
+    // Move road lines down (motion effect)
+    this.roadLines.forEach(line => {
+      line.y += this.gameSpeed;
+      if (line.y > this.scale.height) {
+        line.y = this.scale.height * 0.3;
+      }
+    });
+    
+    // Move obstacles down
+    this.obstacles.getChildren().forEach(obstacle => {
+      obstacle.y += this.gameSpeed * 1.2;
+      
+      // Remove if off screen
+      if (obstacle.y > this.scale.height + 100) {
+        obstacle.destroy();
+      }
+    });
+    
+    // Move coins down
+    this.coinsGroup.getChildren().forEach(coin => {
+      coin.y += this.gameSpeed * 1.2;
+      
+      if (coin.y > this.scale.height + 50) {
+        coin.destroy();
+      }
+    });
   }
   
-  updateZone() {
-    const zones = ['Trowulan', 'Hutan Jati', 'Pelabuhan', 'Candi Penataran', 'Gunung Bromo'];
-    const zoneIndex = Math.min(Math.floor(this.distance / 500), zones.length - 1);
-    const zoneName = zones[zoneIndex];
-    if (this.zoneText.text !== `📍 ${zoneName}`) {
-      this.zoneText.setText(`📍 ${zoneName}`);
+  checkZoneChange() {
+    // Change zone based on distance
+    if (this.distance >= ZONES.pelabuhan.unlockDistance && this.currentZone !== ZONES.pelabuhan) {
+      this.currentZone = ZONES.pelabuhan;
+      this.zoneText.setText('📍 ' + this.currentZone.name);
+    } else if (this.distance >= ZONES.hutan.unlockDistance && this.distance < ZONES.pelabuhan.unlockDistance && this.currentZone !== ZONES.hutan) {
+      this.currentZone = ZONES.hutan;
+      this.zoneText.setText('📍 ' + this.currentZone.name);
     }
+  }
+
+  // ==================
+  // GAME STATES
+  // ==================
+  
+  togglePause() {
+    this.isPaused = !this.isPaused;
+    
+    if (this.isPaused) {
+      this.showPauseMenu();
+    } else {
+      this.hidePauseMenu();
+    }
+  }
+  
+  showPauseMenu() {
+    const { width, height } = this.scale;
+    
+    // Overlay
+    this.pauseOverlay = this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.8);
+    
+    // Pause text
+    this.pauseText = this.add.text(width / 2, height / 2 - 50, '⏸️ PAUSED', {
+      fontSize: '36px',
+      fontStyle: 'bold',
+      color: '#FFD700'
+    }).setOrigin(0.5);
+    
+    // Resume button
+    this.resumeBtn = this.add.rectangle(width / 2, height / 2 + 30, 150, 50, 0x27AE60)
+      .setInteractive({ useHandCursor: true })
+      .on('pointerdown', () => this.togglePause());
+    this.resumeBtnText = this.add.text(width / 2, height / 2 + 30, '▶️ Lanjut', {
+      fontSize: '20px',
+      color: '#FFFFFF'
+    }).setOrigin(0.5);
+    
+    // Menu button
+    this.menuBtn = this.add.rectangle(width / 2, height / 2 + 100, 150, 50, 0xE74C3C)
+      .setInteractive({ useHandCursor: true })
+      .on('pointerdown', () => this.scene.start('MenuScene'));
+    this.menuBtnText = this.add.text(width / 2, height / 2 + 100, '🏠 Menu', {
+      fontSize: '20px',
+      color: '#FFFFFF'
+    }).setOrigin(0.5);
+  }
+  
+  hidePauseMenu() {
+    if (this.pauseOverlay) this.pauseOverlay.destroy();
+    if (this.pauseText) this.pauseText.destroy();
+    if (this.resumeBtn) this.resumeBtn.destroy();
+    if (this.resumeBtnText) this.resumeBtnText.destroy();
+    if (this.menuBtn) this.menuBtn.destroy();
+    if (this.menuBtnText) this.menuBtnText.destroy();
+  }
+  
+  gameOver() {
+    this.isGameOver = true;
+    
+    // Stop timers
+    this.obstacleTimer.destroy();
+    this.coinTimer.destroy();
+    
+    // Flash effect
+    this.cameras.main.flash(300, 255, 0, 0);
+    this.cameras.main.shake(200, 0.02);
+    
+    // Save data
+    this.saveGameData();
+    
+    // Go to game over scene
+    this.time.delayedCall(1000, () => {
+      this.scene.start('GameOverScene', {
+        score: this.distance,
+        coins: this.coins,
+        distance: this.distance
+      });
+    });
+  }
+  
+  saveGameData() {
+    const savedData = JSON.parse(localStorage.getItem('majapahitRunner') || '{}');
+    
+    // Update high score
+    if (this.distance > (savedData.highScore || 0)) {
+      savedData.highScore = this.distance;
+    }
+    
+    // Add coins
+    savedData.totalCoins = (savedData.totalCoins || 0) + this.coins;
+    
+    // Update total distance
+    savedData.totalDistance = (savedData.totalDistance || 0) + this.distance;
+    
+    // Increment games played
+    savedData.gamesPlayed = (savedData.gamesPlayed || 0) + 1;
+    
+    localStorage.setItem('majapahitRunner', JSON.stringify(savedData));
   }
 }

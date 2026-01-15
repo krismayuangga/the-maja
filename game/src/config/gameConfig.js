@@ -1,14 +1,15 @@
 /**
  * Phaser Game Configuration
+ * VERTICAL/PORTRAIT Endless Runner
  */
 
 export const gameConfig = {
   type: Phaser.AUTO,
   parent: 'game-container',
   
-  // Game dimensions (16:9 for mobile/widescreen)
-  width: 720,
-  height: 480,
+  // Portrait orientation for mobile (9:16)
+  width: 390,
+  height: 844,
   
   // Scaling - responsive to container
   scale: {
@@ -16,11 +17,11 @@ export const gameConfig = {
     autoCenter: Phaser.Scale.CENTER_BOTH,
     min: {
       width: 320,
-      height: 213
+      height: 568
     },
     max: {
-      width: 1280,
-      height: 853
+      width: 430,
+      height: 932
     }
   },
   
@@ -28,8 +29,8 @@ export const gameConfig = {
   physics: {
     default: 'arcade',
     arcade: {
-      gravity: { y: 1200 },
-      debug: false // Set true for development
+      gravity: { y: 0 }, // No gravity - we control movement
+      debug: false
     }
   },
   
@@ -40,246 +41,126 @@ export const gameConfig = {
     roundPixels: true
   },
   
-  // Audio
-  audio: {
-    disableWebAudio: false
-  },
-  
-  // Background color (Majapahit brown)
+  // Background color
   backgroundColor: '#1a0a00'
 };
 
 /**
- * Game Constants
+ * Game Constants for Vertical Runner
  */
 export const GAME = {
+  // Screen dimensions
+  WIDTH: 390,
+  HEIGHT: 844,
+  
   // Player settings
   PLAYER: {
-    START_X: 100,
-    GROUND_Y: 360,
-    JUMP_VELOCITY: -650,
-    SLIDE_DURATION: 500,
-    LANE_WIDTH: 100,
-    LANES: [-100, 0, 100] // Left, Center, Right offset from center
+    Y: 700,           // Near bottom of screen
+    SIZE: 60,
+    JUMP_HEIGHT: 150,
+    JUMP_DURATION: 400,
+    SLIDE_DURATION: 400
+  },
+  
+  // 3 Lanes (Left, Center, Right)
+  LANES: {
+    LEFT: 80,
+    CENTER: 195,
+    RIGHT: 310,
+    POSITIONS: [80, 195, 310]
+  },
+  
+  // Road/Track settings
+  ROAD: {
+    WIDTH: 300,
+    LEFT_EDGE: 45,
+    RIGHT_EDGE: 345
   },
   
   // Speed settings
   SPEED: {
-    INITIAL: 300,
-    MAX: 800,
-    INCREMENT: 0.5 // Per frame
+    INITIAL: 5,
+    MAX: 15,
+    INCREMENT: 0.001
   },
   
   // Scoring
   SCORE: {
     PER_METER: 1,
-    PER_COIN: 10,
-    PER_LONTAR: 100
+    PER_COIN: 10
   },
   
-  // Spawn rates (in milliseconds)
+  // Spawn settings
   SPAWN: {
-    OBSTACLE_MIN: 1000,
-    OBSTACLE_MAX: 2500,
+    OBSTACLE_MIN: 800,
+    OBSTACLE_MAX: 2000,
     COIN_MIN: 500,
-    COIN_MAX: 1500,
-    POWERUP_MIN: 10000,
-    POWERUP_MAX: 20000,
-    LONTAR_MIN: 30000,
-    LONTAR_MAX: 60000
-  },
-  
-  // Power-up durations (in milliseconds)
-  POWERUP: {
-    DURATION: 10000,
-    MAGNET_RADIUS: 200,
-    SPEED_MULTIPLIER: 1.5,
-    INVINCIBLE_FLICKER: 100
+    COIN_MAX: 1500
   }
 };
 
 /**
- * Character Definitions
+ * Characters
  */
 export const CHARACTERS = {
   jaya: {
     id: 'jaya',
     name: 'Jaya',
-    title: 'Kurir Kerajaan',
-    description: 'Kurir muda yang gesit dan berani',
-    passive: 'Kecepatan +5%',
-    passiveValue: 1.05,
+    emoji: '🏃',
+    color: 0xFFD700,
+    description: 'Kurir muda yang gesit',
+    passive: 'Lari 5% lebih cepat',
     unlocked: true,
-    price: 0,
-    rarity: 'common',
-    sprite: 'char_jaya'
+    price: 0
   },
   bhayangkara: {
     id: 'bhayangkara',
     name: 'Bhayangkara',
-    title: 'Prajurit Elit',
-    description: 'Prajurit elit pengawal kerajaan',
-    passive: 'Armor 1x hit',
-    passiveValue: 1,
+    emoji: '⚔️',
+    color: 0xC0C0C0,
+    description: 'Prajurit kerajaan',
+    passive: 'Tahan 1x tabrak',
     unlocked: false,
-    price: 5000,
-    rarity: 'common',
-    sprite: 'char_bhayangkara'
+    price: 1000
   },
   srikandi: {
     id: 'srikandi',
     name: 'Srikandi',
-    title: 'Penari Istana',
-    description: 'Penari istana yang lincah',
-    passive: 'Double Jump',
-    passiveValue: true,
+    emoji: '🏹',
+    color: 0xFF69B4,
+    description: 'Pemanah wanita',
+    passive: 'Double coin 10%',
     unlocked: false,
-    price: 10000,
-    rarity: 'rare',
-    sprite: 'char_srikandi'
-  },
-  danghyang: {
-    id: 'danghyang',
-    name: 'Dang Hyang',
-    title: 'Pendeta Sakti',
-    description: 'Pendeta sakti dengan kekuatan magis',
-    passive: 'Magnet Koin',
-    passiveValue: 150,
-    unlocked: false,
-    price: 15000,
-    rarity: 'rare',
-    sprite: 'char_danghyang'
-  },
-  hayamwuruk: {
-    id: 'hayamwuruk',
-    name: 'Hayam Wuruk',
-    title: 'Raja Majapahit',
-    description: 'Raja Majapahit di masa kejayaan',
-    passive: 'Skor 2x',
-    passiveValue: 2,
-    unlocked: false,
-    price: 25000,
-    rarity: 'epic',
-    sprite: 'char_hayamwuruk'
-  },
-  gajahmada: {
-    id: 'gajahmada',
-    name: 'Gajah Mada',
-    title: 'Patih Amangkubhumi',
-    description: 'Patih legendaris penakluk Nusantara',
-    passive: 'Shield + Speed',
-    passiveValue: { shield: true, speed: 1.1 },
-    unlocked: false,
-    price: 0, // Premium only
-    rarity: 'legendary',
-    sprite: 'char_gajahmada',
-    premium: true
+    price: 2000
   }
 };
 
 /**
- * Zone Definitions
+ * Zones/Themes
  */
 export const ZONES = {
   trowulan: {
     id: 'trowulan',
     name: 'Trowulan',
-    subtitle: 'Ibukota Kerajaan',
-    description: 'Jalanan bata merah ibukota Majapahit',
-    unlockLevel: 1,
-    background: 'bg_trowulan',
-    ground: 'ground_brick',
-    obstacles: ['cart', 'pot', 'merchant', 'cloth'],
-    ambience: 'sfx_market'
+    bgColor: 0x87CEEB,
+    groundColor: 0xD2691E,
+    roadColor: 0x8B4513,
+    unlockDistance: 0
   },
   hutan: {
     id: 'hutan',
     name: 'Hutan Jati',
-    subtitle: 'Hutan Lebat',
-    description: 'Hutan jati menuju desa-desa',
-    unlockLevel: 10,
-    background: 'bg_hutan',
-    ground: 'ground_dirt',
-    obstacles: ['log', 'river', 'tiger', 'branch'],
-    ambience: 'sfx_forest'
+    bgColor: 0x228B22,
+    groundColor: 0x2E8B57,
+    roadColor: 0x3CB371,
+    unlockDistance: 500
   },
   pelabuhan: {
-    id: 'pelabuhan',
+    id: 'pelabuhan', 
     name: 'Pelabuhan',
-    subtitle: 'Dermaga Pedagang',
-    description: 'Dermaga ramai kapal-kapal Jung',
-    unlockLevel: 20,
-    background: 'bg_pelabuhan',
-    ground: 'ground_wood',
-    obstacles: ['rope', 'crate', 'pirate', 'net'],
-    ambience: 'sfx_harbor'
-  },
-  candi: {
-    id: 'candi',
-    name: 'Candi',
-    subtitle: 'Area Suci',
-    description: 'Kompleks candi-candi megah',
-    unlockLevel: 30,
-    background: 'bg_candi',
-    ground: 'ground_stone',
-    obstacles: ['stairs', 'statue', 'fire', 'rubble'],
-    ambience: 'sfx_temple'
-  },
-  bromo: {
-    id: 'bromo',
-    name: 'Gunung Bromo',
-    subtitle: 'Pegunungan Vulkanik',
-    description: 'Jalur pegunungan berbahaya',
-    unlockLevel: 40,
-    background: 'bg_bromo',
-    ground: 'ground_volcanic',
-    obstacles: ['lava', 'rock', 'fog', 'crack'],
-    ambience: 'sfx_volcano'
-  }
-};
-
-/**
- * Power-up Definitions
- */
-export const POWERUPS = {
-  keris: {
-    id: 'keris',
-    name: 'Keris Sakti',
-    description: 'Hancurkan semua rintangan',
-    duration: 10000,
-    sprite: 'powerup_keris',
-    effect: 'destroy'
-  },
-  kuda: {
-    id: 'kuda',
-    name: 'Kuda Terbang',
-    description: 'Terbang di atas rintangan',
-    duration: 10000,
-    sprite: 'powerup_kuda',
-    effect: 'fly'
-  },
-  jimat: {
-    id: 'jimat',
-    name: 'Jimat Pelindung',
-    description: 'Kebal 1x tabrakan',
-    duration: 0, // Until used
-    sprite: 'powerup_jimat',
-    effect: 'shield'
-  },
-  magnet: {
-    id: 'magnet',
-    name: 'Magnet Emas',
-    description: 'Tarik semua koin otomatis',
-    duration: 10000,
-    sprite: 'powerup_magnet',
-    effect: 'magnet'
-  },
-  speed: {
-    id: 'speed',
-    name: 'Super Speed',
-    description: 'Kecepatan 2x + skor 2x',
-    duration: 10000,
-    sprite: 'powerup_speed',
-    effect: 'speed'
+    bgColor: 0x00CED1,
+    groundColor: 0xF4A460,
+    roadColor: 0xDEB887,
+    unlockDistance: 1500
   }
 };

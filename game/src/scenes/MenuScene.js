@@ -1,8 +1,8 @@
 /**
- * MenuScene - Main menu with working popups
+ * MenuScene - Main Menu (Vertical Layout)
  */
 
-import Phaser from 'phaser';
+import { CHARACTERS } from '../config/gameConfig.js';
 
 export class MenuScene extends Phaser.Scene {
   constructor() {
@@ -10,390 +10,393 @@ export class MenuScene extends Phaser.Scene {
   }
 
   create() {
-    const { width, height } = this.cameras.main;
+    const { width, height } = this.scale;
+    
+    // Load saved data
+    this.savedData = JSON.parse(localStorage.getItem('majapahitRunner') || '{}');
     
     // Background
-    this.add.rectangle(width / 2, height / 2, width, height, 0x1a0a00);
-    
-    // Decorative border
-    this.createBorder(width, height);
+    this.createBackground();
     
     // Title
-    this.createTitle(width);
+    this.createTitle();
     
-    // Menu buttons
-    this.createMenuButtons(width, height);
+    // Main buttons
+    this.createButtons();
     
-    // Bottom info
-    this.createBottomInfo(width, height);
+    // Bottom stats
+    this.createStats();
     
-    // Popup container (initially hidden)
-    this.popupContainer = null;
+    // Fade in
+    this.cameras.main.fadeIn(300);
   }
 
-  createBorder(width, height) {
-    const graphics = this.add.graphics();
+  createBackground() {
+    const { width, height } = this.scale;
     
-    // Outer gold border
-    graphics.lineStyle(4, 0xffd700, 1);
-    graphics.strokeRect(8, 8, width - 16, height - 16);
+    // Gradient background
+    const bg = this.add.graphics();
+    bg.fillGradientStyle(0x2C1810, 0x2C1810, 0x1a0a05, 0x1a0a05, 1);
+    bg.fillRect(0, 0, width, height);
     
-    // Inner brown border
-    graphics.lineStyle(2, 0x8B4513, 1);
-    graphics.strokeRect(18, 18, width - 36, height - 36);
+    // Decorative frame
+    const frame = this.add.graphics();
+    frame.lineStyle(4, 0xFFD700, 1);
+    frame.strokeRect(20, 20, width - 40, height - 40);
     
-    // Corner decorations
+    // Corner ornaments
     const corners = [
-      { x: 18, y: 18 },
-      { x: width - 18, y: 18 },
-      { x: 18, y: height - 18 },
-      { x: width - 18, y: height - 18 }
+      { x: 20, y: 20 },
+      { x: width - 20, y: 20 },
+      { x: 20, y: height - 20 },
+      { x: width - 20, y: height - 20 }
     ];
-    
-    corners.forEach(corner => {
-      this.add.circle(corner.x, corner.y, 7, 0xffd700);
-      this.add.circle(corner.x, corner.y, 3, 0x8B4513);
+    corners.forEach(c => {
+      this.add.circle(c.x, c.y, 8, 0xFFD700);
     });
+    
+    // Batik pattern (subtle)
+    for (let i = 0; i < 20; i++) {
+      const x = Phaser.Math.Between(40, width - 40);
+      const y = Phaser.Math.Between(40, height - 40);
+      this.add.circle(x, y, 2, 0xFFD700, 0.1);
+    }
   }
 
-  createTitle(width) {
-    // Main title
-    this.add.text(width / 2, 90, '🏃 MAJAPAHIT', {
-      fontSize: '48px',
-      fontFamily: 'Georgia, serif',
-      color: '#ffd700',
-      stroke: '#8B4513',
-      strokeThickness: 5
-    }).setOrigin(0.5);
+  createTitle() {
+    const { width } = this.scale;
     
-    this.add.text(width / 2, 150, 'RUNNER', {
-      fontSize: '64px',
-      fontFamily: 'Georgia, serif',
-      color: '#ffd700',
-      stroke: '#8B4513',
-      strokeThickness: 5
-    }).setOrigin(0.5);
+    // Runner emoji
+    this.add.text(width / 2 - 100, 100, '🏃', { fontSize: '48px' });
+    
+    // Game title
+    this.add.text(width / 2 + 10, 90, 'MAJAPAHIT', {
+      fontSize: '36px',
+      fontStyle: 'bold',
+      color: '#FFD700',
+      stroke: '#000000',
+      strokeThickness: 3
+    }).setOrigin(0, 0);
+    
+    this.add.text(width / 2 + 10, 130, 'RUNNER', {
+      fontSize: '48px',
+      fontStyle: 'bold',
+      color: '#B8860B',
+      stroke: '#000000',
+      strokeThickness: 4
+    }).setOrigin(0, 0);
     
     // Subtitle
-    this.add.text(width / 2, 195, 'Lari Sang Kurir Kerajaan', {
+    this.add.text(width / 2, 200, 'Lari Sang Kurir Kerajaan', {
       fontSize: '16px',
-      fontFamily: 'Arial',
-      color: '#b08d57',
-      fontStyle: 'italic'
+      fontStyle: 'italic',
+      color: '#D4AF37'
     }).setOrigin(0.5);
   }
 
-  createMenuButtons(width, height) {
-    const centerY = height / 2 + 40;
+  createButtons() {
+    const { width } = this.scale;
+    const startY = 280;
     
-    // Play button (main)
-    this.createButton(width / 2, centerY, '▶  MAIN', () => {
-      this.scene.start('GameScene');
-    }, true);
+    // MAIN (Play) button
+    this.createButton(width / 2, startY, 200, 60, '▶️  MAIN', 0xFFD700, 0xB8860B, () => {
+      this.cameras.main.fadeOut(300);
+      this.time.delayedCall(300, () => {
+        this.scene.start('GameScene');
+      });
+    });
     
     // Secondary buttons row
-    const secondaryY = centerY + 75;
-    const spacing = 110;
+    const btnY = startY + 90;
+    const btnWidth = 100;
+    const gap = 15;
     
-    // Shop
-    this.createButton(width / 2 - spacing, secondaryY, '🛒 Toko', () => {
+    // Toko (Shop)
+    this.createButton(width / 2 - btnWidth - gap, btnY, btnWidth, 50, '🏪 Toko', 0x8B4513, 0x654321, () => {
       this.showShopPopup();
     });
     
-    // Leaderboard
-    this.createButton(width / 2, secondaryY, '🏆 Skor', () => {
+    // Skor (Leaderboard)
+    this.createButton(width / 2, btnY, btnWidth, 50, '🏆 Skor', 0x8B4513, 0x654321, () => {
       this.showScorePopup();
     });
     
-    // Collection
-    this.createButton(width / 2 + spacing, secondaryY, '📜 Koleksi', () => {
+    // Koleksi (Collection)
+    this.createButton(width / 2 + btnWidth + gap, btnY, btnWidth, 50, '📚 Koleksi', 0x8B4513, 0x654321, () => {
       this.showCollectionPopup();
     });
     
-    // Settings row
-    const settingsY = secondaryY + 60;
-    this.createButton(width / 2 - 50, settingsY, '⚙️', () => {
-      this.showSettingsPopup();
-    }, false, true);
+    // Settings and Sound buttons (smaller, bottom row)
+    const bottomY = btnY + 70;
     
-    this.createButton(width / 2 + 50, settingsY, '🔊', () => {
-      this.toggleSound();
-    }, false, true);
+    this.createButton(width / 2 - 40, bottomY, 60, 50, '⚙️', 0x555555, 0x333333, () => {
+      this.showSettingsPopup();
+    });
+    
+    this.createButton(width / 2 + 40, bottomY, 60, 50, '🔊', 0x555555, 0x333333, () => {
+      // Toggle sound
+    });
   }
 
-  createButton(x, y, text, callback, isPrimary = false, isSmall = false) {
-    const btnWidth = isSmall ? 55 : (isPrimary ? 180 : 100);
-    const btnHeight = isSmall ? 45 : (isPrimary ? 55 : 45);
-    const fontSize = isSmall ? '22px' : (isPrimary ? '26px' : '15px');
+  createButton(x, y, w, h, text, fillColor, strokeColor, callback) {
+    const btn = this.add.rectangle(x, y, w, h, fillColor)
+      .setStrokeStyle(3, strokeColor)
+      .setInteractive({ useHandCursor: true })
+      .on('pointerover', () => btn.setScale(1.05))
+      .on('pointerout', () => btn.setScale(1))
+      .on('pointerdown', callback);
     
-    // Button background
-    const bg = this.add.rectangle(x, y, btnWidth, btnHeight, isPrimary ? 0xffd700 : 0x2d1810)
-      .setStrokeStyle(3, isPrimary ? 0x8B4513 : 0xffd700)
-      .setInteractive({ useHandCursor: true });
-    
-    // Button text
-    const label = this.add.text(x, y, text, {
-      fontSize: fontSize,
-      fontFamily: 'Arial',
-      color: isPrimary ? '#1a0a00' : '#ffd700',
-      fontStyle: 'bold'
+    this.add.text(x, y, text, {
+      fontSize: w > 150 ? '24px' : '16px',
+      fontStyle: 'bold',
+      color: fillColor === 0xFFD700 ? '#1a0a05' : '#FFFFFF'
     }).setOrigin(0.5);
     
-    // Hover effects
-    bg.on('pointerover', () => {
-      bg.setScale(1.05);
-      label.setScale(1.05);
-    });
-    
-    bg.on('pointerout', () => {
-      bg.setScale(1);
-      label.setScale(1);
-    });
-    
-    bg.on('pointerdown', () => {
-      bg.setScale(0.95);
-      label.setScale(0.95);
-    });
-    
-    bg.on('pointerup', () => {
-      bg.setScale(1);
-      label.setScale(1);
-      callback();
-    });
-    
-    return { bg, label };
+    return btn;
   }
 
-  createBottomInfo(width, height) {
-    const savedData = this.getSavedData();
+  createStats() {
+    const { width, height } = this.scale;
     
-    // Coins display
-    this.add.text(25, height - 45, `🪙 ${savedData.coins.toLocaleString()}`, {
-      fontSize: '18px',
-      fontFamily: 'Arial',
-      color: '#ffd700'
-    });
+    // Coin display
+    this.add.circle(50, height - 120, 18, 0xFFD700);
+    this.add.text(50, height - 120, '🪙', { fontSize: '24px' }).setOrigin(0.5);
+    this.add.text(80, height - 120, (this.savedData.totalCoins || 0).toString(), {
+      fontSize: '24px',
+      fontStyle: 'bold',
+      color: '#FFD700'
+    }).setOrigin(0, 0.5);
     
     // High score
-    this.add.text(25, height - 22, `🏆 Best: ${savedData.highScore.toLocaleString()}m`, {
-      fontSize: '14px',
-      fontFamily: 'Arial',
-      color: '#b08d57'
+    this.add.text(50, height - 80, '🏆 Best: ' + (this.savedData.highScore || 0) + 'm', {
+      fontSize: '16px',
+      color: '#AAAAAA'
     });
     
-    // Version & branding
-    this.add.text(width - 25, height - 45, '$MAJA Token Game', {
-      fontSize: '12px',
-      fontFamily: 'Arial',
-      color: '#b08d57'
-    }).setOrigin(1, 0);
+    // Games played
+    this.add.text(50, height - 55, '🎮 Games: ' + (this.savedData.gamesPlayed || 0), {
+      fontSize: '14px',
+      color: '#888888'
+    });
     
-    this.add.text(width - 25, height - 22, 'v0.1.0 MVP', {
-      fontSize: '11px',
-      fontFamily: 'Arial',
-      color: '#666666'
-    }).setOrigin(1, 0);
+    // Version and branding
+    this.add.text(width - 40, height - 60, '$MAJA Token\nGame', {
+      fontSize: '12px',
+      color: '#666666',
+      align: 'right'
+    }).setOrigin(1, 0.5);
+    
+    this.add.text(width - 40, height - 30, 'v0.2.0', {
+      fontSize: '10px',
+      color: '#444444'
+    }).setOrigin(1, 0.5);
   }
 
-  getSavedData() {
-    try {
-      const data = JSON.parse(localStorage.getItem('majapahit_runner') || '{}');
-      return {
-        coins: data.coins || 0,
-        highScore: data.highScore || 0,
-        totalRuns: data.totalRuns || 0,
-        totalDistance: data.totalDistance || 0
-      };
-    } catch (e) {
-      return { coins: 0, highScore: 0, totalRuns: 0, totalDistance: 0 };
-    }
-  }
-
-  // === POPUP SYSTEM ===
+  // ==================
+  // POPUP MENUS
+  // ==================
   
   showPopup(title, content) {
-    const { width, height } = this.cameras.main;
+    const { width, height } = this.scale;
     
-    // Close existing popup
-    this.closePopup();
+    // Overlay
+    this.popupOverlay = this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.85)
+      .setInteractive()
+      .on('pointerdown', () => this.closePopup());
     
+    // Popup container
     this.popupContainer = this.add.container(width / 2, height / 2);
     
-    // Backdrop
-    const backdrop = this.add.rectangle(0, 0, width, height, 0x000000, 0.85)
-      .setInteractive();
-    
-    // Popup box
-    const boxWidth = Math.min(width - 40, 350);
-    const boxHeight = Math.min(height - 80, 400);
-    const box = this.add.rectangle(0, 0, boxWidth, boxHeight, 0x2d1810)
-      .setStrokeStyle(3, 0xffd700);
+    // Background
+    const bg = this.add.rectangle(0, 0, width - 60, height - 200, 0x2C1810)
+      .setStrokeStyle(3, 0xFFD700);
     
     // Title
-    const titleText = this.add.text(0, -boxHeight/2 + 35, title, {
+    const titleText = this.add.text(0, -250, title, {
       fontSize: '28px',
-      fontFamily: 'Georgia',
-      color: '#ffd700'
-    }).setOrigin(0.5);
-    
-    // Title underline
-    const underline = this.add.rectangle(0, -boxHeight/2 + 60, boxWidth - 40, 2, 0x8B4513);
-    
-    // Content
-    const contentText = this.add.text(0, 0, content, {
-      fontSize: '16px',
-      fontFamily: 'Arial',
-      color: '#ffffff',
-      align: 'center',
-      wordWrap: { width: boxWidth - 50 },
-      lineSpacing: 8
+      fontStyle: 'bold',
+      color: '#FFD700'
     }).setOrigin(0.5);
     
     // Close button
-    const closeBtn = this.add.text(0, boxHeight/2 - 40, '✖ TUTUP', {
-      fontSize: '18px',
-      backgroundColor: '#8B4513',
-      padding: { x: 25, y: 10 },
-      color: '#ffd700'
-    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+    const closeBtn = this.add.rectangle(140, -250, 40, 40, 0xE74C3C)
+      .setInteractive({ useHandCursor: true })
+      .on('pointerdown', () => this.closePopup());
+    const closeX = this.add.text(140, -250, '✕', {
+      fontSize: '24px',
+      color: '#FFFFFF'
+    }).setOrigin(0.5);
     
-    closeBtn.on('pointerup', () => this.closePopup());
-    closeBtn.on('pointerover', () => closeBtn.setScale(1.05));
-    closeBtn.on('pointerout', () => closeBtn.setScale(1));
+    this.popupContainer.add([bg, titleText, closeBtn, closeX]);
     
-    // Add all to container
-    this.popupContainer.add([backdrop, box, titleText, underline, contentText, closeBtn]);
-    
-    // Animate in
-    this.popupContainer.setAlpha(0);
-    this.tweens.add({
-      targets: this.popupContainer,
-      alpha: 1,
-      duration: 200
-    });
-  }
-
-  closePopup() {
-    if (this.popupContainer) {
-      this.popupContainer.destroy();
-      this.popupContainer = null;
+    // Add content
+    if (typeof content === 'function') {
+      content(this.popupContainer);
     }
   }
-
+  
+  closePopup() {
+    if (this.popupOverlay) this.popupOverlay.destroy();
+    if (this.popupContainer) this.popupContainer.destroy();
+  }
+  
   showShopPopup() {
-    const savedData = this.getSavedData();
-    const content = `
-🪙 Koin Anda: ${savedData.coins.toLocaleString()}
-
-━━━━━━━━━━━━━━━━
-
-🛡️ Perisai (100 🪙)
-Lindungi dari 1x tabrakan
-
-⚡ Boost Awal (200 🪙)
-Mulai dengan kecepatan tinggi
-
-🧲 Magnet Koin (150 🪙)
-Tarik koin secara otomatis
-
-━━━━━━━━━━━━━━━━
-
-⚠️ Toko akan tersedia di versi berikutnya!
-
-Butuh $MAJA token untuk
-pembelian in-game
-    `;
-    this.showPopup('🛒 TOKO', content);
+    this.showPopup('🏪 TOKO', (container) => {
+      // Characters for sale
+      let y = -180;
+      
+      Object.values(CHARACTERS).forEach(char => {
+        const charRow = this.add.container(0, y);
+        
+        // Emoji
+        const emoji = this.add.text(-120, 0, char.emoji, { fontSize: '36px' }).setOrigin(0.5);
+        
+        // Name and desc
+        const name = this.add.text(-70, -12, char.name, {
+          fontSize: '18px',
+          fontStyle: 'bold',
+          color: '#FFD700'
+        });
+        const desc = this.add.text(-70, 10, char.description, {
+          fontSize: '12px',
+          color: '#AAAAAA'
+        });
+        
+        // Price/Status
+        let statusText;
+        if (char.unlocked) {
+          statusText = this.add.text(100, 0, '✅ Owned', {
+            fontSize: '14px',
+            color: '#27AE60'
+          }).setOrigin(0.5);
+        } else {
+          const buyBtn = this.add.rectangle(100, 0, 80, 30, 0x27AE60)
+            .setInteractive({ useHandCursor: true })
+            .on('pointerdown', () => {
+              const saved = JSON.parse(localStorage.getItem('majapahitRunner') || '{}');
+              if ((saved.totalCoins || 0) >= char.price) {
+                saved.totalCoins -= char.price;
+                saved.unlockedCharacters = saved.unlockedCharacters || [];
+                saved.unlockedCharacters.push(char.id);
+                localStorage.setItem('majapahitRunner', JSON.stringify(saved));
+                this.closePopup();
+                this.showShopPopup();
+              }
+            });
+          statusText = this.add.text(100, 0, '🪙 ' + char.price, {
+            fontSize: '12px',
+            color: '#FFFFFF'
+          }).setOrigin(0.5);
+          charRow.add(buyBtn);
+        }
+        
+        charRow.add([emoji, name, desc, statusText]);
+        container.add(charRow);
+        y += 80;
+      });
+      
+      // Current coins
+      const coinInfo = this.add.text(0, 200, '🪙 Koin: ' + (this.savedData.totalCoins || 0), {
+        fontSize: '18px',
+        color: '#FFD700'
+      }).setOrigin(0.5);
+      container.add(coinInfo);
+    });
   }
-
+  
   showScorePopup() {
-    const savedData = this.getSavedData();
-    const content = `
-🏆 STATISTIK ANDA
-
-━━━━━━━━━━━━━━━━
-
-📏 Jarak Terjauh
-${savedData.highScore.toLocaleString()} meter
-
-🏃 Total Lari
-${savedData.totalRuns.toLocaleString()} kali
-
-📍 Total Jarak
-${savedData.totalDistance.toLocaleString()} meter
-
-🪙 Total Koin
-${savedData.coins.toLocaleString()} koin
-
-━━━━━━━━━━━━━━━━
-
-🌐 Papan Peringkat Global
-akan tersedia dengan
-koneksi blockchain $MAJA
-    `;
-    this.showPopup('🏆 SKOR', content);
+    this.showPopup('🏆 SKOR TERTINGGI', (container) => {
+      const saved = this.savedData;
+      
+      // High score
+      const highScore = this.add.text(0, -150, (saved.highScore || 0) + 'm', {
+        fontSize: '64px',
+        fontStyle: 'bold',
+        color: '#FFD700'
+      }).setOrigin(0.5);
+      
+      // Stats
+      const stats = [
+        { label: '🎮 Total Game', value: saved.gamesPlayed || 0 },
+        { label: '📏 Total Jarak', value: (saved.totalDistance || 0) + 'm' },
+        { label: '🪙 Total Koin', value: saved.totalCoins || 0 },
+        { label: '⭐ Rata-rata', value: saved.gamesPlayed ? Math.floor((saved.totalDistance || 0) / saved.gamesPlayed) + 'm' : '0m' }
+      ];
+      
+      let y = -20;
+      stats.forEach(stat => {
+        const row = this.add.text(0, y, stat.label + ': ' + stat.value, {
+          fontSize: '18px',
+          color: '#CCCCCC'
+        }).setOrigin(0.5);
+        container.add(row);
+        y += 40;
+      });
+      
+      container.add([highScore]);
+    });
   }
-
+  
   showCollectionPopup() {
-    const content = `
-📜 KOLEKSI LONTAR
-
-━━━━━━━━━━━━━━━━
-
-Kumpulkan fragmen sejarah
-Majapahit saat bermain!
-
-🔒 Prasasti Trowulan
-🔒 Kitab Negarakertagama  
-🔒 Relief Candi Penataran
-🔒 Peta Nusantara Kuno
-🔒 Legenda Gajah Mada
-
-━━━━━━━━━━━━━━━━
-
-0 / 5 Terkumpul
-
-⚠️ Fitur akan tersedia
-di update berikutnya!
-    `;
-    this.showPopup('📜 KOLEKSI', content);
+    this.showPopup('📚 KOLEKSI', (container) => {
+      const saved = this.savedData;
+      const unlocked = saved.unlockedCharacters || ['jaya'];
+      
+      let y = -150;
+      
+      Object.values(CHARACTERS).forEach(char => {
+        const isUnlocked = unlocked.includes(char.id);
+        
+        const row = this.add.container(0, y);
+        
+        // Emoji (gray if locked)
+        const emoji = this.add.text(-100, 0, isUnlocked ? char.emoji : '🔒', {
+          fontSize: '40px'
+        }).setOrigin(0.5);
+        if (!isUnlocked) emoji.setAlpha(0.5);
+        
+        // Info
+        const name = this.add.text(-40, -15, isUnlocked ? char.name : '???', {
+          fontSize: '20px',
+          fontStyle: 'bold',
+          color: isUnlocked ? '#FFD700' : '#666666'
+        });
+        
+        const passive = this.add.text(-40, 10, isUnlocked ? char.passive : 'Belum terbuka', {
+          fontSize: '14px',
+          color: isUnlocked ? '#27AE60' : '#888888'
+        });
+        
+        row.add([emoji, name, passive]);
+        container.add(row);
+        y += 90;
+      });
+    });
   }
-
+  
   showSettingsPopup() {
-    const content = `
-⚙️ PENGATURAN
-
-━━━━━━━━━━━━━━━━
-
-🔊 Suara: ON
-🎵 Musik: ON
-📳 Getar: ON
-
-━━━━━━━━━━━━━━━━
-
-🌐 Bahasa: Indonesia
-
-━━━━━━━━━━━━━━━━
-
-⚠️ Pengaturan lengkap
-akan tersedia di versi
-berikutnya!
-    `;
-    this.showPopup('⚙️ PENGATURAN', content);
-  }
-
-  toggleSound() {
-    // TODO: Implement sound toggle
-    this.showPopup('🔊 SUARA', `
-Suara Game: ON
-
-━━━━━━━━━━━━━━━━
-
-Klik untuk toggle ON/OFF
-
-(Fitur audio akan tersedia
-setelah asset musik
-gamelan ditambahkan)
-    `);
+    this.showPopup('⚙️ PENGATURAN', (container) => {
+      // Reset data button
+      const resetBtn = this.add.rectangle(0, -50, 200, 50, 0xE74C3C)
+        .setInteractive({ useHandCursor: true })
+        .on('pointerdown', () => {
+          localStorage.removeItem('majapahitRunner');
+          this.closePopup();
+          this.scene.restart();
+        });
+      const resetText = this.add.text(0, -50, '🗑️ Reset Data', {
+        fontSize: '18px',
+        color: '#FFFFFF'
+      }).setOrigin(0.5);
+      
+      // Credits
+      const credits = this.add.text(0, 100, 'Majapahit Runner\nby $MAJA Token Project\n\n🏛️ Lestarikan Budaya Nusantara', {
+        fontSize: '14px',
+        color: '#888888',
+        align: 'center'
+      }).setOrigin(0.5);
+      
+      container.add([resetBtn, resetText, credits]);
+    });
   }
 }
