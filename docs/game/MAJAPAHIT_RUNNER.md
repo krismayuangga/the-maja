@@ -1,9 +1,13 @@
 # 🏃 Majapahit Runner - Game Design Document
 
-**Versi:** 1.0  
+**Versi:** 1.1  
 **Tanggal:** 15 Januari 2026  
+**Last Updated:** 15 Januari 2026  
 **Status:** Konsep / Pre-Development  
-**Target Release:** Q1 2026 (sesuai Roadmap $MAJA)
+**Target Release:** Q1 2026 (sesuai Roadmap $MAJA)  
+**Platform:** Web-Based (PWA)  
+**Blockchain:** BSC (BNB Smart Chain)  
+**Token:** $MAJA (BEP-20)
 
 ---
 
@@ -722,11 +726,736 @@ const config = {
 
 ---
 
+## 🛠️ Technical Stack
+
+### Arsitektur Sistem
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    MAJAPAHIT RUNNER                      │
+├─────────────────────────────────────────────────────────┤
+│  Frontend Game    : Phaser.js 3.x (Game Engine)         │
+│  UI Framework     : React/Next.js (Menu, Leaderboard)   │
+│  Wallet Connect   : Web3.js / Ethers.js                 │
+│  Backend          : Node.js + Express                   │
+│  Database         : MongoDB Atlas / Supabase            │
+│  Blockchain       : BSC (BNB Smart Chain)               │
+│  Token            : $MAJA (BEP-20)                      │
+│  Hosting          : Vercel / Netlify                    │
+│  CDN              : Cloudflare                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Kenapa Web-Based?
+
+| Alasan | Penjelasan |
+|--------|------------|
+| **Aksesibilitas** | Semua orang bisa main tanpa install |
+| **Cross-platform** | Desktop, mobile, tablet dalam 1 build |
+| **Integrasi Wallet** | Mudah connect dengan MetaMask/TrustWallet |
+| **Update Instant** | Deploy langsung, user dapat versi terbaru |
+| **PWA Ready** | Bisa "install" seperti app native |
+| **Telegram Mini App** | Bisa embed di Telegram |
+
+### Target Platform
+- 📱 **Mobile Web** (Primary) - PWA
+- 💻 **Desktop Web** (Secondary)
+- 📲 **Telegram Mini App** (Optional)
+
+### Performance Target
+- 60 FPS on mid-range mobile
+- < 3 second initial load
+- < 50MB total assets
+- Offline capable (PWA)
+
+### Browser Support
+- Chrome 80+
+- Safari 13+
+- Firefox 75+
+- Edge 80+
+
+---
+
+## 💎 Play-to-Earn (P2E) System
+
+### Earning Mechanism Flow
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                   $MAJA EARNING FLOW                     │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│   🎮 PLAY          →    🏆 ACHIEVE       →   💰 EARN    │
+│                                                          │
+│   Daily Run             Top 100 Daily       $MAJA Pool  │
+│   Weekly Tournament     Top 10 Weekly       Prize Pool  │
+│   Monthly Championship  Top 3 Monthly       Big Reward  │
+│   Lontar Collection     Complete 50         NFT Badge   │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+### P2E Eligibility Requirements
+
+| Requirement | Detail |
+|-------------|--------|
+| **Wallet Connected** | MetaMask/TrustWallet wajib |
+| **Minimum Hold** | Hold minimal 100 $MAJA untuk eligible |
+| **Account Age** | Minimal 24 jam setelah registrasi |
+| **KYC Level** | Tidak perlu KYC untuk tier dasar |
+| **Daily Limit** | Max 10 P2E runs per hari |
+
+### Reward Pool Distribution (dari Dana Budaya 2%)
+
+| Tier | Kondisi | Reward Pool Share |
+|------|---------|-------------------|
+| **Daily** | Top 100 skor harian | 5% dari pool bulanan |
+| **Weekly** | Top 50 tournament | 15% dari pool bulanan |
+| **Monthly** | Top 20 championship | 40% dari pool bulanan |
+| **Special** | Event & achievement | 20% dari pool bulanan |
+| **Reserve** | Carry forward | 20% |
+
+### Contoh Kalkulasi Reward
+
+```
+Asumsi: Volume trading $100,000/bulan
+├── Dana Budaya (2%): $2,000
+├── Alokasi Game Rewards: 50% = $1,000
+│
+├── Daily Pool (5%): $50/bulan = ~$1.67/hari
+│   └── Dibagi 100 pemain = ~$0.017 per pemain/hari
+│
+├── Weekly Pool (15%): $150/bulan = ~$37.50/minggu
+│   └── Top 50 share = $0.50 - $5 per pemain
+│
+├── Monthly Pool (40%): $400/bulan
+│   └── Top 20 share = $5 - $100 per pemain
+│
+└── Special Events (20%): $200/bulan
+    └── Achievement, seasonal events
+```
+
+### Anti-Cheat & Fair Play
+
+| Measure | Implementasi |
+|---------|--------------|
+| **Wallet Verification** | 1 wallet = 1 account |
+| **Server-side Validation** | Skor divalidasi backend |
+| **Cooldown** | Max 10 runs per jam untuk P2E |
+| **Anti-bot** | Captcha untuk claim reward |
+| **Suspicious Activity** | Flag unusual patterns |
+| **Replay System** | Store game replay untuk verifikasi |
+| **IP Monitoring** | Deteksi multi-account |
+| **Device Fingerprint** | Limit device per account |
+
+### Reward Claim Process
+
+```
+1. Pemain finish run dengan skor tinggi
+2. Skor dikirim ke backend dengan encrypted payload
+3. Backend validasi:
+   - Timestamp masuk akal
+   - Score progression valid
+   - No anomaly detected
+4. Skor masuk leaderboard
+5. Akhir periode (daily/weekly/monthly):
+   - Snapshot leaderboard
+   - Calculate rewards
+   - Push ke claiming queue
+6. Pemain claim reward:
+   - Connect wallet
+   - Verify ownership
+   - Sign transaction
+   - Receive $MAJA
+```
+
+---
+
+## 🏆 Tournament System
+
+### Tournament Tiers
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                   TOURNAMENT STRUCTURE                   │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  🥉 DAILY RACE (Gratis)                                 │
+│     • Reset setiap 24 jam (00:00 WIB)                   │
+│     • Top 100 dapat poin                                │
+│     • Poin = tiket weekly tournament                    │
+│     • Tidak perlu entry fee                             │
+│                                                          │
+│  🥈 WEEKLY TOURNAMENT (Butuh Tiket/Entry Fee)           │
+│     • Mulai: Senin 00:00 WIB                            │
+│     • Selesai: Minggu 23:59 WIB                         │
+│     • Entry: 100 $MAJA atau 500 Poin                    │
+│     • Pool: Semua entry fee + bonus dari Dana Budaya    │
+│     • Top 50 share pool                                 │
+│                                                          │
+│  🥇 MONTHLY CHAMPIONSHIP (Qualify dari Weekly)          │
+│     • Periode: Tanggal 1-28/30/31                       │
+│     • Top 100 weekly auto-qualify                       │
+│     • Grand Prize Pool                                  │
+│     • Top 3: NFT Trophy + $MAJA                         │
+│     • Live streaming final day                          │
+│                                                          │
+│  👑 SEASONAL GRAND PRIX (4x setahun)                    │
+│     • Q1: Maret, Q2: Juni, Q3: September, Q4: Desember  │
+│     • Invite only (top performers)                      │
+│     • Massive prize pool                                │
+│     • Exclusive legendary skin                          │
+│     • Sponsored prizes (partnership)                    │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Tournament Rules
+
+#### Daily Race
+- **Durasi**: 24 jam (00:00 - 23:59 WIB)
+- **Entry**: Gratis
+- **Attempts**: Unlimited (best score counts)
+- **Rewards**: Poin untuk weekly tournament
+- **Poin Distribution**:
+  - Rank 1: 100 poin
+  - Rank 2-10: 50 poin
+  - Rank 11-50: 20 poin
+  - Rank 51-100: 10 poin
+
+#### Weekly Tournament
+- **Durasi**: 7 hari (Senin-Minggu)
+- **Entry Fee**: 100 $MAJA atau 500 Poin
+- **Attempts**: 5 attempts per entry (best score counts)
+- **Additional Entry**: Boleh beli entry tambahan
+- **Prize Pool**: Entry fees + 15% Dana Budaya bulanan
+
+#### Monthly Championship
+- **Qualification**: Top 100 average weekly rank
+- **Entry**: Free untuk yang qualify
+- **Format**: 3 runs, total score
+- **Special Rules**: 
+  - Semua power-up disabled
+  - Pure skill competition
+  - Anti-cheat extra strict
+
+### Prize Distribution (Weekly Example)
+
+| Rank | Share | Contoh (Pool 10,000 $MAJA) |
+|------|-------|---------------------------|
+| 🥇 1st | 20% | 2,000 $MAJA |
+| 🥈 2nd | 12% | 1,200 $MAJA |
+| 🥉 3rd | 8% | 800 $MAJA |
+| 4-10 | 3% each | 2,100 $MAJA total |
+| 11-25 | 1% each | 1,500 $MAJA total |
+| 26-50 | 0.5% each | 1,250 $MAJA total |
+| Platform | 5% | 500 $MAJA (sustainability) |
+| Burn | 1.5% | 150 $MAJA (deflation) |
+
+### Tournament Badges & Rewards
+
+| Achievement | Badge | Reward |
+|-------------|-------|--------|
+| Win Daily Race | 🏅 Daily Champion | 50 $MAJA |
+| Win Weekly Tournament | 🏆 Weekly Champion | Trophy NFT + Prize |
+| Win Monthly Championship | 👑 Monthly Legend | Legendary Skin + Prize |
+| Win Seasonal Grand Prix | 💎 Grand Master | Exclusive Title + Prize |
+| 10 Tournament Wins | 🌟 Tournament Star | Special Frame |
+| 100 Tournament Participations | 💪 Veteran | Veteran Badge |
+
+---
+
+## 🗄️ Database Schema
+
+### MongoDB Collections
+
+#### Users Collection
+```javascript
+{
+  _id: ObjectId,
+  walletAddress: "0x...",              // Primary identifier (lowercase)
+  username: "Jaya123",                 // Unique, 3-20 chars
+  email: "optional@email.com",         // Optional
+  createdAt: ISODate,
+  lastLoginAt: ISODate,
+  
+  // Game Progress
+  stats: {
+    level: 15,
+    xp: 2500,
+    highScore: 45000,
+    totalDistance: 125000,             // Meters
+    totalCoins: 85000,
+    totalRuns: 342,
+    totalPlayTime: 18000               // Seconds
+  },
+  
+  // Unlocks
+  inventory: {
+    characters: ["jaya", "bhayangkara", "srikandi"],
+    skins: ["default", "gold"],
+    powerups: {
+      keris: 5,
+      kuda: 3,
+      jimat: 10,
+      magnet: 8,
+      speed: 2
+    }
+  },
+  
+  // Collection Progress
+  lontar: {
+    collected: [1, 2, 5, 7, 12],       // Lontar IDs
+    total: 50
+  },
+  
+  // P2E Stats
+  p2e: {
+    totalEarned: 1500,                 // $MAJA earned lifetime
+    pendingReward: 25,                 // Unclaimed
+    tournamentWins: 3,
+    currentStreak: 5,
+    bestRank: {
+      daily: 3,
+      weekly: 12,
+      monthly: 45
+    }
+  },
+  
+  // Anti-cheat
+  security: {
+    lastPlayTime: ISODate,
+    dailyRunCount: 8,
+    p2eRunsToday: 4,
+    flagged: false,
+    flagReason: null,
+    deviceFingerprints: ["fp1", "fp2"],
+    ipHistory: ["ip1", "ip2"]
+  },
+  
+  // Settings
+  settings: {
+    soundEnabled: true,
+    musicEnabled: true,
+    notifications: true,
+    language: "id"
+  }
+}
+```
+
+#### Leaderboard Collection
+```javascript
+{
+  _id: ObjectId,
+  period: "daily-2026-01-15",          // Identifier
+  type: "daily",                        // daily, weekly, monthly
+  startDate: ISODate,
+  endDate: ISODate,
+  
+  entries: [
+    { 
+      rank: 1,
+      wallet: "0x...", 
+      username: "Player1",
+      score: 85000,
+      distance: 2500,
+      timestamp: ISODate
+    },
+    { 
+      rank: 2,
+      wallet: "0x...", 
+      username: "Player2",
+      score: 72000,
+      distance: 2100,
+      timestamp: ISODate
+    }
+    // ... up to 1000 entries
+  ],
+  
+  prizePool: 500,                       // $MAJA
+  distributed: false,
+  distributedAt: null,
+  transactionHashes: []
+}
+```
+
+#### Tournament Collection
+```javascript
+{
+  _id: ObjectId,
+  tournamentId: "weekly-2026-w03",      // Unique identifier
+  name: "Weekly Tournament #3",
+  type: "weekly",                        // weekly, monthly, seasonal
+  
+  schedule: {
+    registrationStart: ISODate,
+    registrationEnd: ISODate,
+    startDate: ISODate,
+    endDate: ISODate
+  },
+  
+  config: {
+    entryFee: 100,                       // $MAJA
+    maxParticipants: 10000,
+    attemptsPerEntry: 5,
+    additionalEntryAllowed: true,
+    powerupsEnabled: true
+  },
+  
+  pool: {
+    basePrize: 5000,                     // From Dana Budaya
+    entryFees: 50000,                    // Collected from entries
+    totalPrize: 55000
+  },
+  
+  participants: [
+    {
+      wallet: "0x...",
+      username: "Player1",
+      registeredAt: ISODate,
+      entryCount: 2,
+      bestScore: 85000,
+      attempts: [
+        { score: 72000, timestamp: ISODate },
+        { score: 85000, timestamp: ISODate }
+      ]
+    }
+  ],
+  
+  results: [
+    { rank: 1, wallet: "0x...", score: 85000, prize: 11000 },
+    { rank: 2, wallet: "0x...", score: 82000, prize: 6600 }
+  ],
+  
+  status: "active",                      // upcoming, active, ended, distributed
+  distributed: false,
+  distributedAt: null
+}
+```
+
+#### GameRuns Collection (untuk anti-cheat)
+```javascript
+{
+  _id: ObjectId,
+  wallet: "0x...",
+  runId: "uuid-v4",
+  
+  gameData: {
+    character: "jaya",
+    zone: "trowulan",
+    score: 45000,
+    distance: 1500,
+    coinsCollected: 234,
+    powerupsUsed: ["keris", "magnet"],
+    lontarCollected: [15, 22],
+    duration: 180                        // Seconds
+  },
+  
+  // Anti-cheat data
+  validation: {
+    clientTimestamp: ISODate,
+    serverTimestamp: ISODate,
+    clientHash: "sha256...",
+    validated: true,
+    anomalyScore: 0.1,                   // 0-1, higher = more suspicious
+    flags: []
+  },
+  
+  // Replay data (optional, for disputed scores)
+  replay: {
+    stored: false,
+    replayUrl: null
+  },
+  
+  // Context
+  context: {
+    tournamentId: "weekly-2026-w03",     // null if casual play
+    isP2E: true,
+    ip: "xxx.xxx.xxx.xxx",
+    deviceFingerprint: "fp123"
+  }
+}
+```
+
+### Database Indexes
+```javascript
+// Users
+db.users.createIndex({ walletAddress: 1 }, { unique: true })
+db.users.createIndex({ username: 1 }, { unique: true })
+db.users.createIndex({ "stats.highScore": -1 })
+db.users.createIndex({ "p2e.totalEarned": -1 })
+
+// Leaderboard
+db.leaderboard.createIndex({ period: 1 }, { unique: true })
+db.leaderboard.createIndex({ type: 1, endDate: -1 })
+
+// Tournament
+db.tournaments.createIndex({ tournamentId: 1 }, { unique: true })
+db.tournaments.createIndex({ status: 1, "schedule.startDate": 1 })
+
+// GameRuns
+db.gameruns.createIndex({ wallet: 1, "context.tournamentId": 1 })
+db.gameruns.createIndex({ runId: 1 }, { unique: true })
+db.gameruns.createIndex({ "validation.validated": 1, "validation.anomalyScore": -1 })
+```
+
+---
+
+## 📁 Project Structure
+
+```
+the-maja/
+├── docs/
+│   └── game/
+│       └── MAJAPAHIT_RUNNER.md          ← Dokumen ini
+│
+├── game/                                 # Phaser.js Game
+│   ├── src/
+│   │   ├── scenes/
+│   │   │   ├── BootScene.js             # Initial loading
+│   │   │   ├── PreloadScene.js          # Asset loading
+│   │   │   ├── MenuScene.js             # Main menu
+│   │   │   ├── CharacterSelectScene.js  # Character selection
+│   │   │   ├── GameScene.js             # Main gameplay
+│   │   │   ├── PauseScene.js            # Pause overlay
+│   │   │   ├── GameOverScene.js         # Results screen
+│   │   │   ├── LeaderboardScene.js      # Leaderboard view
+│   │   │   ├── ShopScene.js             # Character/skin shop
+│   │   │   ├── TournamentScene.js       # Tournament lobby
+│   │   │   └── LontarScene.js           # Lontar collection
+│   │   ├── objects/
+│   │   │   ├── Player.js                # Player character
+│   │   │   ├── Obstacle.js              # Obstacle types
+│   │   │   ├── PowerUp.js               # Power-up items
+│   │   │   ├── Coin.js                  # Collectible coins
+│   │   │   └── Lontar.js                # Lontar scroll
+│   │   ├── managers/
+│   │   │   ├── GameManager.js           # Game state
+│   │   │   ├── ScoreManager.js          # Score tracking
+│   │   │   ├── AudioManager.js          # Sound control
+│   │   │   └── SaveManager.js           # Local save
+│   │   ├── config/
+│   │   │   ├── gameConfig.js            # Phaser config
+│   │   │   ├── characters.js            # Character data
+│   │   │   ├── zones.js                 # Zone definitions
+│   │   │   └── lontar.js                # Lontar content
+│   │   ├── utils/
+│   │   │   ├── api.js                   # Backend API calls
+│   │   │   ├── wallet.js                # Wallet connection
+│   │   │   └── antiCheat.js             # Client-side validation
+│   │   └── main.js                      # Entry point
+│   ├── assets/
+│   │   ├── sprites/                     # Character & object sprites
+│   │   ├── backgrounds/                 # Parallax backgrounds
+│   │   ├── audio/                       # SFX & music
+│   │   └── ui/                          # UI elements
+│   ├── index.html
+│   └── package.json
+│
+├── api/                                  # Backend Server
+│   ├── routes/
+│   │   ├── auth.js                      # Wallet auth
+│   │   ├── user.js                      # User profile
+│   │   ├── leaderboard.js               # Leaderboard API
+│   │   ├── tournament.js                # Tournament API
+│   │   ├── rewards.js                   # Claim rewards
+│   │   └── gamerun.js                   # Submit scores
+│   ├── models/
+│   │   ├── User.js                      # User model
+│   │   ├── Leaderboard.js               # Leaderboard model
+│   │   ├── Tournament.js                # Tournament model
+│   │   └── GameRun.js                   # Game run model
+│   ├── middleware/
+│   │   ├── auth.js                      # JWT verification
+│   │   ├── walletVerify.js              # Wallet signature
+│   │   └── antiCheat.js                 # Score validation
+│   ├── services/
+│   │   ├── rewardService.js             # Reward distribution
+│   │   ├── tournamentService.js         # Tournament logic
+│   │   └── blockchainService.js         # BSC interaction
+│   ├── jobs/
+│   │   ├── dailyReset.js                # Reset daily leaderboard
+│   │   ├── weeklyTournament.js          # Process weekly
+│   │   └── rewardDistribution.js        # Send rewards
+│   ├── config/
+│   │   └── config.js                    # Environment config
+│   ├── server.js                        # Express entry
+│   └── package.json
+│
+├── src/                                  # Existing Website
+│   ├── app/
+│   └── components/
+│
+└── public/
+    └── images/
+```
+
+---
+
+## 💵 Budget Estimation (Updated)
+
+### Development Cost
+
+| Item | Estimasi (USD) | Notes |
+|------|----------------|-------|
+| Game development (Phaser.js) | $500-800 | Core gameplay |
+| Art assets (sprites, BG) | $150-250 | Buy packs + custom |
+| Sound/music | $50-100 | Gamelan themed |
+| Backend development | $200-400 | API + database |
+| Wallet integration | $100-200 | Web3 connection |
+| P2E system | $150-300 | Reward logic |
+| Tournament system | $100-200 | Matchmaking |
+| Testing & QA | $100-200 | Bug fixes |
+| **Total MVP** | **$1,350-2,450** | |
+
+### Optional Additions
+
+| Item | Estimasi (USD) |
+|------|----------------|
+| Smart contract audit | $300-500 |
+| Custom art (not packs) | $500-1000 |
+| Mobile app (React Native) | $1000-2000 |
+| Advanced anti-cheat | $200-400 |
+
+### Operational Cost (Monthly)
+
+| Item | Estimasi (USD) |
+|------|----------------|
+| Server hosting (Railway/Render) | $20-50 |
+| Database (MongoDB Atlas) | $0-25 |
+| CDN (Cloudflare) | $0-20 |
+| Domain | $1-2 |
+| **Total/bulan** | **$21-97** |
+
+---
+
+## 📅 Development Timeline (Updated - 12 Weeks)
+
+### Phase 0: Setup (Week 0)
+- [x] Game Design Document ✓
+- [ ] Setup development environment
+- [ ] Create project structure
+- [ ] Setup Git branches
+
+### Phase 1: Core Game (Week 1-2)
+- [ ] Phaser.js project setup
+- [ ] Basic run mechanics
+- [ ] Jump, slide, lane change
+- [ ] Collision detection
+- [ ] Basic obstacle spawning
+- [ ] Score system
+- [ ] Single character
+
+### Phase 2: Content (Week 3-4)
+- [ ] Zone 1 (Trowulan) complete
+- [ ] Zone 2 (Hutan) complete
+- [ ] 5 obstacle types per zone
+- [ ] Power-up system (4 types)
+- [ ] Coin collection
+- [ ] 3 playable characters
+
+### Phase 3: Backend (Week 5-6)
+- [ ] MongoDB setup
+- [ ] Express server
+- [ ] User authentication (wallet)
+- [ ] Leaderboard API
+- [ ] Save/load system
+- [ ] Basic anti-cheat
+
+### Phase 4: Wallet Integration (Week 7-8)
+- [ ] MetaMask connection
+- [ ] TrustWallet support
+- [ ] Wallet signature auth
+- [ ] Token balance check
+- [ ] Holder verification
+
+### Phase 5: P2E System (Week 9-10)
+- [ ] Reward pool management
+- [ ] Score validation
+- [ ] Daily leaderboard rewards
+- [ ] Claim mechanism
+- [ ] Anti-cheat enhancement
+
+### Phase 6: Tournament (Week 11)
+- [ ] Tournament registration
+- [ ] Entry fee collection
+- [ ] Tournament leaderboard
+- [ ] Prize distribution
+- [ ] Weekly automation
+
+### Phase 7: Launch (Week 12)
+- [ ] UI/UX polish
+- [ ] Sound effects & music
+- [ ] Performance optimization
+- [ ] PWA configuration
+- [ ] Beta testing
+- [ ] Mainnet deployment
+
+---
+
 **Document Version History**
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0 | 15 Jan 2026 | Initial GDD created |
+| 1.1 | 15 Jan 2026 | Added P2E system, Tournament system, Tech stack, Database schema, Project structure, Updated timeline & budget |
+
+---
+
+## 🔒 Locked Concepts (JANGAN DIUBAH)
+
+> **PENTING**: Konsep-konsep berikut sudah final dan tidak boleh diubah tanpa diskusi tim.
+
+### Core Locked ✅
+- [x] **Genre**: Endless Runner 2D Side-scrolling
+- [x] **Setting**: Kerajaan Majapahit
+- [x] **Karakter Utama**: Jaya (kurir kerajaan)
+- [x] **Storyline**: Mengantar pesan rahasia Gajah Mada
+- [x] **Gameplay**: 3-lane system dengan swipe controls
+- [x] **Platform**: Web-based (Phaser.js)
+
+### Zones Locked ✅
+- [x] Zone 1: Trowulan (Ibukota)
+- [x] Zone 2: Hutan Jati
+- [x] Zone 3: Pelabuhan
+- [x] Zone 4: Candi
+- [x] Zone 5: Gunung Bromo
+
+### Characters Locked ✅
+- [x] Jaya (Kurir) - Default, Speed +5%
+- [x] Bhayangkara (Prajurit) - Armor 1x hit
+- [x] Srikandi (Penari) - Double jump
+- [x] Dang Hyang (Pendeta) - Magnet koin
+- [x] Hayam Wuruk (Raja) - 2x multiplier
+- [x] Gajah Mada (Patih) - Shield + Speed (Premium)
+
+### P2E Locked ✅
+- [x] Reward dari Dana Budaya (2% tax)
+- [x] Daily/Weekly/Monthly leaderboard rewards
+- [x] Minimum hold 100 $MAJA untuk P2E eligible
+- [x] Max 10 P2E runs per hari
+- [x] Server-side score validation
+
+### Tournament Locked ✅
+- [x] Daily Race: Gratis, poin rewards
+- [x] Weekly Tournament: 100 $MAJA entry fee
+- [x] Monthly Championship: Qualify dari weekly
+- [x] Seasonal Grand Prix: 4x setahun
+- [x] Prize distribution formula (20%, 12%, 8%...)
+
+### Tech Stack Locked ✅
+- [x] Game Engine: Phaser.js 3.x
+- [x] Backend: Node.js + Express
+- [x] Database: MongoDB
+- [x] Blockchain: BSC (BNB Smart Chain)
+- [x] Token: $MAJA (BEP-20)
+
+### Edukasi Locked ✅
+- [x] 50 Lontar collectibles
+- [x] 4 kategori: Tokoh, Tempat, Peristiwa, Budaya
+- [x] Fakta sejarah akurat
 
 ---
 
 *Dokumen ini adalah Game Design Document untuk Majapahit Runner, bagian dari ekosistem $MAJA Token.*
+
+**© 2026 The Maja Project. All rights reserved.**
