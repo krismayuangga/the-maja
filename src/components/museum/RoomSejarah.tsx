@@ -3,10 +3,12 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import useIsMobile from "@/hooks/useIsMobile";
+import useParallax from "@/hooks/useParallax";
 
 export default function RoomSejarah() {
   const [particles, setParticles] = useState<{ id: number; x: number; y: number; size: number; delay: number; duration: number }[]>([]);
   const isMobile = useIsMobile();
+  const parallax = useParallax(!isMobile);
 
   useEffect(() => {
     // Di mobile kurangi partikel biar performa lancar
@@ -28,25 +30,30 @@ export default function RoomSejarah() {
       {/* Warm ambient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#2C1A12] via-[#1A1008] to-[#0D0A06]" />
 
-      {/* Relief texture overlay */}
+      {/* Relief texture overlay — parallax slow layer */}
       <div
-        className="absolute inset-0 opacity-[0.06]"
+        className="absolute inset-0 opacity-[0.06] transition-transform duration-700 ease-out"
         style={{
           backgroundImage: `url('/images/ukiran-maja.png')`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           mixBlendMode: "overlay",
+          transform: `translate(${parallax.x * -8}px, ${parallax.y * -8}px) scale(1.05)`,
         }}
       />
 
-      {/* Warm golden ambient light */}
-      <div className="absolute inset-0 pointer-events-none">
+      {/* Warm golden ambient light — parallax mid layer */}
+      <div className="absolute inset-0 pointer-events-none transition-transform duration-1000 ease-out"
+        style={{ transform: `translate(${parallax.x * -15}px, ${parallax.y * -15}px)` }}
+      >
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full bg-[#C6A75E] opacity-[0.06] blur-[150px]" />
         <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-[#C6A75E]/[0.04] to-transparent" />
       </div>
 
-      {/* Gold dust particles */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      {/* Gold dust particles — parallax fast layer */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden transition-transform duration-500 ease-out"
+        style={{ transform: `translate(${parallax.x * 12}px, ${parallax.y * 12}px)` }}
+      >
         {particles.map((p) => (
           <motion.div
             key={p.id}
@@ -171,8 +178,10 @@ export default function RoomSejarah() {
         </motion.div>
       </div>
 
-      {/* Aksara Jawa watermark */}
-      <div className="absolute bottom-8 right-6 sm:right-12 text-[25vw] sm:text-[15vw] text-[#C6A75E]/[0.03] select-none pointer-events-none z-0" style={{ fontFamily: "serif" }}>
+      {/* Aksara Jawa watermark — parallax very slow */}
+      <div className="absolute bottom-8 right-6 sm:right-12 text-[25vw] sm:text-[15vw] text-[#C6A75E]/[0.03] select-none pointer-events-none z-0 transition-transform duration-1000 ease-out"
+        style={{ fontFamily: "serif", transform: `translate(${parallax.x * -20}px, ${parallax.y * -10}px)` }}
+      >
         ꦩꦗ
       </div>
     </section>

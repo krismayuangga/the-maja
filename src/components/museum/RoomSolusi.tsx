@@ -2,6 +2,8 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import useIsMobile from "@/hooks/useIsMobile";
+import useParallax from "@/hooks/useParallax";
 
 const solutions = [
   {
@@ -27,13 +29,18 @@ const solutions = [
 ];
 
 export default function RoomSolusi() {
+  const isMobile = useIsMobile();
+  const parallax = useParallax(!isMobile);
+
   return (
     <section className="room room-3 flex items-center justify-center room-vignette relative overflow-hidden">
       {/* Bright warm background — total contrast from Room 2 */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#1E150E] via-[#2C1A12] to-[#1A1008]" />
 
-      {/* Warm light burst from center */}
-      <div className="absolute inset-0 pointer-events-none">
+      {/* Warm light burst from center — parallax */}
+      <div className="absolute inset-0 pointer-events-none transition-transform duration-1000 ease-out"
+        style={{ transform: `translate(${parallax.x * -15}px, ${parallax.y * -15}px)` }}
+      >
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] rounded-full bg-[#C6A75E] opacity-[0.08] blur-[180px]" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-[#C6A75E] opacity-[0.05] blur-[100px]" />
       </div>

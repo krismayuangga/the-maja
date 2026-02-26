@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import useIsMobile from "@/hooks/useIsMobile";
+import useParallax from "@/hooks/useParallax";
 
 const roadmap = [
   {
@@ -42,6 +43,7 @@ const roadmap = [
 export default function RoomMasaDepan() {
   const [stars, setStars] = useState<{ id: number; x: number; y: number; size: number; delay: number; }[]>([]);
   const isMobile = useIsMobile();
+  const parallax = useParallax(!isMobile);
 
   useEffect(() => {
     // Kurangi bintang di mobile biar performa lancar
@@ -63,7 +65,12 @@ export default function RoomMasaDepan() {
       <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A10] via-[#0D0A06] to-[#1A1008]" />
 
       {/* Star field */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      <div
+        className="absolute inset-0 pointer-events-none overflow-hidden transition-transform duration-1000 ease-out"
+        style={{
+          transform: `translate(${parallax.x * 12}px, ${parallax.y * 10}px)`,
+        }}
+      >
         {stars.map((s) => (
           <motion.div
             key={s.id}
@@ -75,8 +82,22 @@ export default function RoomMasaDepan() {
         ))}
       </div>
 
+      {/* Ambient cosmic glow — parallax layer */}
+      <div
+        className="absolute inset-0 pointer-events-none transition-transform duration-700 ease-out"
+        style={{
+          background: "radial-gradient(ellipse at 50% 40%, rgba(198,167,94,0.04) 0%, transparent 60%)",
+          transform: `translate(${parallax.x * -14}px, ${parallax.y * -10}px)`,
+        }}
+      />
+
       {/* Island silhouettes at bottom — connected by light network */}
-      <div className="absolute bottom-0 left-0 right-0 pointer-events-none">
+      <div
+        className="absolute bottom-0 left-0 right-0 pointer-events-none transition-transform duration-1000 ease-out"
+        style={{
+          transform: `translate(${parallax.x * -8}px, ${parallax.y * -4}px)`,
+        }}
+      >
         <svg viewBox="0 0 1200 200" className="w-full h-auto" preserveAspectRatio="none">
           {/* Island silhouettes */}
           <path d="M0,180 Q60,140 120,160 Q160,120 200,150 L200,200 L0,200 Z" fill="#1A1008" opacity="0.6" />

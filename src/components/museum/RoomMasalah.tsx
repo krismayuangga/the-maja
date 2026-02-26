@@ -2,6 +2,8 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import useIsMobile from "@/hooks/useIsMobile";
+import useParallax from "@/hooks/useParallax";
 
 const problems = [
   {
@@ -27,18 +29,25 @@ const problems = [
 ];
 
 export default function RoomMasalah() {
+  const isMobile = useIsMobile();
+  const parallax = useParallax(!isMobile);
+
   return (
     <section className="room room-2 flex items-center justify-center room-vignette relative">
       {/* Dark desaturated background */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#0D0D0F] via-[#111115] to-[#0A0A0C]" />
 
-      {/* Subtle cold light */}
-      <div className="absolute inset-0 pointer-events-none">
+      {/* Subtle cold light — parallax */}
+      <div className="absolute inset-0 pointer-events-none transition-transform duration-1000 ease-out"
+        style={{ transform: `translate(${parallax.x * -12}px, ${parallax.y * -12}px)` }}
+      >
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] h-[400px] rounded-full bg-[#3A3A4A] opacity-[0.05] blur-[120px]" />
       </div>
 
-      {/* Cracked frame decorations — hanya tampil di desktop */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden hidden md:block">
+      {/* Cracked frame decorations — parallax + hanya desktop */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden hidden md:block transition-transform duration-700 ease-out"
+        style={{ transform: `translate(${parallax.x * 10}px, ${parallax.y * 8}px)` }}
+      >
         {/* Empty frames on the wall */}
         {[
           { x: "8%", y: "15%", w: 140, h: 180, rotate: -3 },
@@ -157,8 +166,10 @@ export default function RoomMasalah() {
         </div>
       </div>
 
-      {/* Dim spotlight effect from above */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[2px] h-[30vh] bg-gradient-to-b from-[#C6A75E]/10 to-transparent pointer-events-none" />
+      {/* Dim spotlight effect from above — parallax */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[2px] h-[30vh] bg-gradient-to-b from-[#C6A75E]/10 to-transparent pointer-events-none transition-transform duration-700 ease-out"
+        style={{ transform: `translateX(calc(-50% + ${parallax.x * 20}px))` }}
+      />
     </section>
   );
 }
