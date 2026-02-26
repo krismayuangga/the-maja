@@ -3,6 +3,7 @@
 import React, { useRef, useEffect, useState, useCallback } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import Preloader from "@/components/museum/Preloader";
 import CinematicOpening from "@/components/museum/CinematicOpening";
 import RoomSejarah from "@/components/museum/RoomSejarah";
 import RoomMasalah from "@/components/museum/RoomMasalah";
@@ -10,6 +11,9 @@ import RoomSolusi from "@/components/museum/RoomSolusi";
 import RoomNusantara from "@/components/museum/RoomNusantara";
 import RoomEkonomi from "@/components/museum/RoomEkonomi";
 import RoomMasaDepan from "@/components/museum/RoomMasaDepan";
+import RoomTransition from "@/components/museum/RoomTransition";
+import AmbientSound from "@/components/museum/AmbientSound";
+import CustomCursor from "@/components/museum/CustomCursor";
 import MuseumNav from "@/components/museum/MuseumNav";
 import useIsMobile from "@/hooks/useIsMobile";
 
@@ -29,9 +33,14 @@ const ROOM_COUNT = ROOM_NAMES.length;
 export default function MuseumExperience() {
   const containerRef = useRef<HTMLDivElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const [loadingComplete, setLoadingComplete] = useState(false);
   const [introComplete, setIntroComplete] = useState(false);
   const [activeRoom, setActiveRoom] = useState(0);
   const isMobile = useIsMobile();
+
+  const handleLoadingComplete = useCallback(() => {
+    setLoadingComplete(true);
+  }, []);
 
   const handleIntroComplete = useCallback(() => {
     setIntroComplete(true);
@@ -133,6 +142,10 @@ export default function MuseumExperience() {
     [introComplete, isMobile]
   );
 
+  if (!loadingComplete) {
+    return <Preloader onComplete={handleLoadingComplete} />;
+  }
+
   if (!introComplete) {
     return <CinematicOpening onComplete={handleIntroComplete} />;
   }
@@ -141,6 +154,7 @@ export default function MuseumExperience() {
   if (isMobile) {
     return (
       <>
+        <AmbientSound />
         <MuseumNav
           rooms={ROOM_NAMES}
           activeRoom={activeRoom}
@@ -151,12 +165,12 @@ export default function MuseumExperience() {
           ref={containerRef}
           className="mobile-snap-container"
         >
-          <RoomSejarah />
-          <RoomMasalah />
-          <RoomSolusi />
-          <RoomNusantara />
-          <RoomEkonomi />
-          <RoomMasaDepan />
+          <RoomTransition index={0}><RoomSejarah /></RoomTransition>
+          <RoomTransition index={1}><RoomMasalah /></RoomTransition>
+          <RoomTransition index={2}><RoomSolusi /></RoomTransition>
+          <RoomTransition index={3}><RoomNusantara /></RoomTransition>
+          <RoomTransition index={4}><RoomEkonomi /></RoomTransition>
+          <RoomTransition index={5}><RoomMasaDepan /></RoomTransition>
         </div>
       </>
     );
@@ -165,6 +179,8 @@ export default function MuseumExperience() {
   // === DESKTOP LAYOUT: Horizontal scroll with snap ===
   return (
     <>
+      <CustomCursor />
+      <AmbientSound />
       <MuseumNav
         rooms={ROOM_NAMES}
         activeRoom={activeRoom}
@@ -177,12 +193,12 @@ export default function MuseumExperience() {
           className="flex"
           style={{ width: `${ROOM_COUNT * 100}vw`, height: "100vh" }}
         >
-          <RoomSejarah />
-          <RoomMasalah />
-          <RoomSolusi />
-          <RoomNusantara />
-          <RoomEkonomi />
-          <RoomMasaDepan />
+          <RoomTransition index={0}><RoomSejarah /></RoomTransition>
+          <RoomTransition index={1}><RoomMasalah /></RoomTransition>
+          <RoomTransition index={2}><RoomSolusi /></RoomTransition>
+          <RoomTransition index={3}><RoomNusantara /></RoomTransition>
+          <RoomTransition index={4}><RoomEkonomi /></RoomTransition>
+          <RoomTransition index={5}><RoomMasaDepan /></RoomTransition>
         </div>
       </div>
     </>
