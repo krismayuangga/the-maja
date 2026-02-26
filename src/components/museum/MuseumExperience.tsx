@@ -11,9 +11,6 @@ import RoomSolusi from "@/components/museum/RoomSolusi";
 import RoomNusantara from "@/components/museum/RoomNusantara";
 import RoomEkonomi from "@/components/museum/RoomEkonomi";
 import RoomMasaDepan from "@/components/museum/RoomMasaDepan";
-import RoomTransition from "@/components/museum/RoomTransition";
-import AmbientSound from "@/components/museum/AmbientSound";
-import CustomCursor from "@/components/museum/CustomCursor";
 import MuseumNav from "@/components/museum/MuseumNav";
 import useIsMobile from "@/hooks/useIsMobile";
 
@@ -57,8 +54,6 @@ export default function MuseumExperience() {
     // Wait for layout to settle
     const timer = setTimeout(() => {
       const ctx = gsap.context(() => {
-        // Each room is exactly 100vw, total width = ROOM_COUNT * 100vw
-        // We scroll (ROOM_COUNT - 1) screens worth
         const totalScroll = window.innerWidth * (ROOM_COUNT - 1);
 
         gsap.to(wrapper, {
@@ -67,14 +62,13 @@ export default function MuseumExperience() {
           scrollTrigger: {
             trigger: container,
             pin: true,
-            scrub: 0.3,
+            scrub: 0.5,
             end: () => `+=${totalScroll}`,
             snap: {
-              // Snap to exact room positions: 0, 0.2, 0.4, 0.6, 0.8, 1.0
               snapTo: 1 / (ROOM_COUNT - 1),
-              duration: { min: 0.2, max: 0.5 },
-              delay: 0,
-              ease: "power1.inOut",
+              duration: { min: 0.3, max: 0.6 },
+              delay: 0.05,
+              ease: "power2.inOut",
             },
             invalidateOnRefresh: true,
             onUpdate: (self) => {
@@ -150,11 +144,10 @@ export default function MuseumExperience() {
     return <CinematicOpening onComplete={handleIntroComplete} />;
   }
 
-  // === MOBILE LAYOUT: Vertical scroll-snap, no doors ===
+  // === MOBILE LAYOUT: Vertical scroll-snap ===
   if (isMobile) {
     return (
       <>
-        <AmbientSound />
         <MuseumNav
           rooms={ROOM_NAMES}
           activeRoom={activeRoom}
@@ -165,12 +158,12 @@ export default function MuseumExperience() {
           ref={containerRef}
           className="mobile-snap-container"
         >
-          <RoomTransition index={0} activeRoom={activeRoom} isMobile={true}><RoomSejarah /></RoomTransition>
-          <RoomTransition index={1} activeRoom={activeRoom} isMobile={true}><RoomMasalah /></RoomTransition>
-          <RoomTransition index={2} activeRoom={activeRoom} isMobile={true}><RoomSolusi /></RoomTransition>
-          <RoomTransition index={3} activeRoom={activeRoom} isMobile={true}><RoomNusantara /></RoomTransition>
-          <RoomTransition index={4} activeRoom={activeRoom} isMobile={true}><RoomEkonomi /></RoomTransition>
-          <RoomTransition index={5} activeRoom={activeRoom} isMobile={true}><RoomMasaDepan /></RoomTransition>
+          <RoomSejarah />
+          <RoomMasalah />
+          <RoomSolusi />
+          <RoomNusantara />
+          <RoomEkonomi />
+          <RoomMasaDepan />
         </div>
       </>
     );
@@ -179,8 +172,6 @@ export default function MuseumExperience() {
   // === DESKTOP LAYOUT: Horizontal scroll with snap ===
   return (
     <>
-      <CustomCursor />
-      <AmbientSound />
       <MuseumNav
         rooms={ROOM_NAMES}
         activeRoom={activeRoom}
@@ -193,12 +184,12 @@ export default function MuseumExperience() {
           className="flex"
           style={{ width: `${ROOM_COUNT * 100}vw`, height: "100vh" }}
         >
-          <RoomTransition index={0} activeRoom={activeRoom} isMobile={false}><RoomSejarah /></RoomTransition>
-          <RoomTransition index={1} activeRoom={activeRoom} isMobile={false}><RoomMasalah /></RoomTransition>
-          <RoomTransition index={2} activeRoom={activeRoom} isMobile={false}><RoomSolusi /></RoomTransition>
-          <RoomTransition index={3} activeRoom={activeRoom} isMobile={false}><RoomNusantara /></RoomTransition>
-          <RoomTransition index={4} activeRoom={activeRoom} isMobile={false}><RoomEkonomi /></RoomTransition>
-          <RoomTransition index={5} activeRoom={activeRoom} isMobile={false}><RoomMasaDepan /></RoomTransition>
+          <RoomSejarah />
+          <RoomMasalah />
+          <RoomSolusi />
+          <RoomNusantara />
+          <RoomEkonomi />
+          <RoomMasaDepan />
         </div>
       </div>
     </>
