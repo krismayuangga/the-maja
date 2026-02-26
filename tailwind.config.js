@@ -9,16 +9,18 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        majaGold: '#b08d57',
-        majaYellow: '#ffd700',
-        majaRed: '#6e2639',
-        majaBrick: '#a94442',
-        majaDark: '#2a1a3a',
-        majaBronze: '#8c6239',
+        'deep-brown': '#2C1A12',
+        'antique-gold': '#C6A75E',
+        'ivory': '#F5EBDD',
+        'dark-emerald': '#0F3B2E',
+        'charcoal': '#1A1A1A',
+        'gold-light': '#D4B978',
+        'warm-amber': '#B8860B',
       },
       fontFamily: {
-        serif: ['Merriweather', 'serif'],
-        sans: ['Inter', 'Poppins', 'sans-serif'],
+        serif: ['Cinzel', 'serif'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        display: ['Cormorant Garamond', 'serif'],
       },
     },
   },

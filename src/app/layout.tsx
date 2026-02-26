@@ -1,21 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { cinzel, cormorant, inter } from "@/fonts";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
-  title: "$MAJA - Majapahit Heritage Token",
-  description: "Landing page resmi $MAJA, token budaya Majapahit.",
- icons: {
+  title: "MAJA — Creative Economy Infrastructure of Nusantara",
+  description: "Uniting Nusantara Through Creativity. MAJA is the creative economy infrastructure connecting artists, collectors, and global communities through blockchain technology.",
+  icons: {
     icon: "/favicon.ico",
   },
 };
@@ -28,7 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${cinzel.variable} ${cormorant.variable} ${inter.variable} antialiased`}
       >
         {children}
       </body>

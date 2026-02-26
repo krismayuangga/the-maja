@@ -1,0 +1,19 @@
+"use client";
+
+import { useState, useEffect } from "react";
+
+const MOBILE_BREAKPOINT = 768; // px — sama dengan md: di Tailwind
+
+export default function useIsMobile(): boolean {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+    check(); // cek langsung saat mount
+
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  return isMobile;
+}
