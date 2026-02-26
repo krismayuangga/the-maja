@@ -25,7 +25,7 @@ const regions: Region[] = [
 export default function RoomNusantara() {
   const [activeRegion, setActiveRegion] = useState<Region | null>(null);
   const isMobile = useIsMobile();
-  const parallax = useParallax(!isMobile);
+  const registerParallax = useParallax(!isMobile);
 
   return (
     <section className="room room-4 flex items-center justify-center room-vignette relative">
@@ -33,8 +33,9 @@ export default function RoomNusantara() {
       <div className="absolute inset-0 bg-gradient-to-br from-[#0F3B2E]/20 via-[#1A1008] to-[#2C1A12]" />
 
       {/* Ambient map glow — parallax */}
-      <div className="absolute inset-0 pointer-events-none transition-transform duration-1000 ease-out"
-        style={{ transform: `translate(${parallax.x * -12}px, ${parallax.y * -12}px)` }}
+      <div className="absolute inset-0 pointer-events-none"
+        ref={registerParallax(-12, -12)}
+        style={{ willChange: "transform" }}
       >
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-[#0F3B2E] opacity-[0.06] blur-[120px] rounded-full" />
       </div>

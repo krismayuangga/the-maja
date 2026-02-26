@@ -43,7 +43,7 @@ const roadmap = [
 export default function RoomMasaDepan() {
   const [stars, setStars] = useState<{ id: number; x: number; y: number; size: number; delay: number; }[]>([]);
   const isMobile = useIsMobile();
-  const parallax = useParallax(!isMobile);
+  const registerParallax = useParallax(!isMobile);
 
   useEffect(() => {
     // Kurangi bintang di mobile biar performa lancar
@@ -66,10 +66,9 @@ export default function RoomMasaDepan() {
 
       {/* Star field */}
       <div
-        className="absolute inset-0 pointer-events-none overflow-hidden transition-transform duration-1000 ease-out"
-        style={{
-          transform: `translate(${parallax.x * 12}px, ${parallax.y * 10}px)`,
-        }}
+        className="absolute inset-0 pointer-events-none overflow-hidden"
+        ref={registerParallax(12, 10)}
+        style={{ willChange: "transform" }}
       >
         {stars.map((s) => (
           <motion.div
@@ -84,19 +83,19 @@ export default function RoomMasaDepan() {
 
       {/* Ambient cosmic glow — parallax layer */}
       <div
-        className="absolute inset-0 pointer-events-none transition-transform duration-700 ease-out"
+        className="absolute inset-0 pointer-events-none"
+        ref={registerParallax(-14, -10)}
         style={{
           background: "radial-gradient(ellipse at 50% 40%, rgba(198,167,94,0.04) 0%, transparent 60%)",
-          transform: `translate(${parallax.x * -14}px, ${parallax.y * -10}px)`,
+          willChange: "transform",
         }}
       />
 
       {/* Island silhouettes at bottom — connected by light network */}
       <div
-        className="absolute bottom-0 left-0 right-0 pointer-events-none transition-transform duration-1000 ease-out"
-        style={{
-          transform: `translate(${parallax.x * -8}px, ${parallax.y * -4}px)`,
-        }}
+        className="absolute bottom-0 left-0 right-0 pointer-events-none"
+        ref={registerParallax(-8, -4)}
+        style={{ willChange: "transform" }}
       >
         <svg viewBox="0 0 1200 200" className="w-full h-auto" preserveAspectRatio="none">
           {/* Island silhouettes */}

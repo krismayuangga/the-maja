@@ -23,7 +23,7 @@ const feeFlow = [
 
 export default function RoomEkonomi() {
   const isMobile = useIsMobile();
-  const parallax = useParallax(!isMobile);
+  const registerParallax = useParallax(!isMobile);
 
   // Build ring segments for the donut
   const total = tokenomics.reduce((a, b) => a + b.pct, 0);
@@ -47,17 +47,19 @@ export default function RoomEkonomi() {
       <div className="absolute inset-0 bg-gradient-to-br from-[#0D0A06] via-[#1A1008] to-[#0D0A06]" />
 
       {/* Subtle grid pattern — parallax slow */}
-      <div className="absolute inset-0 pointer-events-none opacity-[0.03] transition-transform duration-1000 ease-out"
+      <div className="absolute inset-0 pointer-events-none opacity-[0.03]"
+        ref={registerParallax(-6, -6)}
         style={{
           backgroundImage: `linear-gradient(rgba(198,167,94,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(198,167,94,0.3) 1px, transparent 1px)`,
           backgroundSize: "80px 80px",
-          transform: `translate(${parallax.x * -6}px, ${parallax.y * -6}px) scale(1.03)`,
+          willChange: "transform",
         }}
       />
 
       {/* Ambient glow — parallax */}
-      <div className="absolute inset-0 pointer-events-none transition-transform duration-1000 ease-out"
-        style={{ transform: `translate(${parallax.x * -14}px, ${parallax.y * -14}px)` }}
+      <div className="absolute inset-0 pointer-events-none"
+        ref={registerParallax(-14, -14)}
+        style={{ willChange: "transform" }}
       >
         <div className="absolute top-1/2 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-[#C6A75E] opacity-[0.04] blur-[150px]" />
       </div>

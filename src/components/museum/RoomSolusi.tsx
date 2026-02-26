@@ -30,7 +30,7 @@ const solutions = [
 
 export default function RoomSolusi() {
   const isMobile = useIsMobile();
-  const parallax = useParallax(!isMobile);
+  const registerParallax = useParallax(!isMobile);
 
   return (
     <section className="room room-3 flex items-center justify-center room-vignette relative overflow-hidden">
@@ -38,8 +38,9 @@ export default function RoomSolusi() {
       <div className="absolute inset-0 bg-gradient-to-br from-[#1E150E] via-[#2C1A12] to-[#1A1008]" />
 
       {/* Warm light burst from center — parallax */}
-      <div className="absolute inset-0 pointer-events-none transition-transform duration-1000 ease-out"
-        style={{ transform: `translate(${parallax.x * -15}px, ${parallax.y * -15}px)` }}
+      <div className="absolute inset-0 pointer-events-none"
+        ref={registerParallax(-15, -15)}
+        style={{ willChange: "transform" }}
       >
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] rounded-full bg-[#C6A75E] opacity-[0.08] blur-[180px]" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-[#C6A75E] opacity-[0.05] blur-[100px]" />

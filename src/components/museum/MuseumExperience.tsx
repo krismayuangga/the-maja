@@ -62,13 +62,13 @@ export default function MuseumExperience() {
           scrollTrigger: {
             trigger: container,
             pin: true,
-            scrub: 0.5,
+            scrub: 1,
             end: () => `+=${totalScroll}`,
             snap: {
               snapTo: 1 / (ROOM_COUNT - 1),
-              duration: { min: 0.3, max: 0.6 },
-              delay: 0.05,
-              ease: "power2.inOut",
+              duration: { min: 0.2, max: 0.8 },
+              delay: 0.1,
+              ease: "power1.inOut",
             },
             invalidateOnRefresh: true,
             onUpdate: (self) => {
