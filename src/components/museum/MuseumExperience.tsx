@@ -165,12 +165,12 @@ export default function MuseumExperience() {
           ref={containerRef}
           className="mobile-snap-container"
         >
-          <RoomTransition index={0}><RoomSejarah /></RoomTransition>
-          <RoomTransition index={1}><RoomMasalah /></RoomTransition>
-          <RoomTransition index={2}><RoomSolusi /></RoomTransition>
-          <RoomTransition index={3}><RoomNusantara /></RoomTransition>
-          <RoomTransition index={4}><RoomEkonomi /></RoomTransition>
-          <RoomTransition index={5}><RoomMasaDepan /></RoomTransition>
+          <RoomTransition index={0} activeRoom={activeRoom} isMobile={true}><RoomSejarah /></RoomTransition>
+          <RoomTransition index={1} activeRoom={activeRoom} isMobile={true}><RoomMasalah /></RoomTransition>
+          <RoomTransition index={2} activeRoom={activeRoom} isMobile={true}><RoomSolusi /></RoomTransition>
+          <RoomTransition index={3} activeRoom={activeRoom} isMobile={true}><RoomNusantara /></RoomTransition>
+          <RoomTransition index={4} activeRoom={activeRoom} isMobile={true}><RoomEkonomi /></RoomTransition>
+          <RoomTransition index={5} activeRoom={activeRoom} isMobile={true}><RoomMasaDepan /></RoomTransition>
         </div>
       </>
     );
@@ -193,12 +193,12 @@ export default function MuseumExperience() {
           className="flex"
           style={{ width: `${ROOM_COUNT * 100}vw`, height: "100vh" }}
         >
-          <RoomTransition index={0}><RoomSejarah /></RoomTransition>
-          <RoomTransition index={1}><RoomMasalah /></RoomTransition>
-          <RoomTransition index={2}><RoomSolusi /></RoomTransition>
-          <RoomTransition index={3}><RoomNusantara /></RoomTransition>
-          <RoomTransition index={4}><RoomEkonomi /></RoomTransition>
-          <RoomTransition index={5}><RoomMasaDepan /></RoomTransition>
+          <RoomTransition index={0} activeRoom={activeRoom} isMobile={false}><RoomSejarah /></RoomTransition>
+          <RoomTransition index={1} activeRoom={activeRoom} isMobile={false}><RoomMasalah /></RoomTransition>
+          <RoomTransition index={2} activeRoom={activeRoom} isMobile={false}><RoomSolusi /></RoomTransition>
+          <RoomTransition index={3} activeRoom={activeRoom} isMobile={false}><RoomNusantara /></RoomTransition>
+          <RoomTransition index={4} activeRoom={activeRoom} isMobile={false}><RoomEkonomi /></RoomTransition>
+          <RoomTransition index={5} activeRoom={activeRoom} isMobile={false}><RoomMasaDepan /></RoomTransition>
         </div>
       </div>
     </>
