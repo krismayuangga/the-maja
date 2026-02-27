@@ -41,7 +41,6 @@ function TypewriterQuote({ inView }: { inView: boolean }) {
       <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl leading-relaxed" style={{ fontFamily: "var(--font-inter)", fontWeight: 300 }}>
         {line2.split("").map((char, i) => {
           const goldStart = line2.indexOf("bukan oleh kekuasaan");
-          const goldEnd = line2.length;
           const isGold = i >= goldStart;
           return (
             <motion.span
