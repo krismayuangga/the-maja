@@ -1,0 +1,41 @@
+# Allow access to _next directory (Next.js static export)
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Allow all requests to _next folder
+  RewriteRule ^_next/(.*)$ _next/$1 [L]
+
+  # Handle client-side routing (SPA fallback)
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^(.*)$ /index.html [L,QSA]
+</IfModule>
+
+# Ensure proper MIME types
+<IfModule mod_mime.c>
+  AddType application/javascript .js
+  AddType text/css .css
+  AddType image/webp .webp
+  AddType image/png .png
+  AddType image/jpeg .jpg .jpeg
+  AddType video/mp4 .mp4
+  AddType application/font-woff2 .woff2
+  AddType application/font-woff .woff
+</IfModule>
+
+# Enable compression
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json image/svg+xml
+</IfModule>
+
+# Cache static assets
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType video/mp4 "access plus 1 year"
+  ExpiresByType application/font-woff2 "access plus 1 year"
+</IfModule>
