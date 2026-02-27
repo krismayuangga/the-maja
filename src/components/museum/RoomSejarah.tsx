@@ -1,34 +1,29 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import useIsMobile from "@/hooks/useIsMobile";
 import useParallax from "@/hooks/useParallax";
+import { SplitText, BlurText, ShinyText } from "@/components/ui/TextEffects";
+import { ParticleField, Reveal } from "@/components/ui/CardEffects";
 
 export default function RoomSejarah() {
-  const [particles, setParticles] = useState<{ id: number; x: number; y: number; size: number; delay: number; duration: number }[]>([]);
   const isMobile = useIsMobile();
   const registerParallax = useParallax(!isMobile);
-
-  useEffect(() => {
-    // Di mobile kurangi partikel biar performa lancar
-    const count = isMobile ? 15 : 40;
-    setParticles(
-      Array.from({ length: count }, (_, i) => ({
-        id: i,
-        x: Math.random() * 100,
-        y: Math.random() * 100,
-        size: Math.random() * 3 + 1,
-        delay: Math.random() * 3,
-        duration: Math.random() * 5 + 4,
-      }))
-    );
-  }, [isMobile]);
 
   return (
     <section className="room room-1 flex items-center justify-center grain-overlay room-vignette">
       {/* Warm ambient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#2C1A12] via-[#1A1008] to-[#0D0A06]" />
+
+      {/* Background image support — loads if available */}
+      <img
+        src="/images/museum/sejarah/relief-texture.webp"
+        alt=""
+        className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-1000 mix-blend-overlay"
+        onLoad={(e) => { (e.target as HTMLImageElement).style.opacity = "0.15"; }}
+        onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+      />
 
       {/* Relief texture overlay — parallax slow layer */}
       <div
@@ -53,41 +48,77 @@ export default function RoomSejarah() {
         <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-[#C6A75E]/[0.04] to-transparent" />
       </div>
 
-      {/* Gold dust particles — parallax fast layer */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden"
-        ref={registerParallax(12, 12)}
-        style={{ willChange: "transform" }}
-      >
-        {particles.map((p) => (
-          <motion.div
-            key={p.id}
-            className="absolute rounded-full bg-[#C6A75E]"
-            style={{
-              left: `${p.x}%`,
-              top: `${p.y}%`,
-              width: p.size,
-              height: p.size,
-            }}
-            animate={{
-              opacity: [0, 0.5, 0],
-              y: [0, -40, -80],
-              x: [0, Math.random() * 20 - 10],
-            }}
-            transition={{
-              duration: p.duration,
-              delay: p.delay,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          />
-        ))}
+      {/* Gold dust particles — React Bits ParticleField */}
+      <div ref={registerParallax(12, 12)} style={{ willChange: "transform" }}
+        className="absolute inset-0 pointer-events-none">
+        <ParticleField
+          count={isMobile ? 18 : 50}
+          color="#C6A75E"
+          minSize={1}
+          maxSize={4}
+          speed="slow"
+          direction="up"
+        />
+      </div>
+
+      {/* Ornamental corner frames */}
+      <div className="absolute inset-6 sm:inset-12 pointer-events-none z-10">
+        {/* Top-left */}
+        <div className="absolute top-0 left-0 w-16 h-16 sm:w-24 sm:h-24">
+          <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-[#C6A75E]/40 to-transparent" />
+          <div className="absolute top-0 left-0 h-full w-[1px] bg-gradient-to-b from-[#C6A75E]/40 to-transparent" />
+          <div className="absolute top-2 left-2 w-2 h-2 rotate-45 border border-[#C6A75E]/20" />
+        </div>
+        {/* Top-right */}
+        <div className="absolute top-0 right-0 w-16 h-16 sm:w-24 sm:h-24">
+          <div className="absolute top-0 right-0 w-full h-[1px] bg-gradient-to-l from-[#C6A75E]/40 to-transparent" />
+          <div className="absolute top-0 right-0 h-full w-[1px] bg-gradient-to-b from-[#C6A75E]/40 to-transparent" />
+          <div className="absolute top-2 right-2 w-2 h-2 rotate-45 border border-[#C6A75E]/20" />
+        </div>
+        {/* Bottom-left */}
+        <div className="absolute bottom-0 left-0 w-16 h-16 sm:w-24 sm:h-24">
+          <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-[#C6A75E]/40 to-transparent" />
+          <div className="absolute bottom-0 left-0 h-full w-[1px] bg-gradient-to-t from-[#C6A75E]/40 to-transparent" />
+        </div>
+        {/* Bottom-right */}
+        <div className="absolute bottom-0 right-0 w-16 h-16 sm:w-24 sm:h-24">
+          <div className="absolute bottom-0 right-0 w-full h-[1px] bg-gradient-to-l from-[#C6A75E]/40 to-transparent" />
+          <div className="absolute bottom-0 right-0 h-full w-[1px] bg-gradient-to-t from-[#C6A75E]/40 to-transparent" />
+        </div>
       </div>
 
       {/* Main content */}
       <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
-        {/* Small decorative line */}
+        {/* Surya Majapahit ornament */}
         <motion.div
-          className="flex items-center justify-center gap-4 mb-8"
+          className="flex items-center justify-center mb-6 sm:mb-8"
+          initial={{ opacity: 0, scale: 0.5 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.5, delay: 0.2, ease: "easeOut" }}
+          viewport={{ once: true }}
+        >
+          <svg viewBox="0 0 80 80" className="w-12 h-12 sm:w-16 sm:h-16 opacity-50">
+            <circle cx="40" cy="40" r="6" fill="#C6A75E" opacity="0.6" />
+            <circle cx="40" cy="40" r="12" fill="none" stroke="#C6A75E" strokeWidth="0.5" opacity="0.4" />
+            <circle cx="40" cy="40" r="20" fill="none" stroke="#C6A75E" strokeWidth="0.3" opacity="0.2" />
+            {[0, 45, 90, 135, 180, 225, 270, 315].map((angle) => (
+              <line key={angle} x1="40" y1="40"
+                x2={40 + 28 * Math.cos((angle * Math.PI) / 180)}
+                y2={40 + 28 * Math.sin((angle * Math.PI) / 180)}
+                stroke="#C6A75E" strokeWidth="0.5" opacity="0.3" />
+            ))}
+            {[22.5, 67.5, 112.5, 157.5, 202.5, 247.5, 292.5, 337.5].map((angle) => (
+              <line key={angle} x1={40 + 14 * Math.cos((angle * Math.PI) / 180)} y1={40 + 14 * Math.sin((angle * Math.PI) / 180)}
+                x2={40 + 22 * Math.cos((angle * Math.PI) / 180)}
+                y2={40 + 22 * Math.sin((angle * Math.PI) / 180)}
+                stroke="#C6A75E" strokeWidth="0.3" opacity="0.25" />
+            ))}
+          </svg>
+        </motion.div>
+
+        {/* Decorative line */}
+        <motion.div
+          className="flex items-center justify-center gap-4 mb-6 sm:mb-8"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ duration: 1.5, delay: 0.3 }}
@@ -98,74 +129,61 @@ export default function RoomSejarah() {
           <div className="w-16 h-[1px] bg-gradient-to-l from-transparent to-[#C6A75E]/60" />
         </motion.div>
 
-        {/* Title */}
-        <motion.h1
-          className="text-4xl sm:text-5xl md:text-8xl lg:text-9xl font-bold tracking-[0.1em] sm:tracking-[0.15em] text-glow-gold mb-4 sm:mb-6"
-          style={{
-            fontFamily: "var(--font-cinzel)",
-            color: "#C6A75E",
-          }}
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
-          viewport={{ once: true }}
-        >
-          MAJA
-        </motion.h1>
+        {/* Title — SplitText animation */}
+        <div className="mb-4 sm:mb-6">
+          <SplitText
+            text="MAJA"
+            className="text-4xl sm:text-5xl md:text-8xl lg:text-9xl font-bold tracking-[0.1em] sm:tracking-[0.15em] text-glow-gold"
+            style={{ fontFamily: "var(--font-cinzel)", color: "#C6A75E" }}
+            delay={0.5}
+            stagger={0.08}
+            duration={0.8}
+          />
+        </div>
 
-        {/* Subtitle */}
-        <motion.p
-          className="text-xs sm:text-base md:text-xl tracking-[0.2em] sm:tracking-[0.3em] uppercase mb-8 sm:mb-12"
-          style={{
-            fontFamily: "var(--font-inter)",
-            color: "#F5EBDD",
-            opacity: 0.6,
-          }}
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 0.6, y: 0 }}
-          transition={{ duration: 1.5, delay: 0.4 }}
-          viewport={{ once: true }}
-        >
-          Creative Economy of Nusantara
-        </motion.p>
+        {/* Subtitle — ShinyText */}
+        <Reveal direction="left" delay={1} duration={0.6} color="#C6A75E">
+          <p
+            className="text-xs sm:text-base md:text-xl tracking-[0.2em] sm:tracking-[0.3em] uppercase"
+            style={{ fontFamily: "var(--font-inter)", color: "#F5EBDD", opacity: 0.6 }}
+          >
+            <ShinyText text="Creative Economy of Nusantara" speed={4} />
+          </p>
+        </Reveal>
 
         {/* Divider */}
         <motion.div
-          className="w-24 h-[1px] bg-[#C6A75E]/40 mx-auto mb-10"
+          className="w-24 h-[1px] bg-[#C6A75E]/40 mx-auto my-8 sm:my-10"
           initial={{ scaleX: 0 }}
           whileInView={{ scaleX: 1 }}
-          transition={{ duration: 1, delay: 0.8 }}
+          transition={{ duration: 1, delay: 1.5 }}
           viewport={{ once: true }}
         />
 
-        {/* Quote */}
-        <motion.div
-          className="space-y-3"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ duration: 1.5, delay: 1 }}
-          viewport={{ once: true }}
-        >
-          <p
+        {/* Quote — BlurText */}
+        <div className="space-y-3">
+          <BlurText
+            text="Gajah Mada mempersatukan Nusantara melalui kekuasaan."
             className="text-base md:text-lg text-[#C6A75E]/60 italic leading-relaxed"
             style={{ fontFamily: "var(--font-cormorant)" }}
-          >
-            Gajah Mada mempersatukan Nusantara melalui kekuasaan.
-          </p>
-          <p
+            delay={1.8}
+            duration={1}
+          />
+          <BlurText
+            text="MAJA mempersatukan Nusantara melalui kreativitas."
             className="text-base md:text-lg text-[#F5EBDD]/80 italic leading-relaxed"
             style={{ fontFamily: "var(--font-cormorant)" }}
-          >
-            MAJA mempersatukan Nusantara melalui kreativitas.
-          </p>
-        </motion.div>
+            delay={2.2}
+            duration={1}
+          />
+        </div>
 
         {/* Scroll hint */}
         <motion.div
           className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
-          transition={{ delay: 2 }}
+          transition={{ delay: 3 }}
           viewport={{ once: true }}
         >
           <span

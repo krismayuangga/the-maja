@@ -1,4 +1,4 @@
-import { Cinzel, Cormorant_Garamond, Inter } from "next/font/google";
+import { Cinzel, Cormorant_Garamond, Inter, Philosopher } from "next/font/google";
 
 export const cinzel = Cinzel({
   subsets: ["latin"],
@@ -18,5 +18,13 @@ export const inter = Inter({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
   variable: "--font-inter",
+  display: "swap",
+});
+
+export const philosopher = Philosopher({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-philosopher",
   display: "swap",
 });

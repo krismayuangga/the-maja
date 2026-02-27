@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { cinzel, cormorant, inter } from "@/fonts";
+import { cinzel, cormorant, inter, philosopher } from "@/fonts";
 import "./globals.css";
 
 const SITE_URL = "https://themaja.com";
@@ -116,7 +116,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${cinzel.variable} ${cormorant.variable} ${inter.variable} antialiased`}
+        className={`${cinzel.variable} ${cormorant.variable} ${inter.variable} ${philosopher.variable} antialiased`}
       >
         {children}
       </body>
