@@ -140,23 +140,26 @@ export default function MuseumExperience() {
     return <Preloader onComplete={handleLoadingComplete} />;
   }
 
-  if (!introComplete) {
-    return <CinematicOpening onComplete={handleIntroComplete} />;
-  }
-
   // === MOBILE LAYOUT: Vertical scroll-snap ===
   if (isMobile) {
     return (
       <>
-        <MuseumNav
-          rooms={ROOM_NAMES}
-          activeRoom={activeRoom}
-          onNavigate={navigateToRoom}
-          isMobile={true}
-        />
+        {/* CinematicOpening overlays on top of museum */}
+        {!introComplete && (
+          <CinematicOpening onComplete={handleIntroComplete} />
+        )}
+        {introComplete && (
+          <MuseumNav
+            rooms={ROOM_NAMES}
+            activeRoom={activeRoom}
+            onNavigate={navigateToRoom}
+            isMobile={true}
+          />
+        )}
         <div
           ref={containerRef}
           className="mobile-snap-container"
+          style={!introComplete ? { overflow: "hidden", touchAction: "none" } : undefined}
         >
           <RoomSejarah />
           <RoomMasalah />
@@ -172,12 +175,18 @@ export default function MuseumExperience() {
   // === DESKTOP LAYOUT: Horizontal scroll with snap ===
   return (
     <>
-      <MuseumNav
-        rooms={ROOM_NAMES}
-        activeRoom={activeRoom}
-        onNavigate={navigateToRoom}
-        isMobile={false}
-      />
+      {/* CinematicOpening overlays on top of museum */}
+      {!introComplete && (
+        <CinematicOpening onComplete={handleIntroComplete} />
+      )}
+      {introComplete && (
+        <MuseumNav
+          rooms={ROOM_NAMES}
+          activeRoom={activeRoom}
+          onNavigate={navigateToRoom}
+          isMobile={false}
+        />
+      )}
       <div ref={containerRef} className="relative overflow-hidden">
         <div
           ref={wrapperRef}

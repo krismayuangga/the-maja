@@ -136,6 +136,8 @@ class Media {
   isBefore: boolean;
   isAfter: boolean;
 
+  originalItem: any;
+
   constructor({
     geometry,
     gl,
@@ -151,6 +153,7 @@ class Media {
     textColor,
     borderRadius = 0,
     font,
+    originalItem,
   }: any) {
     this.extra = 0;
     this.geometry = geometry;
@@ -167,6 +170,7 @@ class Media {
     this.textColor = textColor;
     this.borderRadius = borderRadius;
     this.font = font;
+    this.originalItem = originalItem;
     this.scale = 1;
     this.padding = 2;
     this.width = 0;
@@ -295,7 +299,7 @@ class Media {
     }
 
     this.speed = scroll.current - scroll.last;
-    this.program.uniforms.uTime.value += 0.015;
+    this.program.uniforms.uTime.value += 0.04;
     this.program.uniforms.uSpeed.value = this.speed * 0.4;
 
     const planeOffset = this.plane.scale.x / 2;
@@ -325,14 +329,14 @@ class Media {
     }
     this.scale = this.screen.height / 1500;
     this.plane.scale.y =
-      (this.viewport.height * (900 * this.scale)) / this.screen.height;
+      (this.viewport.height * (650 * this.scale)) / this.screen.height;
     this.plane.scale.x =
-      (this.viewport.width * (700 * this.scale)) / this.screen.width;
+      (this.viewport.width * (500 * this.scale)) / this.screen.width;
     this.plane.program.uniforms.uPlaneSizes.value = [
       this.plane.scale.x,
       this.plane.scale.y,
     ];
-    this.padding = 2;
+    this.padding = 1;
     this.width = this.plane.scale.x + this.padding;
     this.widthTotal = this.width * this.length;
     this.x = this.width * this.index;
@@ -470,6 +474,7 @@ class GalleryApp {
         textColor,
         borderRadius,
         font,
+        originalItem: data,
       });
     });
   }
@@ -513,11 +518,11 @@ class GalleryApp {
         }
       });
     }
-    // Map back to original item index (mediasImages is doubled)
-    const originalIndex = closestIndex % (this.mediasImages.length / 2);
-    const item = this.mediasImages[closestIndex];
-    if (item) {
-      this.onItemClick(item, originalIndex);
+    // Get item data directly from the closest media's stored reference
+    const closestMedia = this.medias[closestIndex];
+    if (closestMedia && closestMedia.originalItem) {
+      const originalIndex = closestIndex % (this.mediasImages.length / 2);
+      this.onItemClick(closestMedia.originalItem, originalIndex);
     }
   }
 

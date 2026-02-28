@@ -8,45 +8,24 @@ interface CinematicOpeningProps {
 }
 
 export default function CinematicOpening({ onComplete }: CinematicOpeningProps) {
-  const [phase, setPhase] = useState<"particles" | "text1" | "text2" | "doors" | "done">("particles");
-  const [particles, setParticles] = useState<{ id: number; x: number; y: number; size: number; duration: number; delay: number; drift: number }[]>([]);
+  const [phase, setPhase] = useState<"waiting" | "doors" | "done">("waiting");
   const doorAudioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    setParticles(
-      Array.from({ length: 80 }, (_, i) => ({
-        id: i,
-        x: Math.random() * 100,
-        y: Math.random() * 100,
-        size: Math.random() * 4 + 1,
-        duration: Math.random() * 5 + 3,
-        delay: Math.random() * 3,
-        drift: Math.random() * 30 - 15,
-      }))
-    );
-
     // Preload door sound
-    const audio = new Audio("/sound/open-door.mp3");
+    const audio = new Audio("/sound/opening.mp3");
     audio.preload = "auto";
     audio.volume = 0.6;
     doorAudioRef.current = audio;
-
-    return () => {
-      audio.pause();
-      audio.src = "";
-    };
+    // Let audio play to natural end — no cleanup on unmount
   }, []);
 
-  // Play door sound when doors phase starts (with slight delay to sync with animation)
+  // Play door sound when doors phase starts
   useEffect(() => {
     if (phase === "doors" && doorAudioRef.current) {
-      const timer = setTimeout(() => {
-        doorAudioRef.current?.play().catch(() => {});
-      }, 600); // 600ms delay — sound starts just as doors begin moving (animation delay is 800ms)
-      return () => clearTimeout(timer);
+      doorAudioRef.current.play().catch(() => {});
     }
     if (phase === "done" && doorAudioRef.current) {
-      // Fade out audio on scene end
       const audio = doorAudioRef.current;
       const fadeOut = setInterval(() => {
         if (audio.volume > 0.05) {
@@ -60,22 +39,24 @@ export default function CinematicOpening({ onComplete }: CinematicOpeningProps) 
     }
   }, [phase]);
 
+  // After doors fully open → done (smooth fade)
   useEffect(() => {
-    const timers = [
-      setTimeout(() => setPhase("text1"), 1500),
-      setTimeout(() => setPhase("text2"), 4500),
-      setTimeout(() => setPhase("doors"), 7000),
-      setTimeout(() => setPhase("done"), 11000),
-    ];
-    return () => timers.forEach(clearTimeout);
-  }, []);
+    if (phase === "doors") {
+      const timer = setTimeout(() => setPhase("done"), 3800);
+      return () => clearTimeout(timer);
+    }
+  }, [phase]);
 
   useEffect(() => {
     if (phase === "done") onComplete();
   }, [phase, onComplete]);
 
+  // User clicks "Masuki Museum" → start doors + sound
+  const handleEnter = useCallback(() => {
+    setPhase("doors");
+  }, []);
+
   const handleSkip = useCallback(() => {
-    // Stop audio immediately on skip
     if (doorAudioRef.current) {
       doorAudioRef.current.pause();
       doorAudioRef.current.currentTime = 0;
@@ -88,249 +69,188 @@ export default function CinematicOpening({ onComplete }: CinematicOpeningProps) 
     <AnimatePresence>
       {phase !== "done" && (
         <motion.div
-          className="fixed inset-0 z-[100] bg-[#050505] flex items-center justify-center overflow-hidden"
+          className="fixed inset-0 z-[100]"
           exit={{ opacity: 0 }}
           transition={{ duration: 1.5, ease: "easeInOut" }}
         >
-          {/* Cinematic letterbox bars */}
-          <div className="absolute top-0 left-0 right-0 h-[8vh] bg-black z-30" />
-          <div className="absolute bottom-0 left-0 right-0 h-[8vh] bg-black z-30" />
-
-          {/* Deep ambient background glow */}
-          <motion.div
-            className="absolute inset-0 pointer-events-none"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 4 }}
-          >
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-[#C6A75E] opacity-[0.03] blur-[150px]" />
-            <div className="absolute top-1/3 left-1/3 w-[400px] h-[400px] rounded-full bg-[#0F3B2E] opacity-[0.04] blur-[120px]" />
-          </motion.div>
-
-          {/* Gold dust particles — enhanced */}
-          <div className="absolute inset-0 pointer-events-none">
-            {particles.map((p) => (
+          {/* Doors scene */}
+          <div className="fixed inset-0">
+            {/* Light burst from behind doors — when opening */}
+            {phase === "doors" && (
               <motion.div
-                key={p.id}
-                className="absolute rounded-full"
-                style={{
-                  left: `${p.x}%`,
-                  top: `${p.y}%`,
-                  width: p.size,
-                  height: p.size,
-                  background: `radial-gradient(circle, #C6A75E 0%, transparent 70%)`,
-                }}
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{
-                  opacity: [0, 0.7, 0.3, 0.6, 0],
-                  scale: [0, 1.2, 0.8, 1, 0.5],
-                  y: [0, -20, -40, -70, -110],
-                  x: [0, p.drift * 0.3, p.drift * 0.6, p.drift],
-                }}
-                transition={{
-                  duration: p.duration,
-                  delay: p.delay,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
+                className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 2, delay: 1.5 }}
+              >
+                <div className="w-[60vw] h-full bg-[#C6A75E] opacity-[0.08] blur-[100px]" />
+                <div className="absolute w-[10vw] h-[200%] bg-[#F5EBDD] opacity-[0.06] blur-[60px]" />
+              </motion.div>
+            )}
+
+            {/* Left door */}
+            <motion.div
+              className="absolute top-0 left-0 h-full overflow-hidden bg-black"
+              style={{
+                width: "50.5%",
+                transformOrigin: "left center",
+                transformStyle: "preserve-3d",
+                zIndex: 2,
+              }}
+              initial={{ rotateY: 0 }}
+              animate={{ rotateY: phase === "doors" ? 95 : 0 }}
+              transition={{ duration: 3, ease: [0.25, 0.1, 0.25, 1], delay: phase === "doors" ? 0.3 : 0 }}
+            >
+              <img src="/images/museum/opening/door-left.png" alt=""
+                className="absolute inset-0 w-full h-full object-cover"
               />
-            ))}
-          </div>
+            </motion.div>
 
-          {/* Text content — centered */}
-          <div className="relative z-10 text-center px-6 max-w-3xl">
-            {/* Text: Line 1 */}
-            <AnimatePresence mode="wait">
-              {(phase === "text1" || phase === "text2") && (
-                <motion.div
-                  key="text1"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: phase === "text1" ? 1 : 0.35 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 1, ease: "easeOut" }}
-                >
-                  <motion.p
-                    className="text-lg md:text-2xl lg:text-3xl tracking-[0.15em] leading-relaxed"
-                    style={{
-                      fontFamily: "var(--font-cormorant)",
-                      color: "#C6A75E",
-                      opacity: 0.8,
-                    }}
-                    initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
-                    animate={{ opacity: 0.8, y: 0, filter: "blur(0px)" }}
-                    transition={{ duration: 1.5, ease: "easeOut" }}
-                  >
-                    Dulu Nusantara disatukan oleh Sumpah Palapa.
-                  </motion.p>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {/* Right door */}
+            <motion.div
+              className="absolute top-0 right-0 h-full overflow-hidden bg-black"
+              style={{
+                width: "50.5%",
+                transformOrigin: "right center",
+                transformStyle: "preserve-3d",
+                zIndex: 2,
+              }}
+              initial={{ rotateY: 0 }}
+              animate={{ rotateY: phase === "doors" ? -95 : 0 }}
+              transition={{ duration: 3, ease: [0.25, 0.1, 0.25, 1], delay: phase === "doors" ? 0.3 : 0 }}
+            >
+              <img src="/images/museum/opening/door-right.png" alt=""
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+            </motion.div>
 
-            {/* Text: Line 2 — brighter, bolder */}
+            {/* ── "Masuki Museum" button — bold, glowing, unmissable ── */}
             <AnimatePresence>
-              {phase === "text2" && (
+              {phase === "waiting" && (
                 <motion.div
-                  key="text2"
-                  className="mt-4"
-                  initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
-                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                  transition={{ duration: 1.5, ease: "easeOut", delay: 0.3 }}
-                >
-                  <p
-                    className="text-lg md:text-2xl lg:text-3xl tracking-[0.15em] leading-relaxed text-[#F5EBDD] font-medium"
-                    style={{ fontFamily: "var(--font-cormorant)" }}
-                  >
-                    Hari ini Nusantara disatukan oleh kreativitas.
-                  </p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Museum doors — FULL SCREEN, opens INWARD (away from viewer) */}
-            <AnimatePresence>
-              {phase === "doors" && (
-                <motion.div
-                  key="doors"
+                  className="absolute inset-0 z-20 flex flex-col items-center justify-center"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="fixed inset-0 z-50 flex items-stretch"
-                  style={{ perspective: "2000px" }}
+                  exit={{ opacity: 0, scale: 1.3, filter: "blur(10px)" }}
+                  transition={{ duration: 0.8 }}
                 >
-                  {/* Light burst from behind doors */}
+                  {/* Large pulsing glow behind button */}
                   <motion.div
-                    className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                    className="absolute w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] rounded-full pointer-events-none"
+                    style={{
+                      background: "radial-gradient(circle, rgba(198,167,94,0.12) 0%, rgba(198,167,94,0.04) 40%, transparent 70%)",
+                    }}
+                    animate={{ scale: [1, 1.3, 1], opacity: [0.4, 0.8, 0.4] }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                  />
+
+                  {/* Main button */}
+                  <motion.button
+                    onClick={handleEnter}
+                    className="group relative cursor-pointer"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
+                    whileHover={{ scale: 1.08 }}
+                    whileTap={{ scale: 0.92 }}
+                  >
+                    {/* Animated outer ring */}
+                    <motion.div
+                      className="absolute -inset-3 sm:-inset-4 rounded-lg border-2 border-[#C6A75E]/30"
+                      animate={{ opacity: [0.3, 0.7, 0.3], scale: [1, 1.02, 1] }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    />
+
+                    {/* Button body */}
+                    <div
+                      className="relative px-12 py-5 sm:px-20 sm:py-6 md:px-24 md:py-7 rounded-lg overflow-hidden"
+                      style={{
+                        background: "linear-gradient(135deg, rgba(198,167,94,0.2) 0%, rgba(13,10,6,0.9) 50%, rgba(198,167,94,0.2) 100%)",
+                        border: "2px solid rgba(198,167,94,0.6)",
+                        boxShadow: "0 0 40px rgba(198,167,94,0.2), 0 0 80px rgba(198,167,94,0.1), inset 0 1px 0 rgba(198,167,94,0.3)",
+                      }}
+                    >
+                      {/* Shimmer sweep */}
+                      <motion.div
+                        className="absolute inset-0 pointer-events-none"
+                        style={{
+                          background: "linear-gradient(105deg, transparent 30%, rgba(198,167,94,0.15) 45%, rgba(198,167,94,0.25) 50%, rgba(198,167,94,0.15) 55%, transparent 70%)",
+                          backgroundSize: "200% 100%",
+                        }}
+                        animate={{ backgroundPosition: ["200% 0%", "-200% 0%"] }}
+                        transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                      />
+
+                      {/* Inner glow top edge */}
+                      <div className="absolute top-0 left-[10%] right-[10%] h-[1px] bg-gradient-to-r from-transparent via-[#C6A75E]/60 to-transparent" />
+
+                      {/* Text */}
+                      <span
+                        className="relative z-10 text-lg sm:text-xl md:text-2xl tracking-[0.3em] uppercase font-medium"
+                        style={{
+                          fontFamily: "var(--font-cinzel)",
+                          color: "#C6A75E",
+                          textShadow: "0 0 20px rgba(198,167,94,0.5), 0 0 40px rgba(198,167,94,0.2)",
+                        }}
+                      >
+                        Masuki Museum
+                      </span>
+                    </div>
+                  </motion.button>
+
+                  {/* Bouncing arrow indicator */}
+                  <motion.div
+                    className="mt-8 sm:mt-10"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ duration: 2, delay: 1.5 }}
+                    transition={{ delay: 1.2 }}
                   >
-                    <div className="w-[60vw] h-full bg-[#C6A75E] opacity-[0.08] blur-[100px]" />
-                    <div className="absolute w-[10vw] h-[200%] bg-[#F5EBDD] opacity-[0.06] blur-[60px]" />
+                    <motion.svg
+                      width="24" height="24" viewBox="0 0 24 24" fill="none"
+                      className="text-[#C6A75E]/50"
+                      animate={{ y: [0, 8, 0] }}
+                      transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                    >
+                      <path d="M12 4 L12 16 M6 12 L12 18 L18 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </motion.svg>
                   </motion.div>
-
-                  {/* Left door — full screen half, opens INWARD */}
-                  <motion.div
-                    className="flex-1 h-full relative overflow-hidden"
-                    style={{
-                      transformOrigin: "left center",
-                      transformStyle: "preserve-3d",
-                      boxShadow: "inset -30px 0 60px rgba(0,0,0,0.6)",
-                    }}
-                    initial={{ rotateY: 0 }}
-                    animate={{ rotateY: 80 }}
-                    transition={{ duration: 4, ease: [0.25, 0.1, 0.25, 1], delay: 0.8 }}
-                  >
-                    {/* Door texture — fallback gradient */}
-                    <div className="absolute inset-0" style={{
-                      background: "linear-gradient(160deg, #3D2517 0%, #2C1A12 40%, #1A0F09 100%)",
-                    }} />
-                    {/* Wood grain lines */}
-                    <div className="absolute inset-0 opacity-20" style={{
-                      backgroundImage: `repeating-linear-gradient(0deg, transparent, transparent 12px, rgba(198,167,94,0.06) 12px, rgba(198,167,94,0.06) 13px)`,
-                    }} />
-                    {/* Door panels */}
-                    <div className="absolute inset-6 md:inset-12 lg:inset-16 border border-[#C6A75E]/20 rounded-sm">
-                      <div className="absolute inset-4 md:inset-6 border border-[#C6A75E]/10 rounded-sm" />
-                      {/* Inner panel detail */}
-                      <div className="absolute inset-8 md:inset-12 border border-[#C6A75E]/5 rounded-sm" />
-                    </div>
-                    {/* Surya Majapahit ornament — larger */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 md:w-24 md:h-24 lg:w-32 lg:h-32">
-                      <svg viewBox="0 0 40 40" className="w-full h-full opacity-30">
-                        <circle cx="20" cy="20" r="4" fill="#C6A75E" opacity="0.5" />
-                        <circle cx="20" cy="20" r="8" fill="none" stroke="#C6A75E" strokeWidth="0.5" />
-                        <circle cx="20" cy="20" r="12" fill="none" stroke="#C6A75E" strokeWidth="0.3" opacity="0.3" />
-                        {[0, 45, 90, 135, 180, 225, 270, 315].map((angle) => (
-                          <line key={angle} x1="20" y1="20"
-                            x2={20 + 16 * Math.cos((angle * Math.PI) / 180)}
-                            y2={20 + 16 * Math.sin((angle * Math.PI) / 180)}
-                            stroke="#C6A75E" strokeWidth="0.4" opacity="0.4" />
-                        ))}
-                      </svg>
-                    </div>
-                    {/* Handle */}
-                    <div className="absolute top-1/2 right-6 md:right-10 -translate-y-1/2 w-2.5 h-16 md:h-24 rounded-full bg-gradient-to-b from-[#C6A75E]/80 via-[#8B6914] to-[#C6A75E]/80 shadow-lg" />
-                    {/* Border */}
-                    <div className="absolute inset-0 border-r-2 border-[#C6A75E]/25 pointer-events-none" />
-                    {/* Real image overlay */}
-                    <img src="/images/museum/opening/door-left.png" alt=""
-                      className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500"
-                      onLoad={(e) => { (e.target as HTMLImageElement).style.opacity = "1"; }}
-                      onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                  </motion.div>
-
-                  {/* Right door — full screen half, opens INWARD */}
-                  <motion.div
-                    className="flex-1 h-full relative overflow-hidden"
-                    style={{
-                      transformOrigin: "right center",
-                      transformStyle: "preserve-3d",
-                      boxShadow: "inset 30px 0 60px rgba(0,0,0,0.6)",
-                    }}
-                    initial={{ rotateY: 0 }}
-                    animate={{ rotateY: -80 }}
-                    transition={{ duration: 4, ease: [0.25, 0.1, 0.25, 1], delay: 0.8 }}
-                  >
-                    <div className="absolute inset-0" style={{
-                      background: "linear-gradient(200deg, #3D2517 0%, #2C1A12 40%, #1A0F09 100%)",
-                    }} />
-                    <div className="absolute inset-0 opacity-20" style={{
-                      backgroundImage: `repeating-linear-gradient(0deg, transparent, transparent 12px, rgba(198,167,94,0.06) 12px, rgba(198,167,94,0.06) 13px)`,
-                    }} />
-                    <div className="absolute inset-6 md:inset-12 lg:inset-16 border border-[#C6A75E]/20 rounded-sm">
-                      <div className="absolute inset-4 md:inset-6 border border-[#C6A75E]/10 rounded-sm" />
-                      <div className="absolute inset-8 md:inset-12 border border-[#C6A75E]/5 rounded-sm" />
-                    </div>
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 md:w-24 md:h-24 lg:w-32 lg:h-32">
-                      <svg viewBox="0 0 40 40" className="w-full h-full opacity-30">
-                        <circle cx="20" cy="20" r="4" fill="#C6A75E" opacity="0.5" />
-                        <circle cx="20" cy="20" r="8" fill="none" stroke="#C6A75E" strokeWidth="0.5" />
-                        <circle cx="20" cy="20" r="12" fill="none" stroke="#C6A75E" strokeWidth="0.3" opacity="0.3" />
-                        {[0, 45, 90, 135, 180, 225, 270, 315].map((angle) => (
-                          <line key={angle} x1="20" y1="20"
-                            x2={20 + 16 * Math.cos((angle * Math.PI) / 180)}
-                            y2={20 + 16 * Math.sin((angle * Math.PI) / 180)}
-                            stroke="#C6A75E" strokeWidth="0.4" opacity="0.4" />
-                        ))}
-                      </svg>
-                    </div>
-                    <div className="absolute top-1/2 left-6 md:left-10 -translate-y-1/2 w-2.5 h-16 md:h-24 rounded-full bg-gradient-to-b from-[#C6A75E]/80 via-[#8B6914] to-[#C6A75E]/80 shadow-lg" />
-                    <div className="absolute inset-0 border-l-2 border-[#C6A75E]/25 pointer-events-none" />
-                    <img src="/images/museum/opening/door-right.png" alt=""
-                      className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500"
-                      onLoad={(e) => { (e.target as HTMLImageElement).style.opacity = "1"; }}
-                      onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                  </motion.div>
-
-                  {/* "Memasuki Museum" text overlay — centered */}
-                  <motion.p
-                    className="absolute bottom-[14vh] left-1/2 -translate-x-1/2 text-xs tracking-[0.4em] uppercase text-[#C6A75E]/40 z-10"
-                    style={{ fontFamily: "var(--font-inter)" }}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 3, duration: 1.5 }}
-                  >
-                    Memasuki Museum
-                  </motion.p>
                 </motion.div>
               )}
             </AnimatePresence>
+
+            {/* "Memasuki Museum" text — when doors are opening */}
+            {phase === "doors" && (
+              <motion.p
+                className="absolute bottom-[14vh] left-1/2 -translate-x-1/2 text-xs tracking-[0.4em] uppercase text-[#C6A75E]/40 z-10"
+                style={{ fontFamily: "var(--font-inter)" }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.5, duration: 1.5 }}
+              >
+                Memasuki Museum
+              </motion.p>
+            )}
           </div>
 
-          {/* Vignette */}
-          <div className="absolute inset-0 pointer-events-none z-20"
-            style={{ boxShadow: "inset 0 0 200px rgba(0,0,0,0.8)" }} />
+          {/* Vignette — only when waiting (doors closed) */}
+          {phase === "waiting" && (
+            <div className="absolute inset-0 pointer-events-none z-[5]"
+              style={{ boxShadow: "inset 0 0 150px rgba(0,0,0,0.5)" }} />
+          )}
 
-          {/* Skip button */}
-          <motion.button
-            onClick={handleSkip}
-            className="absolute bottom-[10vh] right-8 z-40 text-[#C6A75E]/40 text-xs tracking-[0.3em] uppercase hover:text-[#C6A75E]/80 transition-colors cursor-pointer"
-            style={{ fontFamily: "var(--font-inter)" }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1 }}
-          >
-            Skip →
-          </motion.button>
+          {/* Skip button — only visible during doors phase */}
+          {phase === "doors" && (
+            <motion.button
+              onClick={handleSkip}
+              className="absolute bottom-[10vh] right-8 z-40 text-[#C6A75E]/30 text-xs tracking-[0.3em] uppercase hover:text-[#C6A75E]/70 transition-colors cursor-pointer"
+              style={{ fontFamily: "var(--font-inter)" }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 2 }}
+            >
+              Skip →
+            </motion.button>
+          )}
         </motion.div>
       )}
     </AnimatePresence>

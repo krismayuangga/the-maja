@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import useIsMobile from "@/hooks/useIsMobile";
 import useParallax from "@/hooks/useParallax";
 import { SplitText } from "@/components/ui/TextEffects";
-import { Reveal } from "@/components/ui/CardEffects";
+import { Reveal, Holographic, TiltCard } from "@/components/ui/CardEffects";
 
 /* ── Typewriter bridge text ── */
 // Lightweight bridge text (no per-character typing)
@@ -94,7 +94,7 @@ export default function RoomSejarah() {
       </div>
 
       {/* ========== MAIN CONTENT ========== */}
-      <div className="relative z-10 flex flex-col items-center justify-between h-full w-full px-4 sm:px-8 md:px-12 lg:px-16" style={{ padding: "2.5rem 0" }}>
+      <div className="relative z-10 flex flex-col items-center justify-between h-full w-full overflow-x-hidden box-border" style={{ padding: "2.5rem 1rem", paddingLeft: "1rem", paddingRight: "1rem" }}>
 
         {/* === TOP: Surya Majapahit Logo + "MAJAPAHIT" === */}
         <div className="flex flex-col items-center mb-2 sm:mb-3 md:mb-4">
@@ -162,7 +162,7 @@ export default function RoomSejarah() {
         </div>
 
         {/* === CENTER: Two columns — Left (Lontar) | Right (Sumpah Palapa text) === */}
-        <div className="flex flex-col md:flex-row items-center md:items-stretch gap-5 sm:gap-6 md:gap-8 lg:gap-12 max-w-6xl w-full">
+        <div className="flex flex-col md:flex-row items-center md:items-stretch gap-4 md:gap-8 lg:gap-12 max-w-6xl w-full overflow-hidden">
 
           {/* LEFT COLUMN: Lontar image */}
           <motion.div
@@ -172,36 +172,31 @@ export default function RoomSejarah() {
             transition={{ duration: 1.2, delay: 0.8, ease: "easeOut" }}
             viewport={{ once: true }}
           >
-            {/* Lontar image with ornate frame */}
-            <div className="relative group">
-              {/* Glow behind lontar */}
-              <div className="absolute inset-0 bg-[#C6A75E]/[0.06] blur-[40px] rounded-lg" />
-
-              {/* Ornate frame border */}
-              <div className="relative border border-[#C6A75E]/20 p-2 sm:p-3"
-                style={{ background: "linear-gradient(135deg, rgba(44,26,18,0.8) 0%, rgba(13,10,6,0.9) 100%)" }}
-              >
-                {/* Inner frame line */}
-                <div className="absolute inset-[6px] sm:inset-[8px] border border-[#C6A75E]/10 pointer-events-none" />
-
-                <Reveal direction="left" delay={1.2} duration={0.7} color="#2C1A12">
-                  <img
-                    src="/images/museum/sejarah/lontar-sumpah-palapa.png"
-                    alt="Visualisasi Lontar Sumpah Palapa"
-                    className="w-[320px] sm:w-[380px] md:w-[420px] lg:w-[480px] h-auto object-contain opacity-0 transition-opacity duration-1000"
-                    style={{ filter: "brightness(0.9) contrast(1.05) sepia(0.05)" }}
-                    onLoad={(e) => { (e.target as HTMLImageElement).style.opacity = "1"; }}
-                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
-                  />
-                </Reveal>
-
-                {/* Frame corner accents */}
-                <div className="absolute top-0 left-0 w-4 h-4 border-t border-l border-[#C6A75E]/40" />
-                <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-[#C6A75E]/40" />
-                <div className="absolute bottom-0 left-0 w-4 h-4 border-b border-l border-[#C6A75E]/40" />
-                <div className="absolute bottom-0 right-0 w-4 h-4 border-b border-r border-[#C6A75E]/40" />
-              </div>
-            </div>
+            {/* Lontar image with holographic + tilt effect (same as NFT cert) */}
+            <Holographic intensity={0.15}>
+              <TiltCard maxTilt={isMobile ? 0 : 12} glare={!isMobile} glareOpacity={0.2}>
+                <motion.div
+                  className="relative rounded-sm overflow-hidden"
+                  style={{
+                    background: "linear-gradient(135deg, #1A1008 0%, #2C1A12 50%, #0D0A06 100%)",
+                    border: "2px solid rgba(198,167,94,0.5)",
+                    boxShadow: "0 0 40px rgba(198,167,94,0.15), inset 0 0 40px rgba(198,167,94,0.05)",
+                  }}
+                  whileHover={{ boxShadow: "0 0 60px rgba(198,167,94,0.3)" }}
+                >
+                  <Reveal direction="left" delay={1.2} duration={0.7} color="#2C1A12">
+                    <img
+                      src="/images/museum/sejarah/lontar-sumpah-palapa.png"
+                      alt="Visualisasi Lontar Sumpah Palapa"
+                      className="w-[260px] sm:w-[320px] md:w-[420px] lg:w-[480px] h-auto object-contain opacity-0 transition-opacity duration-1000"
+                      style={{ filter: "brightness(0.9) contrast(1.05) sepia(0.05)" }}
+                      onLoad={(e) => { (e.target as HTMLImageElement).style.opacity = "1"; }}
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                    />
+                  </Reveal>
+                </motion.div>
+              </TiltCard>
+            </Holographic>
 
             {/* Label under lontar */}
             <motion.p
@@ -218,16 +213,16 @@ export default function RoomSejarah() {
 
           {/* RIGHT COLUMN: Sumpah Palapa text — aligned to lontar height */}
           <motion.div
-            className="flex-1 flex flex-col justify-center max-w-xl"
-            initial={{ opacity: 0, x: 40 }}
+            className="flex-1 flex flex-col justify-center max-w-xl w-full px-2 sm:px-4 md:px-0"
+            initial={{ opacity: 0, x: isMobile ? 0 : 40 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 1.2, delay: 1.2, ease: "easeOut" }}
             viewport={{ once: true }}
           >
             {/* Kawi text — original oath */}
-            <div className="mb-6 sm:mb-8">
+            <div>
               <motion.p
-                className="text-xs sm:text-sm tracking-[0.2em] uppercase text-[#C6A75E]/50 mb-3 sm:mb-4"
+                className="text-sm sm:text-sm tracking-[0.2em] uppercase text-[#C6A75E]/50 mb-3 sm:mb-4"
                 style={{ fontFamily: "var(--font-inter)" }}
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
@@ -238,7 +233,7 @@ export default function RoomSejarah() {
               </motion.p>
 
               <motion.p
-                className="text-base sm:text-lg md:text-xl lg:text-2xl text-[#C6A75E]/70 italic leading-relaxed"
+                className="text-lg sm:text-xl md:text-xl lg:text-2xl text-[#C6A75E]/70 italic leading-relaxed text-justify"
                 style={{ fontFamily: "var(--font-cormorant)" }}
                 initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -249,10 +244,13 @@ export default function RoomSejarah() {
               </motion.p>
             </div>
 
+            {/* Spacer */}
+            <div className="my-6 sm:my-8 md:my-6 w-full border-t border-[#C6A75E]/10" />
+
             {/* Translation — Indonesian */}
-            <div className="mt-6">
+            <div>
               <motion.p
-                className="text-xs sm:text-sm tracking-[0.15em] uppercase text-[#F5EBDD]/30 mb-3"
+                className="text-sm sm:text-sm tracking-[0.15em] uppercase text-[#F5EBDD]/30 mb-3"
                 style={{ fontFamily: "var(--font-inter)" }}
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
@@ -263,7 +261,7 @@ export default function RoomSejarah() {
               </motion.p>
 
               <motion.p
-                className="text-sm sm:text-base md:text-lg lg:text-xl text-[#F5EBDD]/50 leading-relaxed"
+                className="text-base sm:text-lg md:text-lg lg:text-xl text-[#F5EBDD]/50 leading-relaxed text-justify"
                 style={{ fontFamily: "var(--font-cormorant)" }}
                 initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}

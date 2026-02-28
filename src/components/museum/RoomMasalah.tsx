@@ -4,7 +4,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import useIsMobile from "@/hooks/useIsMobile";
 import useParallax from "@/hooks/useParallax";
-import { FadeIn } from "@/components/ui/TextEffects";
+import { FadeIn, SplitText } from "@/components/ui/TextEffects";
 import { TiltCard, Reveal, GlowBorder } from "@/components/ui/CardEffects";
 
 const problems = [
@@ -162,59 +162,53 @@ export default function RoomMasalah() {
       </div>
 
       {/* Main content — centered with nav clearance */}
-      <div className="relative z-10 ml-12 sm:ml-16 mr-4 sm:mr-8 md:ml-20 md:mr-12 w-auto flex flex-col items-center justify-center h-full py-8 sm:py-10">
+      <div
+        className="relative z-10 pl-14 sm:pl-16 md:pl-20 pr-6 sm:pr-8 md:pr-12 w-full box-border flex flex-col items-center justify-center h-full overflow-hidden"
+      >
         {/* Section label */}
         <motion.div
-          className="mb-8 sm:mb-10 md:mb-12 text-center"
+          className="text-center"
+          style={{ marginBottom: isMobile ? "1rem" : "2rem" }}
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
           viewport={{ once: true }}
         >
           <span
-            className="text-sm sm:text-base md:text-lg tracking-[0.5em] uppercase text-[#C6A75E]/40 block mb-2 sm:mb-3"
+            className="text-[9px] sm:text-xs tracking-[0.4em] uppercase text-[#C6A75E]/50 block mb-1 sm:mb-2"
             style={{ fontFamily: "var(--font-philosopher)" }}
           >
             The Broken Gallery
           </span>
-          <h2
-            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-[#F5EBDD]/35"
-            style={{ fontFamily: "var(--font-philosopher)", lineHeight: "1.3" }}
+          <div className="mb-1 sm:mb-2">
+            <SplitText
+              text="Mengapa Ini Harus Berubah"
+              className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold text-glow-gold"
+              style={{ fontFamily: "var(--font-cinzel)", color: "#C6A75E" }}
+              delay={0.2}
+              stagger={0.05}
+            />
+          </div>
+          <p
+            className="text-sm sm:text-base md:text-lg text-[#F5EBDD]/50 max-w-xl mx-auto"
+            style={{ fontFamily: "var(--font-cormorant)" }}
           >
-            {["Mengapa", " Ini", " Harus", " Berubah"].map((word, i) => (
-              <motion.span
-                key={i}
-                className="inline"
-                initial={{ opacity: 0, filter: "blur(12px)", y: 8 }}
-                whileInView={{ opacity: 1, filter: "blur(0px)", y: 0 }}
-                transition={{ duration: 1.2, delay: 0.3 + i * 0.12, ease: "easeOut" }}
-                viewport={{ once: true }}
-              >
-                {word}
-              </motion.span>
-            ))}
-          </h2>
-          {/* Decorative divider */}
-          <motion.div
-            className="mx-auto mt-3 sm:mt-4 h-px w-0 max-w-[200px] bg-gradient-to-r from-transparent via-[#C6A75E]/30 to-transparent"
-            whileInView={{ width: "100%" }}
-            transition={{ duration: 2, delay: 0.8, ease: "easeOut" }}
-            viewport={{ once: true }}
-          />
+            Masalah nyata yang dihadapi seniman dan kolektor
+          </p>
         </motion.div>
 
         {/* Problem cards — compact centered grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5 max-w-6xl w-full">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-4 md:gap-5 max-w-6xl w-full">
           {problems.map((problem, i) => (
             <FadeIn key={i} direction="up" delay={i * 0.15} duration={0.8}>
               <TiltCard maxTilt={isMobile ? 0 : 6} glare={!isMobile} glareOpacity={0.06}>
                 <GlowBorder
                   color="#3A3530"
-                  blur={12}
+                  blur={isMobile ? 0 : 12}
                   animated={false}
                   className="h-full"
                 >
-                  <div className="bg-[#100C08]/90 border border-[#2A2518]/50 h-full flex flex-col overflow-hidden group
+                  <div className="bg-[#100C08]/90 border border-[#2A2518]/50 rounded-sm h-full flex flex-col overflow-hidden group
                     hover:border-[#C6A75E]/20 transition-colors duration-700">
 
                     {/* Painting frame area */}
@@ -225,7 +219,7 @@ export default function RoomMasalah() {
 
                       {/* Reveal effect wrapping the painting */}
                       <Reveal direction="left" delay={0.3 + i * 0.2} duration={0.6} color="#1A1510">
-                        <div className="relative w-full flex items-center justify-center p-3 sm:p-4 aspect-[4/5]">
+                        <div className="relative w-full flex items-center justify-center p-2 sm:p-4 aspect-[4/4] sm:aspect-[4/5]">
                           <img
                             src={problem.image}
                             alt={problem.text}
@@ -257,12 +251,12 @@ export default function RoomMasalah() {
                     </div>
 
                     {/* Text content area */}
-                    <div className="p-3 sm:p-4 md:p-5 flex flex-col flex-1">
+                    <div className="p-2 sm:p-4 md:p-5 flex flex-col flex-1">
                       {/* Icon + Stat row */}
-                      <div className="flex items-center gap-2 mb-1 sm:mb-2">
+                      <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 sm:mb-2">
                         <span className="text-[#C6A75E]/50">{problem.icon}</span>
                         <motion.span
-                          className="text-xl sm:text-2xl md:text-3xl font-bold"
+                          className="text-lg sm:text-2xl md:text-3xl font-bold"
                           style={{ fontFamily: "var(--font-philosopher)", color: "#5A4A30" }}
                           whileInView={{ color: "#C6A75E" }}
                           transition={{ duration: 2, delay: 0.5 + i * 0.2 }}
@@ -273,13 +267,13 @@ export default function RoomMasalah() {
                       </div>
 
                       {/* Headline */}
-                      <p className="text-base sm:text-lg md:text-xl text-[#F5EBDD]/60 mb-1 sm:mb-1.5 font-semibold leading-snug"
+                      <p className="text-sm sm:text-lg md:text-xl text-[#F5EBDD]/60 mb-0.5 sm:mb-1.5 font-semibold leading-snug"
                         style={{ fontFamily: "var(--font-philosopher)" }}>
                         {problem.text}
                       </p>
 
                       {/* Detail */}
-                      <p className="text-base sm:text-lg md:text-xl text-[#F5EBDD]/50 leading-relaxed"
+                      <p className="text-sm sm:text-lg md:text-xl text-[#F5EBDD]/50 leading-relaxed"
                         style={{ fontFamily: "var(--font-cormorant)" }}>
                         {problem.detail}
                       </p>

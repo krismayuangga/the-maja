@@ -17,15 +17,12 @@ const visionItems = [
 
 /* Typewriter quote component */
 function TypewriterQuote({ inView }: { inView: boolean }) {
-  const line1 = "Gajah Mada mempersatukan Nusantara secara politik melalui Sumpah Palapa.";
-  const line2 = "Hari ini, Nusantara disatukan kembali \u2014 bukan oleh kekuasaan, tapi oleh kreativitas dan identitas budaya.";
-  const charDelay = 0.03;
-  const line2Start = line1.length * charDelay + 0.6;
+  const line1 = "MAJA bukan sekadar token. MAJA adalah simbol penyatuan ekosistem kreatif Nusantara dalam era digital.";
+  const charDelay = 0.025;
 
   return (
-    <div className="text-left max-w-3xl mx-auto">
-      {/* Line 1 */}
-      <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-[#F5EBDD]/80 leading-relaxed mb-4 sm:mb-6" style={{ fontFamily: "var(--font-inter)", fontWeight: 300 }}>
+    <div className="text-center max-w-5xl mx-auto">
+      <p className="text-base sm:text-xl md:text-2xl lg:text-3xl text-[#F5EBDD]/80 leading-relaxed" style={{ fontFamily: "var(--font-inter)", fontWeight: 300 }}>
         {line1.split("").map((char, i) => (
           <motion.span
             key={`l1-${i}`}
@@ -36,25 +33,6 @@ function TypewriterQuote({ inView }: { inView: boolean }) {
             {char}
           </motion.span>
         ))}
-      </p>
-      {/* Line 2 — gold highlight on key phrase */}
-      <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl leading-relaxed" style={{ fontFamily: "var(--font-inter)", fontWeight: 300 }}>
-        {line2.split("").map((char, i) => {
-          const goldStart = line2.indexOf("bukan oleh kekuasaan");
-          const isGold = i >= goldStart;
-          return (
-            <motion.span
-              key={`l2-${i}`}
-              className={isGold ? "text-[#C6A75E]" : "text-[#F5EBDD]/80"}
-              style={isGold ? { fontWeight: 400 } : undefined}
-              initial={{ opacity: 0 }}
-              animate={inView ? { opacity: 1 } : { opacity: 0 }}
-              transition={{ delay: line2Start + i * charDelay, duration: 0.02 }}
-            >
-              {char}
-            </motion.span>
-          );
-        })}
         {/* Blinking cursor */}
         <motion.span
           className="inline-block w-[2px] h-[1.1em] bg-[#C6A75E] ml-1 align-middle"
@@ -204,9 +182,7 @@ export default function RoomMasaDepan() {
           className="w-full max-w-5xl px-2 sm:px-4"
           style={{ marginBottom: isMobile ? "1.5rem" : "2rem" }}
         >
-          <div className="border-l-2 border-[#C6A75E]/30 pl-5 sm:pl-8 py-2">
-            <TypewriterQuote inView={quoteInView} />
-          </div>
+          <TypewriterQuote inView={quoteInView} />
         </div>
 
         {/* ── 5 Vision Items — clean numbered grid ── */}
@@ -219,11 +195,11 @@ export default function RoomMasaDepan() {
           viewport={{ once: true }}
         >
           {/* Row 1: 3 items */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-3 sm:mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 mb-2 sm:mb-4">
             {visionItems.slice(0, 3).map((item, i) => (
               <motion.div
                 key={item.num}
-                className="relative border border-[#C6A75E]/20 bg-[#1A1008]/50 p-5 sm:p-6 md:p-7 rounded-lg group hover:bg-[#C6A75E]/5 hover:border-[#C6A75E]/40 transition-all duration-500"
+                className="relative border border-[#C6A75E]/20 bg-[#1A1008]/50 p-3 sm:p-6 md:p-7 rounded-lg group hover:bg-[#C6A75E]/5 hover:border-[#C6A75E]/40 transition-all duration-500"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 + i * 0.12, duration: 0.5 }}
@@ -237,24 +213,24 @@ export default function RoomMasaDepan() {
                   transition={{ delay: 0.8 + i * 0.12, duration: 0.6 }}
                   viewport={{ once: true }}
                 />
-                <span className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#C6A75E]/15 block mb-2 sm:mb-3 leading-none" style={{ fontFamily: "var(--font-cinzel)" }}>
+                <span className="text-2xl sm:text-4xl md:text-5xl font-bold text-[#C6A75E]/15 block mb-1 sm:mb-3 leading-none" style={{ fontFamily: "var(--font-cinzel)" }}>
                   {item.num}
                 </span>
-                <h3 className="text-sm sm:text-base md:text-lg font-semibold text-[#C6A75E] mb-1.5" style={{ fontFamily: "var(--font-cinzel)" }}>
+                <h3 className="text-xs sm:text-base md:text-lg font-semibold text-[#C6A75E] mb-1" style={{ fontFamily: "var(--font-cinzel)" }}>
                   {item.title}
                 </h3>
-                <p className="text-xs sm:text-sm md:text-base text-[#F5EBDD]/60 leading-relaxed" style={{ fontFamily: "var(--font-inter)" }}>
+                <p className="text-[11px] sm:text-sm md:text-base text-[#F5EBDD]/60 leading-snug" style={{ fontFamily: "var(--font-inter)" }}>
                   {item.desc}
                 </p>
               </motion.div>
             ))}
           </div>
           {/* Row 2: 2 items centered */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 sm:max-w-[66.7%] sm:mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 sm:max-w-[66.7%] sm:mx-auto">
             {visionItems.slice(3).map((item, i) => (
               <motion.div
                 key={item.num}
-                className="relative border border-[#C6A75E]/20 bg-[#1A1008]/50 p-5 sm:p-6 md:p-7 rounded-lg group hover:bg-[#C6A75E]/5 hover:border-[#C6A75E]/40 transition-all duration-500"
+                className="relative border border-[#C6A75E]/20 bg-[#1A1008]/50 p-3 sm:p-6 md:p-7 rounded-lg group hover:bg-[#C6A75E]/5 hover:border-[#C6A75E]/40 transition-all duration-500"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.9 + i * 0.12, duration: 0.5 }}
@@ -267,13 +243,13 @@ export default function RoomMasaDepan() {
                   transition={{ delay: 1.2 + i * 0.12, duration: 0.6 }}
                   viewport={{ once: true }}
                 />
-                <span className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#C6A75E]/15 block mb-2 sm:mb-3 leading-none" style={{ fontFamily: "var(--font-cinzel)" }}>
+                <span className="text-2xl sm:text-4xl md:text-5xl font-bold text-[#C6A75E]/15 block mb-1 sm:mb-3 leading-none" style={{ fontFamily: "var(--font-cinzel)" }}>
                   {item.num}
                 </span>
-                <h3 className="text-sm sm:text-base md:text-lg font-semibold text-[#C6A75E] mb-1.5" style={{ fontFamily: "var(--font-cinzel)" }}>
+                <h3 className="text-xs sm:text-base md:text-lg font-semibold text-[#C6A75E] mb-1" style={{ fontFamily: "var(--font-cinzel)" }}>
                   {item.title}
                 </h3>
-                <p className="text-xs sm:text-sm md:text-base text-[#F5EBDD]/60 leading-relaxed" style={{ fontFamily: "var(--font-inter)" }}>
+                <p className="text-[11px] sm:text-sm md:text-base text-[#F5EBDD]/60 leading-snug" style={{ fontFamily: "var(--font-inter)" }}>
                   {item.desc}
                 </p>
               </motion.div>
@@ -281,10 +257,10 @@ export default function RoomMasaDepan() {
           </div>
         </motion.div>
 
-        {/* ── CTA Buttons (animated & eye-catching — LARGE) ── */}
+        {/* ── CTA Buttons ── */}
         <motion.div
-          className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 w-full max-w-5xl"
-          style={{ marginBottom: isMobile ? "1.5rem" : "2rem" }}
+          className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 w-full max-w-5xl"
+          style={{ marginBottom: isMobile ? "1rem" : "2rem" }}
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 1.5 }}
@@ -294,7 +270,7 @@ export default function RoomMasaDepan() {
           <Magnetic>
             <motion.a
               href="#"
-              className="relative w-full sm:w-auto text-center px-12 sm:px-16 md:px-20 py-5 sm:py-6 md:py-7 border-2 border-[#C6A75E]/50 text-[#C6A75E] font-semibold tracking-widest text-base sm:text-lg md:text-xl uppercase rounded-xl overflow-hidden group hover:border-[#C6A75E] transition-colors duration-500"
+              className="relative w-full sm:w-auto text-center px-6 sm:px-16 md:px-20 py-3 sm:py-6 md:py-7 border-2 border-[#C6A75E]/50 text-[#C6A75E] font-semibold tracking-widest text-sm sm:text-lg md:text-xl uppercase rounded-xl overflow-hidden group hover:border-[#C6A75E] transition-colors duration-500"
               style={{ fontFamily: "var(--font-cinzel)" }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.97 }}
@@ -321,7 +297,7 @@ export default function RoomMasaDepan() {
               href="/whitepaper.pdf"
               target="_blank"
               rel="noopener"
-              className="relative w-full sm:w-auto text-center px-12 sm:px-16 md:px-20 py-5 sm:py-6 md:py-7 border-2 border-[#C6A75E]/50 text-[#C6A75E] font-semibold tracking-widest text-base sm:text-lg md:text-xl uppercase rounded-xl overflow-hidden group hover:border-[#C6A75E] transition-colors duration-500"
+              className="relative w-full sm:w-auto text-center px-6 sm:px-16 md:px-20 py-3 sm:py-6 md:py-7 border-2 border-[#C6A75E]/50 text-[#C6A75E] font-semibold tracking-widest text-sm sm:text-lg md:text-xl uppercase rounded-xl overflow-hidden group hover:border-[#C6A75E] transition-colors duration-500"
               style={{ fontFamily: "var(--font-cinzel)" }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.97 }}
@@ -333,8 +309,8 @@ export default function RoomMasaDepan() {
                 whileHover={{ scaleX: 1 }}
                 transition={{ duration: 0.4 }}
               />
-              <span className="relative z-10 flex items-center justify-center gap-3">
-                <svg viewBox="0 0 24 24" className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7">
+              <span className="relative z-10 flex items-center justify-center gap-2 sm:gap-3">
+                <svg viewBox="0 0 24 24" className="w-4 h-4 sm:w-6 sm:h-6 md:w-7 md:h-7">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" fill="none" stroke="currentColor" strokeWidth="1.5" />
                   <polyline points="14 2 14 8 20 8" fill="none" stroke="currentColor" strokeWidth="1.5" />
                   <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" strokeWidth="1" />
@@ -349,7 +325,7 @@ export default function RoomMasaDepan() {
           <Magnetic>
             <motion.a
               href="#"
-              className="relative w-full sm:w-auto text-center px-12 sm:px-16 md:px-20 py-5 sm:py-6 md:py-7 border-2 border-[#C6A75E]/50 text-[#C6A75E] font-semibold tracking-widest text-base sm:text-lg md:text-xl uppercase rounded-xl overflow-hidden group hover:border-[#C6A75E] transition-colors duration-500"
+              className="relative w-full sm:w-auto text-center px-6 sm:px-16 md:px-20 py-3 sm:py-6 md:py-7 border-2 border-[#C6A75E]/50 text-[#C6A75E] font-semibold tracking-widest text-sm sm:text-lg md:text-xl uppercase rounded-xl overflow-hidden group hover:border-[#C6A75E] transition-colors duration-500"
               style={{ fontFamily: "var(--font-cinzel)" }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.97 }}
@@ -360,8 +336,8 @@ export default function RoomMasaDepan() {
                 whileHover={{ scaleX: 1 }}
                 transition={{ duration: 0.4 }}
               />
-              <span className="relative z-10 flex items-center justify-center gap-3">
-                <svg viewBox="0 0 24 24" className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7">
+              <span className="relative z-10 flex items-center justify-center gap-2 sm:gap-3">
+                <svg viewBox="0 0 24 24" className="w-4 h-4 sm:w-6 sm:h-6 md:w-7 md:h-7">
                   <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" fill="none" stroke="currentColor" strokeWidth="1.5" />
                   <circle cx="9" cy="7" r="4" fill="none" stroke="currentColor" strokeWidth="1.5" />
                   <path d="M23 21v-2a4 4 0 0 0-3-3.87" fill="none" stroke="currentColor" strokeWidth="1.5" />

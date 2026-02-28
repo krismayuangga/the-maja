@@ -8,16 +8,21 @@ import useIsMobile from "@/hooks/useIsMobile";
 import useParallax from "@/hooks/useParallax";
 import { BlurText, FadeIn } from "@/components/ui/TextEffects";
 import { ParticleField } from "@/components/ui/CardEffects";
-import type { CircularGalleryItem } from "@/components/ui/CircularGallery";
 
-/* Dynamic import — OGL uses WebGL, no SSR */
-const CircularGallery = dynamic(
-  () => import("@/components/ui/CircularGallery"),
+/* Dynamic import — DomeGallery uses DOM APIs, no SSR */
+const DomeGallery = dynamic(
+  () => import("@/components/ui/DomeGallery"),
   { ssr: false }
 );
 
 /* Gallery items — 6 seni daerah Nusantara */
-const galleryItems: CircularGalleryItem[] = [
+interface GalleryItem {
+  image: string;
+  text: string;
+  description: string;
+}
+
+const galleryItems: GalleryItem[] = [
   {
     image: "/images/museum/nusantara/ulos-sumatera.webp",
     text: "Ulos — Sumatera",
@@ -53,10 +58,15 @@ const galleryItems: CircularGalleryItem[] = [
 export default function RoomNusantara() {
   const isMobile = useIsMobile();
   const registerParallax = useParallax(!isMobile);
-  const [selectedItem, setSelectedItem] = useState<CircularGalleryItem | null>(null);
+  const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
 
-  const handleItemClick = useCallback((item: CircularGalleryItem) => {
-    setSelectedItem(item);
+  /* DomeGallery images array (src + alt) */
+  const domeImages = galleryItems.map((g) => ({ src: g.image, alt: g.text }));
+
+  /* When a dome tile is clicked, find the matching gallery item by src */
+  const handleDomeClick = useCallback((src: string) => {
+    const found = galleryItems.find((g) => g.image === src);
+    if (found) setSelectedItem(found);
   }, []);
 
   return (
@@ -77,7 +87,7 @@ export default function RoomNusantara() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 ml-12 sm:ml-16 md:ml-20 mr-4 sm:mr-8 md:mr-12 w-auto flex flex-col items-center h-full" style={{ justifyContent: "flex-start", paddingTop: isMobile ? "2rem" : "3rem" }}>
+      <div className="relative z-10 ml-12 sm:ml-16 md:ml-20 mr-4 sm:mr-8 md:mr-12 w-auto flex flex-col items-center h-full" style={{ justifyContent: "flex-start", paddingTop: isMobile ? "5rem" : "4rem" }}>
         {/* ── Header ── */}
         <motion.div
           className="text-center"
@@ -111,13 +121,13 @@ export default function RoomNusantara() {
         <FadeIn direction="up" delay={0.3} duration={0.8}>
           <div
             className="relative w-full flex justify-center"
-            style={{ marginBottom: isMobile ? "0.25rem" : "0.5rem" }}
+            style={{ marginBottom: isMobile ? "0.5rem" : "0.25rem" }}
           >
             <div className="relative">
               <img
                 src="/images/museum/nusantara/indonesia-map.png"
                 alt="Peta Indonesia"
-                className="w-[340px] sm:w-[500px] md:w-[680px] lg:w-[850px] h-auto opacity-30 select-none pointer-events-none"
+                className="w-[420px] sm:w-[500px] md:w-[680px] lg:w-[850px] h-auto opacity-30 select-none pointer-events-none"
                 style={{
                   filter: "drop-shadow(0 0 40px rgba(198,167,94,0.15))",
                 }}
@@ -129,43 +139,45 @@ export default function RoomNusantara() {
           </div>
         </FadeIn>
 
-        {/* ── Circular Gallery ── */}
-        <FadeIn direction="up" delay={0.5} duration={0.8}>
-          <div
-            className="w-[85vw] sm:w-[75vw] md:w-[70vw] lg:w-[65vw]"
-            style={{
-              height: isMobile ? "220px" : "360px",
-              position: "relative",
-            }}
-          >
-            <CircularGallery
-              items={galleryItems}
-              bend={isMobile ? 1.5 : 3}
-              textColor="#C6A75E"
-              borderRadius={0.05}
-              font={`bold ${isMobile ? "16" : "24"}px Philosopher`}
-              scrollSpeed={isMobile ? 1.5 : 2}
-              scrollEase={0.03}
-              autoRotateSpeed={1}
-              onItemClick={handleItemClick}
-            />
-          </div>
-        </FadeIn>
-
-        {/* ── Bottom tagline ── */}
+        {/* ── Tagline below map ── */}
         <motion.p
-          className="text-center text-[9px] sm:text-sm text-[#C6A75E]/30 tracking-widest"
+          className="text-center text-sm sm:text-lg md:text-xl text-[#C6A75E]/40 tracking-widest"
           style={{
-            fontFamily: "var(--font-inter)",
-            marginTop: isMobile ? "0.25rem" : "0.5rem",
+            fontFamily: "var(--font-philosopher)",
+            marginBottom: isMobile ? "0.5rem" : "0.75rem",
           }}
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
-          transition={{ delay: 1 }}
+          transition={{ delay: 0.6 }}
           viewport={{ once: true }}
         >
-          Dari Sabang sampai Merauke — satu ekosistem kreatif
+          Dari Sabang sampai Merauke
         </motion.p>
+
+        {/* ── Dome Gallery ── */}
+        <FadeIn direction="up" delay={0.5} duration={0.8}>
+          <div
+            className="w-[95vw] sm:w-[85vw] md:w-[75vw] lg:w-[70vw]"
+            style={{
+              height: isMobile ? "340px" : "440px",
+              position: "relative",
+              marginTop: isMobile ? "1rem" : "1.5rem",
+            }}
+          >
+            <DomeGallery
+              images={domeImages}
+              fit={isMobile ? 0.5 : 0.55}
+              segments={isMobile ? 20 : 35}
+              minRadius={isMobile ? 250 : 450}
+              dragDampening={2}
+              grayscale={false}
+              overlayBlurColor="transparent"
+              imageBorderRadius="8px"
+              autoRotateSpeed={3}
+              onItemClick={handleDomeClick}
+            />
+          </div>
+        </FadeIn>
       </div>
 
       {/* ── Detail Popup Overlay (portaled to body for correct centering) ── */}

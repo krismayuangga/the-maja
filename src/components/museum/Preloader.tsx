@@ -12,19 +12,16 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   const [isExiting, setIsExiting] = useState(false);
 
   useEffect(() => {
-    // Simulate loading progress
     const interval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
           clearInterval(interval);
           return 100;
         }
-        // Accelerating progress curve
         const increment = prev < 60 ? 3 : prev < 85 ? 2 : 1;
         return Math.min(prev + increment, 100);
       });
     }, 40);
-
     return () => clearInterval(interval);
   }, []);
 
@@ -49,33 +46,67 @@ export default function Preloader({ onComplete }: PreloaderProps) {
           {/* Ambient glow */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full bg-[#C6A75E] opacity-[0.03] blur-[100px]" />
 
-          {/* Ornamental top mark */}
+          {/* Coin logo with 3D spin */}
           <motion.div
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, ease: "easeOut" }}
-            className="mb-8"
+            className="mb-8 relative"
           >
-            <svg
-              width="40"
-              height="40"
-              viewBox="0 0 40 40"
-              fill="none"
-              className="opacity-40"
+            {/* Glow behind coin */}
+            <motion.div
+              className="absolute inset-[-30px] rounded-full"
+              style={{ background: "radial-gradient(circle, rgba(198,167,94,0.15) 0%, rgba(198,167,94,0.05) 40%, transparent 70%)" }}
+              animate={{ scale: [1, 1.2, 1], opacity: [0.6, 1, 0.6] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            />
+
+            {/* Spinning coin */}
+            <motion.div
+              className="relative"
+              style={{ perspective: "600px" }}
             >
-              <path
-                d="M20 0 L24 16 L40 20 L24 24 L20 40 L16 24 L0 20 L16 16 Z"
-                fill="#C6A75E"
+              <motion.img
+                src="/images/museum/branding/maja-coin-front.png"
+                alt="MAJA Token"
+                className="w-[140px] h-[140px] sm:w-[180px] sm:h-[180px] md:w-[220px] md:h-[220px] object-contain drop-shadow-[0_0_30px_rgba(198,167,94,0.4)]"
+                animate={{ rotateY: [0, 360] }}
+                transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+                style={{ transformStyle: "preserve-3d" }}
               />
-            </svg>
+            </motion.div>
+
+            {/* Particle ring around coin */}
+            {[...Array(8)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute w-1.5 h-1.5 rounded-full bg-[#C6A75E]"
+                style={{
+                  top: "50%",
+                  left: "50%",
+                }}
+                animate={{
+                  x: [0, Math.cos((i * 45 * Math.PI) / 180) * 90],
+                  y: [0, Math.sin((i * 45 * Math.PI) / 180) * 90],
+                  opacity: [0, 0.6, 0],
+                  scale: [0, 1, 0],
+                }}
+                transition={{
+                  duration: 2.5,
+                  delay: i * 0.3,
+                  repeat: Infinity,
+                  ease: "easeOut",
+                }}
+              />
+            ))}
           </motion.div>
 
           {/* MAJA text */}
           <motion.h1
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.2 }}
-            className="text-4xl md:text-5xl tracking-[0.4em] text-[#C6A75E] mb-2"
+            transition={{ duration: 1, delay: 0.3 }}
+            className="text-3xl md:text-4xl tracking-[0.4em] text-[#C6A75E] mb-1"
             style={{ fontFamily: "var(--font-cinzel)" }}
           >
             MAJA
@@ -86,7 +117,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.5 }}
             transition={{ duration: 1, delay: 0.5 }}
-            className="text-xs md:text-sm tracking-[0.3em] text-[#C6A75E]/50 mb-12 uppercase"
+            className="text-xs md:text-sm tracking-[0.3em] text-[#C6A75E]/50 mb-10 uppercase"
             style={{ fontFamily: "var(--font-inter)" }}
           >
             Digital Museum
@@ -99,17 +130,13 @@ export default function Preloader({ onComplete }: PreloaderProps) {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="relative w-48 md:w-64"
           >
-            {/* Track */}
             <div className="h-[1px] w-full bg-[#C6A75E]/10 relative overflow-hidden">
-              {/* Fill */}
               <motion.div
                 className="h-full bg-gradient-to-r from-[#C6A75E]/40 via-[#C6A75E] to-[#C6A75E]/40"
                 style={{ width: `${progress}%` }}
                 transition={{ ease: "linear" }}
               />
             </div>
-
-            {/* Percentage */}
             <motion.span
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.4 }}
