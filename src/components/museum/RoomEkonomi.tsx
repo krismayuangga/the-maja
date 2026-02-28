@@ -205,7 +205,7 @@ export default function RoomEkonomi() {
             {/* Coin center overlay — sized to fill donut hole (64% of SVG) */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90px] h-[90px] sm:w-[116px] sm:h-[116px] md:w-[135px] md:h-[135px] lg:w-[148px] lg:h-[148px] rounded-full overflow-hidden">
               <video
-                src="/images/museum/branding/Maja Token.mp4"
+                src="/images/museum/branding/maja-token.mp4"
                 autoPlay
                 loop
                 muted
