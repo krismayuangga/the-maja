@@ -8,29 +8,29 @@ import { SplitText, CountUp } from "@/components/ui/TextEffects";
 import { SpotlightCard, ParticleField } from "@/components/ui/CardEffects";
 
 /* ══════════════════════════════════════════════════════════════════════
-   TOKENOMICS — 5,248 MAJA
-   5,248 km = panjang wilayah Indonesia dari Sabang sampai Merauke
-   Setiap token = 1 km Nusantara
+   TOKENOMICS — 17,508,000 MAJA
+   17,508 pulau di Indonesia × 1,000 = 17,508,000
+   Setiap 1,000 token = 1 pulau Nusantara
    ══════════════════════════════════════════════════════════════════════ */
 
-const TOTAL_SUPPLY = 5248;
+const TOTAL_SUPPLY = 17508000;
 
 const tokenomics = [
-  { label: "Liquidity Pool",           pct: 70,   tokens: 3674, color: "#C6A75E" },
-  { label: "Community Development",    pct: 10,   tokens: 525,  color: "#8B6914" },
-  { label: "Cultural Fund",            pct: 7.5,  tokens: 394,  color: "#0F3B2E" },
-  { label: "Marketing & Partnerships", pct: 5,    tokens: 262,  color: "#6B5B3E" },
-  { label: "Developer (vesting 2y)",   pct: 5,    tokens: 262,  color: "#4A3A30" },
-  { label: "Reserve / Insurance",      pct: 2.5,  tokens: 131,  color: "#3D2B1A" },
+  { label: "Liquidity Pool",           pct: 70,   tokens: 12255600, color: "#C6A75E" },
+  { label: "Community Development",    pct: 10,   tokens: 1750800,  color: "#8B6914" },
+  { label: "Cultural Fund",            pct: 7.5,  tokens: 1313100,  color: "#0F3B2E" },
+  { label: "Marketing & Partnerships", pct: 5,    tokens: 875400,   color: "#6B5B3E" },
+  { label: "Developer (vesting 2y)",   pct: 5,    tokens: 875400,   color: "#4A3A30" },
+  { label: "Reserve / Insurance",      pct: 2.5,  tokens: 437700,   color: "#3D2B1A" },
 ];
-// VERIFY: 3674 + 525 + 394 + 262 + 262 + 131 = 5248 ✓
+// VERIFY: 12255600 + 1750800 + 1313100 + 875400 + 875400 + 437700 = 17508000 ✓
 
 const roadmap = [
   {
     title: "Foundation",
     period: "Q1–Q2 2026",
     items: [
-      "Token Launch (Solana)",
+      "Token Launch (BSC)",
       "Website & Digital Museum",
       "Community Building",
       "Artist Partnerships",
@@ -158,7 +158,7 @@ export default function RoomEkonomi() {
             className="text-sm sm:text-lg md:text-xl text-[#F5EBDD]/50 max-w-xl mx-auto"
             style={{ fontFamily: "var(--font-philosopher)" }}
           >
-            5,248 MAJA — Panjang Nusantara, Sabang sampai Merauke
+            17,508,000 MAJA — 17,508 Pulau × 1,000 Token
           </p>
         </motion.div>
 
@@ -306,7 +306,7 @@ export default function RoomEkonomi() {
                     { k: "Network",      v: "BSC (BNB Chain)" },
                     { k: "Standard",     v: "BEP-20" },
                     { k: "Decimals",     v: "18" },
-                    { k: "Total Supply", v: "5,248 MAJA" },
+                    { k: "Total Supply", v: "17,508,000 MAJA" },
                   ].map((row) => (
                     <div key={row.k} className="flex justify-between items-center">
                       <span className="text-[#F5EBDD]/45">{row.k}</span>
