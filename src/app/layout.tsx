@@ -3,9 +3,9 @@ import { cinzel, cormorant, inter, philosopher } from "@/fonts";
 import "./globals.css";
 
 const SITE_URL = "https://themaja.com";
-const SITE_TITLE = "MAJA — Creative Economy Infrastructure of Nusantara";
+const SITE_TITLE = "MAJA — Rumah Ekosistem Seni & Kerajinan Nusantara";
 const SITE_DESCRIPTION =
-  "Uniting Nusantara Through Creativity. MAJA is the creative economy infrastructure connecting artists, collectors, and global communities through blockchain technology.";
+  "MAJA adalah induk ekosistem MajaCraft: marketplace karya pengrajin Nusantara, MAJA Certified — sertifikat kepemilikan phygital untuk karya orisinil, Ruang Budaya, dan komunitas pegiat seni.";
 const OG_IMAGE = `${SITE_URL}/images/og-image.png`;
 
 export const metadata: Metadata = {
@@ -17,16 +17,15 @@ export const metadata: Metadata = {
   description: SITE_DESCRIPTION,
   keywords: [
     "MAJA",
-    "Nusantara",
-    "creative economy",
-    "blockchain",
-    "NFT",
-    "digital art",
+    "MajaCraft",
+    "MAJA Certified",
+    "sertifikat kepemilikan",
+    "phygital",
+    "kerajinan Nusantara",
+    "seni Indonesia",
+    "pengrajin",
     "Majapahit",
-    "Indonesia",
-    "Web3",
-    "cryptocurrency",
-    "cultural heritage",
+    "warisan budaya",
     "ekonomi kreatif",
   ],
   authors: [{ name: "MAJA Team", url: SITE_URL }],

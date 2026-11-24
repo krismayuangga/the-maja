@@ -15,10 +15,14 @@
   --font-serif: var(--font-cinzel);
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* Reset di dalam layer base agar class utilitas Tailwind (px-4, mb-6, mx-auto, …) tetap berlaku.
+   Sebelumnya reset di luar layer mengalahkan semua utilitas spacing Tailwind v4. */
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
 }
 
 html {
@@ -107,6 +111,16 @@ h1, h2, h3, h4, h5, h6 {
     width: 100%;
     scroll-snap-align: start;
     scroll-snap-stop: always;
+  }
+  /* Ruang yang isinya lebih panjang dari layar HP boleh memanjang (tidak terpotong) */
+  .room.room-auto {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+  .room.room-auto > .room-content {
+    height: auto;
+    overflow: visible;
   }
 }
 

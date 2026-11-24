@@ -9,7 +9,7 @@ import { TiltCard, Reveal, GlowBorder } from "@/components/ui/CardEffects";
 
 const problems = [
   {
-    stat: "70%",
+    stat: "Margin",
     text: "Margin hilang ke perantara.",
     detail: "Sebagian besar keuntungan seniman hilang untuk komisi galeri dan platform.",
     image: "/images/museum/masalah/broken-painting-1.webp",
@@ -20,9 +20,9 @@ const problems = [
     ),
   },
   {
-    stat: "Trust",
+    stat: "Percaya",
     text: "Seniman takut tidak dibayar.",
-    detail: "Pembeli takut karya palsu. Tidak ada jaminan transparan bagi kedua pihak.",
+    detail: "Pembeli ragu bertransaksi langsung. Tidak ada perantara tepercaya yang melindungi kedua pihak.",
     image: "/images/museum/masalah/broken-painting-2.webp",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-5 h-5">
@@ -31,9 +31,9 @@ const problems = [
     ),
   },
   {
-    stat: "Gap",
-    text: "NFT & fisik tidak terhubung.",
-    detail: "Marketplace NFT belum mampu menjembatani dunia digital dengan fisik.",
+    stat: "Asal-usul",
+    text: "Kepemilikan karya sulit dibuktikan.",
+    detail: "Karya fisik berpindah tangan tanpa catatan — asal-usul perolehannya hilang.",
     image: "/images/museum/masalah/broken-painting-3.webp",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-5 h-5">
@@ -42,9 +42,9 @@ const problems = [
     ),
   },
   {
-    stat: "Web3",
-    text: "Hambatan teknis terlalu tinggi.",
-    detail: "Mayoritas seniman tidak paham wallet, gas fee, ataupun seed phrase.",
+    stat: "Akses",
+    text: "Akses pasar terbatas.",
+    detail: "Pengrajin daerah sulit menjangkau pembeli di luar kotanya, apalagi pasar internasional.",
     image: "/images/museum/masalah/artist-silhouette.webp",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-5 h-5">
@@ -59,7 +59,7 @@ export default function RoomMasalah() {
   const registerParallax = useParallax(!isMobile);
 
   return (
-    <section className="room room-2 flex items-center justify-center room-vignette relative">
+    <section className="room room-2 room-auto flex items-center justify-center room-vignette relative">
       {/* Warm dark background — consistent with other rooms */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#1A110B] via-[#140E08] to-[#0D0A06]" />
 
@@ -163,7 +163,7 @@ export default function RoomMasalah() {
 
       {/* Main content — centered with nav clearance */}
       <div
-        className="relative z-10 pl-14 sm:pl-16 md:pl-20 pr-6 sm:pr-8 md:pr-12 w-full box-border flex flex-col items-center justify-center h-full overflow-hidden"
+        className="relative z-10 pl-14 sm:pl-16 md:pl-20 pr-6 sm:pr-8 md:pr-12 w-full box-border flex flex-col items-center justify-center min-h-[100dvh] pt-10 pb-24 md:min-h-0 md:h-full md:pt-0 md:pb-0 md:overflow-hidden"
       >
         {/* Section label */}
         <motion.div
@@ -183,7 +183,7 @@ export default function RoomMasalah() {
           <div className="mb-1 sm:mb-2">
             <SplitText
               text="Mengapa Ini Harus Berubah"
-              className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold text-glow-gold"
+              className="text-xl sm:text-3xl md:text-5xl lg:text-6xl font-bold text-glow-gold"
               style={{ fontFamily: "var(--font-cinzel)", color: "#C6A75E" }}
               delay={0.2}
               stagger={0.05}

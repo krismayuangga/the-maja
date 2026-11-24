@@ -4,25 +4,33 @@ import React, { useEffect, useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
 import useIsMobile from "@/hooks/useIsMobile";
 import useParallax from "@/hooks/useParallax";
-import { SplitText, Magnetic } from "@/components/ui/TextEffects";
+import { SplitText } from "@/components/ui/TextEffects";
 import { ParticleField } from "@/components/ui/CardEffects";
 
 const visionItems = [
-  { num: "01", title: "Sertifikasi Seni Digital", desc: "Standar digital sertifikasi seni Indonesia — identitas on-chain yang tak bisa dipalsukan" },
-  { num: "02", title: "Ekspor Budaya", desc: "Infrastruktur ekspor karya budaya ke panggung global" },
-  { num: "03", title: "UMKM Kreatif", desc: "Ekosistem ekonomi mandiri untuk UMKM kreatif Nusantara" },
-  { num: "04", title: "Cultural Web3 Hub", desc: "Pusat inovasi blockchain untuk pelestarian seni Asia Tenggara" },
-  { num: "05", title: "Ekonomi Nasional", desc: "Platform ekonomi kreatif nasional berbasis blockchain" },
+  { num: "01", title: "Catatan Kepemilikan", desc: "MAJA Certified menjadi catatan kepemilikan karya orisinil yang dapat diperiksa siapa pun" },
+  { num: "02", title: "Pasar untuk Pengrajin", desc: "MajaCraft membuka akses pembeli nasional & internasional bagi pengrajin daerah" },
+  { num: "03", title: "Cerita Budaya", desc: "Museum Digital & Ruang Budaya merawat kisah di balik setiap karya" },
+  { num: "04", title: "Komunitas & Regenerasi", desc: "Duta Daerah, Program Kampus, dan Kontributor menumbuhkan ekosistem dari bawah" },
+  { num: "05", title: "Karya Nusantara Mendunia", desc: "Membawa karya budaya Indonesia ke panggung global, dengan pengrajin sebagai pusatnya" },
+];
+
+/* Perjalanan MAJA — hanya fakta yang sudah terjadi */
+const journey = [
+  { when: "2025", what: "Brand MAJA lahir" },
+  { when: "Feb 2026", what: "MAJA Museum Digital" },
+  { when: "Jul 2026", what: "Marketplace MajaCraft diluncurkan" },
+  { when: "Nov 2026", what: "MAJA Certified & program komunitas" },
 ];
 
 /* Typewriter quote component */
 function TypewriterQuote({ inView }: { inView: boolean }) {
-  const line1 = "MAJA bukan sekadar token. MAJA adalah simbol penyatuan ekosistem kreatif Nusantara dalam era digital.";
+  const line1 = "MAJA adalah rumah bagi ekosistem seni dan kerajinan Nusantara — tempat karya dijual dengan adil, dicatat kepemilikannya, dan diceritakan kepada dunia.";
   const charDelay = 0.025;
 
   return (
     <div className="text-center max-w-5xl mx-auto">
-      <p className="text-base sm:text-xl md:text-2xl lg:text-3xl text-[#F5EBDD]/80 leading-relaxed" style={{ fontFamily: "var(--font-inter)", fontWeight: 300 }}>
+      <p className="text-sm sm:text-lg md:text-xl lg:text-2xl text-[#F5EBDD]/80 leading-relaxed" style={{ fontFamily: "var(--font-inter)", fontWeight: 300 }}>
         {line1.split("").map((char, i) => (
           <motion.span
             key={`l1-${i}`}
@@ -65,7 +73,7 @@ export default function RoomMasaDepan() {
   }, [isMobile]);
 
   return (
-    <section className="room room-6 flex items-center justify-center room-vignette relative">
+    <section className="room room-6 room-auto flex items-center justify-center room-vignette relative">
       {/* Deep sky background */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A10] via-[#0D0A06] to-[#1A1008]" />
 
@@ -157,12 +165,12 @@ export default function RoomMasaDepan() {
             className="text-[9px] sm:text-xs tracking-[0.4em] uppercase text-[#C6A75E]/50 block mb-1 sm:mb-2"
             style={{ fontFamily: "var(--font-philosopher)" }}
           >
-            Vision Room
+            Ruang Visi
           </span>
           <div className="mb-1 sm:mb-2">
             <SplitText
-              text="MAJA is not a token."
-              className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold text-glow-gold"
+              text="Rumah Karya Nusantara"
+              className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-glow-gold"
               style={{ fontFamily: "var(--font-cinzel)", color: "#C6A75E" }}
               delay={0.2}
               stagger={0.05}
@@ -172,7 +180,7 @@ export default function RoomMasaDepan() {
             className="text-xs sm:text-base md:text-lg text-[#F5EBDD]/50 max-w-xl mx-auto"
             style={{ fontFamily: "var(--font-cormorant)" }}
           >
-            It is the Creative Infrastructure of Nusantara
+            Visi &amp; perjalanan ekosistem MAJA
           </p>
         </motion.div>
 
@@ -199,7 +207,7 @@ export default function RoomMasaDepan() {
             {visionItems.slice(0, 3).map((item, i) => (
               <motion.div
                 key={item.num}
-                className="relative border border-[#C6A75E]/20 bg-[#1A1008]/50 p-3 sm:p-6 md:p-7 rounded-lg group hover:bg-[#C6A75E]/5 hover:border-[#C6A75E]/40 transition-all duration-500"
+                className="relative border border-[#C6A75E]/20 bg-[#1A1008]/50 p-3 sm:p-4 md:p-5 rounded-lg group hover:bg-[#C6A75E]/5 hover:border-[#C6A75E]/40 transition-all duration-500"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 + i * 0.12, duration: 0.5 }}
@@ -213,7 +221,7 @@ export default function RoomMasaDepan() {
                   transition={{ delay: 0.8 + i * 0.12, duration: 0.6 }}
                   viewport={{ once: true }}
                 />
-                <span className="text-2xl sm:text-4xl md:text-5xl font-bold text-[#C6A75E]/15 block mb-1 sm:mb-3 leading-none" style={{ fontFamily: "var(--font-cinzel)" }}>
+                <span className="text-xl sm:text-3xl md:text-4xl font-bold text-[#C6A75E]/15 block mb-1 sm:mb-2 leading-none" style={{ fontFamily: "var(--font-cinzel)" }}>
                   {item.num}
                 </span>
                 <h3 className="text-xs sm:text-base md:text-lg font-semibold text-[#C6A75E] mb-1" style={{ fontFamily: "var(--font-cinzel)" }}>
@@ -230,7 +238,7 @@ export default function RoomMasaDepan() {
             {visionItems.slice(3).map((item, i) => (
               <motion.div
                 key={item.num}
-                className="relative border border-[#C6A75E]/20 bg-[#1A1008]/50 p-3 sm:p-6 md:p-7 rounded-lg group hover:bg-[#C6A75E]/5 hover:border-[#C6A75E]/40 transition-all duration-500"
+                className="relative border border-[#C6A75E]/20 bg-[#1A1008]/50 p-3 sm:p-4 md:p-5 rounded-lg group hover:bg-[#C6A75E]/5 hover:border-[#C6A75E]/40 transition-all duration-500"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.9 + i * 0.12, duration: 0.5 }}
@@ -243,7 +251,7 @@ export default function RoomMasaDepan() {
                   transition={{ delay: 1.2 + i * 0.12, duration: 0.6 }}
                   viewport={{ once: true }}
                 />
-                <span className="text-2xl sm:text-4xl md:text-5xl font-bold text-[#C6A75E]/15 block mb-1 sm:mb-3 leading-none" style={{ fontFamily: "var(--font-cinzel)" }}>
+                <span className="text-xl sm:text-3xl md:text-4xl font-bold text-[#C6A75E]/15 block mb-1 sm:mb-2 leading-none" style={{ fontFamily: "var(--font-cinzel)" }}>
                   {item.num}
                 </span>
                 <h3 className="text-xs sm:text-base md:text-lg font-semibold text-[#C6A75E] mb-1" style={{ fontFamily: "var(--font-cinzel)" }}>
@@ -257,96 +265,43 @@ export default function RoomMasaDepan() {
           </div>
         </motion.div>
 
-        {/* ── CTA Buttons ── */}
+        {/* ── Perjalanan MAJA ── */}
         <motion.div
-          className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 w-full max-w-5xl"
-          style={{ marginBottom: isMobile ? "1rem" : "2rem" }}
+          className="w-full max-w-5xl grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3"
+          style={{ marginBottom: isMobile ? "1.5rem" : "2rem" }}
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 1.5 }}
+          transition={{ duration: 0.8, delay: 1.2 }}
           viewport={{ once: true }}
         >
-          {/* Primary — Enter Marketplace */}
-          <Magnetic>
-            <motion.a
-              href="#"
-              className="relative w-full sm:w-auto text-center px-6 sm:px-16 md:px-20 py-3 sm:py-6 md:py-7 border-2 border-[#C6A75E]/50 text-[#C6A75E] font-semibold tracking-widest text-sm sm:text-lg md:text-xl uppercase rounded-xl overflow-hidden group hover:border-[#C6A75E] transition-colors duration-500"
-              style={{ fontFamily: "var(--font-cinzel)" }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.97 }}
-            >
-              <motion.div
-                className="absolute inset-0 bg-[#C6A75E]/10 origin-left"
-                initial={{ scaleX: 0 }}
-                whileHover={{ scaleX: 1 }}
-                transition={{ duration: 0.4 }}
-              />
-              <span className="relative z-10 flex items-center justify-center gap-3">
-                <svg viewBox="0 0 24 24" className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7">
-                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" fill="none" stroke="currentColor" strokeWidth="2" />
-                  <polyline points="9 22 9 12 15 12 15 22" fill="none" stroke="currentColor" strokeWidth="2" />
-                </svg>
-                Enter Marketplace
-              </span>
-            </motion.a>
-          </Magnetic>
+          {journey.map((j) => (
+            <div key={j.when} className="border-l-2 border-[#C6A75E]/40 pl-3 py-1">
+              <p className="text-[10px] sm:text-xs tracking-[0.2em] uppercase text-[#C6A75E]" style={{ fontFamily: "var(--font-cinzel)" }}>{j.when}</p>
+              <p className="text-[11px] sm:text-sm text-[#F5EBDD]/70" style={{ fontFamily: "var(--font-inter)" }}>{j.what}</p>
+            </div>
+          ))}
+        </motion.div>
 
-          {/* Secondary — Read Whitepaper */}
-          <Magnetic>
-            <motion.a
-              href="/whitepaper.pdf"
-              target="_blank"
-              rel="noopener"
-              className="relative w-full sm:w-auto text-center px-6 sm:px-16 md:px-20 py-3 sm:py-6 md:py-7 border-2 border-[#C6A75E]/50 text-[#C6A75E] font-semibold tracking-widest text-sm sm:text-lg md:text-xl uppercase rounded-xl overflow-hidden group hover:border-[#C6A75E] transition-colors duration-500"
-              style={{ fontFamily: "var(--font-cinzel)" }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.97 }}
-            >
-              {/* Hover fill */}
-              <motion.div
-                className="absolute inset-0 bg-[#C6A75E]/10 origin-left"
-                initial={{ scaleX: 0 }}
-                whileHover={{ scaleX: 1 }}
-                transition={{ duration: 0.4 }}
-              />
-              <span className="relative z-10 flex items-center justify-center gap-2 sm:gap-3">
-                <svg viewBox="0 0 24 24" className="w-4 h-4 sm:w-6 sm:h-6 md:w-7 md:h-7">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" fill="none" stroke="currentColor" strokeWidth="1.5" />
-                  <polyline points="14 2 14 8 20 8" fill="none" stroke="currentColor" strokeWidth="1.5" />
-                  <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" strokeWidth="1" />
-                  <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" strokeWidth="1" />
-                </svg>
-                Read Whitepaper
-              </span>
-            </motion.a>
-          </Magnetic>
-
-          {/* Secondary — Join Community */}
-          <Magnetic>
-            <motion.a
-              href="#"
-              className="relative w-full sm:w-auto text-center px-6 sm:px-16 md:px-20 py-3 sm:py-6 md:py-7 border-2 border-[#C6A75E]/50 text-[#C6A75E] font-semibold tracking-widest text-sm sm:text-lg md:text-xl uppercase rounded-xl overflow-hidden group hover:border-[#C6A75E] transition-colors duration-500"
-              style={{ fontFamily: "var(--font-cinzel)" }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.97 }}
-            >
-              <motion.div
-                className="absolute inset-0 bg-[#C6A75E]/10 origin-left"
-                initial={{ scaleX: 0 }}
-                whileHover={{ scaleX: 1 }}
-                transition={{ duration: 0.4 }}
-              />
-              <span className="relative z-10 flex items-center justify-center gap-2 sm:gap-3">
-                <svg viewBox="0 0 24 24" className="w-4 h-4 sm:w-6 sm:h-6 md:w-7 md:h-7">
-                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" fill="none" stroke="currentColor" strokeWidth="1.5" />
-                  <circle cx="9" cy="7" r="4" fill="none" stroke="currentColor" strokeWidth="1.5" />
-                  <path d="M23 21v-2a4 4 0 0 0-3-3.87" fill="none" stroke="currentColor" strokeWidth="1.5" />
-                  <path d="M16 3.13a4 4 0 0 1 0 7.75" fill="none" stroke="currentColor" strokeWidth="1.5" />
-                </svg>
-                Join Community
-              </span>
-            </motion.a>
-          </Magnetic>
+        {/* ── CTA Buttons ── */}
+        <motion.div
+          className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full max-w-5xl"
+          style={{ marginBottom: isMobile ? "6rem" : "2rem" }}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 1.2 }}
+          viewport={{ once: true }}
+        >
+          {[
+            { href: "https://majacraft.id", label: "Kunjungi MajaCraft", primary: true },
+            { href: "https://majacraft.id/certified", label: "MAJA Certified" },
+            { href: "https://majacraft.id/karir", label: "Bergabung" },
+          ].map((b) => (
+            <a key={b.label} href={b.href} target="_blank" rel="noopener"
+              className={`w-full sm:w-auto text-center px-8 py-3 rounded-xl tracking-widest uppercase text-xs sm:text-sm transition-colors ${b.primary ? "border-2 border-[#C6A75E]/70 text-[#C6A75E] hover:bg-[#C6A75E]/10" : "border border-[#C6A75E]/30 text-[#F5EBDD]/75 hover:border-[#C6A75E]/60"}`}
+              style={{ fontFamily: "var(--font-cinzel)" }}>
+              {b.label}
+            </a>
+          ))}
         </motion.div>
 
         {/* Footer signature */}
@@ -363,7 +318,7 @@ export default function RoomMasaDepan() {
             <div className="w-20 sm:w-28 h-[1px] bg-gradient-to-l from-transparent to-[#C6A75E]/40" />
           </div>
           <p className="text-sm sm:text-base md:text-lg text-[#C6A75E]/50 tracking-[0.35em] uppercase text-center" style={{ fontFamily: "var(--font-cinzel)" }}>
-            Creative Economy Infrastructure of Nusantara
+            Rumah Ekosistem Seni &amp; Kerajinan Nusantara
           </p>
         </motion.div>
       </div>

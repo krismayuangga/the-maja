@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import React from "react";
 import { motion } from "framer-motion";
 import useIsMobile from "@/hooks/useIsMobile";
@@ -17,9 +18,9 @@ const solutions = [
         <path d="M13 6 L16 2 L19 6" stroke="#C6A75E" strokeWidth="0.8" fill="none" />
       </svg>
     ),
-    title: "NFT Certificate",
-    desc: "Setiap karya fisik memiliki sertifikat digital on-chain sebagai bukti keaslian.",
-    image: "/images/museum/solusi/nft-hologram.webp",
+    title: "Identitas Karya",
+    desc: "ID sertifikat unik & catatan on-chain untuk setiap karya orisinil yang terdaftar.",
+    image: "/images/museum/solusi/sertifikat-maja.jpg",
   },
   {
     icon: (
@@ -30,8 +31,8 @@ const solutions = [
         <path d="M8 10 L24 10 M6 16 L26 16 M8 22 L24 22" stroke="#C6A75E" strokeWidth="0.4" opacity="0.3" />
       </svg>
     ),
-    title: "On-chain Provenance",
-    desc: "Riwayat kepemilikan tercatat abadi di blockchain. Tidak bisa dipalsukan.",
+    title: "Riwayat Kepemilikan",
+    desc: "Pemilik sah & setiap perpindahan kepemilikan tercatat permanen di blockchain.",
     image: "/images/museum/solusi/physical-art.webp",
   },
   {
@@ -43,8 +44,8 @@ const solutions = [
         <path d="M14 16 L16 18 L20 14" stroke="#C6A75E" strokeWidth="1" fill="none" />
       </svg>
     ),
-    title: "Smart Escrow",
-    desc: "Dana aman dalam smart contract sampai barang dikirim & dikonfirmasi.",
+    title: "Verifikasi Publik",
+    desc: "Siapa pun dapat memeriksa sertifikat melalui QR atau ID — tanpa akun.",
     image: "/images/museum/solusi/art-nft-linked.webp",
   },
   {
@@ -58,8 +59,8 @@ const solutions = [
         <path d="M7 26 L11 26" stroke="#C6A75E" strokeWidth="0.8" />
       </svg>
     ),
-    title: "Logistics Trigger",
-    desc: "NFT berpindah → pengiriman fisik otomatis terpicu. Selalu sinkron.",
+    title: "Untuk Seniman & Kolektor",
+    desc: "Karya yang dijual di luar MajaCraft pun bisa didaftarkan. Gratis tahap awal.",
     image: "/images/museum/solusi/physical-art.webp",
   },
 ];
@@ -69,7 +70,7 @@ export default function RoomSolusi() {
   const registerParallax = useParallax(!isMobile);
 
   return (
-    <section className="room room-3 flex items-center justify-center room-vignette relative overflow-hidden">
+    <section className="room room-3 room-auto flex items-center justify-center room-vignette relative overflow-hidden">
       {/* Bright warm background */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#1E150E] via-[#2C1A12] to-[#1A1008]" />
 
@@ -90,7 +91,7 @@ export default function RoomSolusi() {
         {/* Section header */}
         <motion.div
           className="text-center"
-          style={{ marginBottom: "3rem" }}
+          style={{ marginBottom: "1.25rem" }}
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
@@ -100,11 +101,11 @@ export default function RoomSolusi() {
             className="text-sm sm:text-base md:text-lg tracking-[0.5em] uppercase text-[#C6A75E]/40 block mb-2 sm:mb-3"
             style={{ fontFamily: "var(--font-philosopher)" }}
           >
-            The Innovation Chamber
+            Ruang Sertifikasi
           </span>
           <div className="mb-2 sm:mb-4">
             <SplitText
-              text="MAJA Marketplace"
+              text="MAJA Certified"
               className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-glow-gold"
               style={{ fontFamily: "var(--font-cinzel)", color: "#C6A75E" }}
               delay={0.3}
@@ -115,14 +116,14 @@ export default function RoomSolusi() {
             className="text-base sm:text-xl md:text-2xl text-[#F5EBDD]/60 max-w-2xl mx-auto"
             style={{ fontFamily: "var(--font-cormorant)" }}
           >
-            <GradientText text="Hybrid Physical & Digital Commerce" from="#C6A75E" via="#F5EBDD" to="#D4B978" animate speed={5} />
+            <GradientText text="Sertifikat Kepemilikan Phygital untuk Karya Orisinil" from="#C6A75E" via="#F5EBDD" to="#D4B978" animate speed={5} />
           </p>
         </motion.div>
 
         {/* Transformation visual: Physical → NFT */}
         <motion.div
           className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 md:gap-8"
-          style={{ marginBottom: "3rem" }}
+          style={{ marginBottom: "1.5rem" }}
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ duration: 1, delay: 0.3 }}
@@ -131,7 +132,7 @@ export default function RoomSolusi() {
           {/* Physical artwork */}
           <TiltCard maxTilt={isMobile ? 0 : 12} glare={!isMobile}>
             <motion.div
-              className="w-32 h-44 sm:w-44 sm:h-60 md:w-60 md:h-[20rem] border-2 border-[#C6A75E]/30 bg-[#2C1A12] rounded-sm flex items-center justify-center relative overflow-hidden"
+              className="w-32 h-44 sm:w-44 sm:h-60 md:w-48 md:h-64 border-2 border-[#C6A75E]/30 bg-[#2C1A12] rounded-sm flex items-center justify-center relative overflow-hidden"
               whileHover={{ scale: 1.02 }}
             >
               {/* Physical art image */}
@@ -150,7 +151,7 @@ export default function RoomSolusi() {
                 className="absolute bottom-1 sm:bottom-2 text-[7px] sm:text-[8px] md:text-[10px] text-[#C6A75E]/50 tracking-widest uppercase"
                 style={{ fontFamily: "var(--font-inter)" }}
               >
-                Physical
+                Karya Fisik
               </span>
             </motion.div>
           </TiltCard>
@@ -173,14 +174,14 @@ export default function RoomSolusi() {
                 viewport={{ once: true }}
               />
             </svg>
-            <span className="text-[8px] text-[#C6A75E]/40 tracking-widest" style={{ fontFamily: "var(--font-inter)" }}>MINT</span>
+            <span className="text-[8px] text-[#C6A75E]/40 tracking-widest" style={{ fontFamily: "var(--font-inter)" }}>DAFTAR</span>
           </motion.div>
 
           {/* NFT Certificate — Holographic */}
           <Holographic intensity={0.15}>
             <TiltCard maxTilt={isMobile ? 0 : 12} glare={!isMobile} glareOpacity={0.2}>
               <motion.div
-                className="w-32 h-44 sm:w-44 sm:h-60 md:w-60 md:h-[20rem] rounded-sm flex items-center justify-center relative overflow-hidden"
+                className="w-32 h-44 sm:w-44 sm:h-60 md:w-48 md:h-64 rounded-sm flex items-center justify-center relative overflow-hidden"
                 style={{
                   background: "linear-gradient(135deg, #1A1008 0%, #2C1A12 50%, #0F3B2E 100%)",
                   border: "2px solid rgba(198,167,94,0.5)",
@@ -188,8 +189,8 @@ export default function RoomSolusi() {
                 }}
                 whileHover={{ boxShadow: "0 0 60px rgba(198,167,94,0.3)" }}
               >
-                <img src="/images/museum/solusi/nft-hologram.webp" alt=""
-                  className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-700"
+                <img src="/images/museum/solusi/sertifikat-maja.jpg" alt="Contoh sertifikat kepemilikan MAJA"
+                  className="absolute inset-0 w-full h-full object-contain opacity-0 transition-opacity duration-700"
                   onLoad={(e) => { (e.target as HTMLImageElement).style.opacity = "0.8"; }}
                   onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                 />
@@ -204,7 +205,7 @@ export default function RoomSolusi() {
                   className="absolute bottom-1 sm:bottom-2 text-[7px] sm:text-[8px] md:text-[10px] text-[#C6A75E]/70 tracking-widest uppercase z-10"
                   style={{ fontFamily: "var(--font-inter)" }}
                 >
-                  NFT Cert
+                  Sertifikat
                 </span>
               </motion.div>
             </TiltCard>
@@ -222,7 +223,7 @@ export default function RoomSolusi() {
           {/* Physical linked */}
           <TiltCard maxTilt={isMobile ? 0 : 10} glare={!isMobile} className="hidden sm:block">
             <motion.div
-              className="w-32 h-44 sm:w-44 sm:h-60 md:w-60 md:h-[20rem] rounded-sm flex items-center justify-center relative overflow-hidden"
+              className="w-32 h-44 sm:w-44 sm:h-60 md:w-48 md:h-64 rounded-sm flex items-center justify-center relative overflow-hidden"
               style={{
                 background: "linear-gradient(135deg, #2C1A12 0%, #1E150E 100%)",
                 border: "2px solid rgba(198,167,94,0.4)",
@@ -245,7 +246,7 @@ export default function RoomSolusi() {
                 className="absolute bottom-2 text-[8px] md:text-[10px] text-[#C6A75E]/60 tracking-widest uppercase"
                 style={{ fontFamily: "var(--font-inter)" }}
               >
-                Linked
+                Tercatat
               </span>
             </motion.div>
           </TiltCard>
@@ -288,6 +289,29 @@ export default function RoomSolusi() {
             </FadeIn>
           ))}
         </div>
+
+        {/* CTA — ajukan sertifikat di MajaCraft */}
+        <motion.div
+          className="flex flex-col sm:flex-row items-center gap-3 mt-6 sm:mt-8"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
+          viewport={{ once: true }}
+        >
+          <a href="https://majacraft.id/certified" target="_blank" rel="noopener"
+            className="px-6 sm:px-10 py-3 border-2 border-[#C6A75E]/60 text-[#C6A75E] rounded-xl tracking-widest uppercase text-xs sm:text-sm hover:bg-[#C6A75E]/10 transition-colors"
+            style={{ fontFamily: "var(--font-cinzel)" }}>
+            Ajukan Sertifikat
+          </a>
+          <Link href="/sertifikat/"
+            className="px-6 sm:px-10 py-3 border border-[#C6A75E]/30 text-[#F5EBDD]/70 rounded-xl tracking-widest uppercase text-xs sm:text-sm hover:border-[#C6A75E]/60 transition-colors"
+            style={{ fontFamily: "var(--font-cinzel)" }}>
+            Cek Sertifikat
+          </Link>
+        </motion.div>
+        <p className="mt-3 mb-24 sm:mb-0 text-[11px] sm:text-xs text-[#F5EBDD]/40 max-w-xl text-center" style={{ fontFamily: "var(--font-inter)" }}>
+          MAJA Certified mencatat kepemilikan sah atas karya orisinil — bukan penilaian keaslian maupun nilai karya.
+        </p>
       </div>
     </section>
   );

@@ -9,7 +9,8 @@ import RoomSejarah from "@/components/museum/RoomSejarah";
 import RoomMasalah from "@/components/museum/RoomMasalah";
 import RoomSolusi from "@/components/museum/RoomSolusi";
 import RoomNusantara from "@/components/museum/RoomNusantara";
-import RoomEkonomi from "@/components/museum/RoomEkonomi";
+import RoomEkosistem from "@/components/museum/RoomEkosistem";
+import RoomGaleri from "@/components/museum/RoomGaleri";
 import RoomMasaDepan from "@/components/museum/RoomMasaDepan";
 import MuseumNav from "@/components/museum/MuseumNav";
 import useIsMobile from "@/hooks/useIsMobile";
@@ -19,10 +20,11 @@ gsap.registerPlugin(ScrollTrigger);
 const ROOM_NAMES = [
   "Sejarah",
   "Masalah",
-  "Solusi",
+  "Ekosistem",
+  "Certified",
   "Nusantara",
-  "Ekonomi",
-  "Masa Depan",
+  "Galeri",
+  "Visi",
 ];
 
 const ROOM_COUNT = ROOM_NAMES.length;
@@ -163,9 +165,10 @@ export default function MuseumExperience() {
         >
           <RoomSejarah />
           <RoomMasalah />
+          <RoomEkosistem />
           <RoomSolusi />
           <RoomNusantara />
-          <RoomEkonomi />
+          <RoomGaleri />
           <RoomMasaDepan />
         </div>
       </>
@@ -195,9 +198,10 @@ export default function MuseumExperience() {
         >
           <RoomSejarah />
           <RoomMasalah />
+          <RoomEkosistem />
           <RoomSolusi />
           <RoomNusantara />
-          <RoomEkonomi />
+          <RoomGaleri />
           <RoomMasaDepan />
         </div>
       </div>
