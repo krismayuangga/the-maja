@@ -8,6 +8,7 @@ import useIsMobile from "@/hooks/useIsMobile";
 import useParallax from "@/hooks/useParallax";
 import { BlurText, FadeIn } from "@/components/ui/TextEffects";
 import { ParticleField } from "@/components/ui/CardEffects";
+import { provinceKey, provinceInfo } from "@/components/museum/nusantaraGeo";
 
 /* Dynamic import — DomeGallery uses DOM APIs, no SSR */
 const DomeGallery = dynamic(
@@ -24,6 +25,8 @@ interface GalleryItem {
   price?: number;
   sold?: boolean;
   href?: string;        // tautan ke produk di MajaCraft
+  prov?: string | null; // kunci provinsi baku (filter peta)
+  cat?: string;         // nama kategori (filter chip)
 }
 
 const MAJACRAFT = "https://majacraft.id";
@@ -41,13 +44,21 @@ const shortText = (t: string, max = 220) => {
 type ApiProduct = {
   name: string; slug: string; description: string | null; price: number; stock: number; isSoldOffline: boolean;
   images: { url: string }[]; store: { name: string; province: string | null } | null;
+  category: { name: string } | null;
 };
+
+type Sebaran = { provinsi: string; seniman: number; karya: number };
+type Stats = { karya: number; pengrajin: number; provinsi: number; sebaran?: Sebaran[] };
 
 /** Produk asli dari MajaCraft untuk galeri */
 async function fetchProducts(): Promise<GalleryItem[]> {
-  const res = await fetch(`${MAJACRAFT}/api/products?limit=50`);
-  const json = await res.json();
-  const items: ApiProduct[] = json?.data?.items ?? [];
+  // API membatasi 50 per halaman → ambil semua halaman agar galeri tidak berulang
+  const page = (n: number) => fetch(`${MAJACRAFT}/api/products?limit=50&page=${n}`).then((r) => r.json());
+  const first = await page(1);
+  const total: number = first?.data?.total ?? 0;
+  const pages = Math.min(6, Math.ceil(total / 50));
+  const rest = await Promise.all(Array.from({ length: Math.max(0, pages - 1) }, (_, i) => page(i + 2).catch(() => null)));
+  const items: ApiProduct[] = [first, ...rest].flatMap((j) => j?.data?.items ?? []);
   return items
     .filter((p) => p.images?.[0]?.url && !/\btest\b/i.test(p.name))
     .map((p) => ({
@@ -59,6 +70,8 @@ async function fetchProducts(): Promise<GalleryItem[]> {
       price: p.price,
       sold: p.isSoldOffline || p.stock === 0,
       href: `${MAJACRAFT}/produk/${p.slug}`,
+      prov: provinceKey(p.store?.province),
+      cat: p.category?.name ?? "Lainnya",
     }));
 }
 
@@ -97,28 +110,142 @@ const galleryItems: GalleryItem[] = [
   },
 ];
 
+/** Peta Indonesia dengan titik provinsi yang benar-benar punya seniman (data live) */
+function LiveMap({ sebaran, active, onSelect }: {
+  sebaran: Sebaran[]; active: string | null; onSelect: (k: string | null) => void;
+}) {
+  const [hover, setHover] = useState<string | null>(null);
+  const max = Math.max(1, ...sebaran.map((s) => s.seniman));
+  const shown = hover ?? active;
+  const tip = shown ? sebaran.find((s) => s.provinsi === shown) : null;
+  const tipInfo = tip ? provinceInfo(tip.provinsi) : null;
+
+  return (
+    <div className="relative w-full max-w-[22rem] sm:max-w-[520px] md:max-w-[600px] lg:max-w-[620px] mx-auto select-none">
+      <img
+        src="/images/museum/nusantara/indonesia-map.png"
+        alt="Peta sebaran seniman MAJA di Indonesia"
+        className="w-full h-auto opacity-[0.28] pointer-events-none"
+        style={{ filter: "drop-shadow(0 0 40px rgba(198,167,94,0.15))" }}
+        draggable={false}
+      />
+      {sebaran.map((s) => {
+        const info = provinceInfo(s.provinsi);
+        if (!info) return null;
+        const size = 8 + Math.sqrt(s.seniman / max) * 22; // px — sebanding jumlah seniman
+        const on = active === s.provinsi;
+        const dim = active && !on;
+        return (
+          <button
+            key={s.provinsi}
+            type="button"
+            aria-label={`${info.name}: ${s.seniman} seniman, ${s.karya} karya`}
+            aria-pressed={on}
+            onMouseEnter={() => setHover(s.provinsi)}
+            onMouseLeave={() => setHover(null)}
+            onClick={() => onSelect(on ? null : s.provinsi)}
+            className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full flex items-center justify-center cursor-pointer"
+            style={{ left: `${info.x}%`, top: `${info.y}%`, width: Math.max(size, 22), height: Math.max(size, 22), opacity: dim ? 0.35 : 1, transition: "opacity .3s" }}
+          >
+            <span className="absolute rounded-full bg-[#E8C878]/40 animate-ping" style={{ width: size, height: size, animationDuration: `${2.2 + (s.seniman % 3) * 0.4}s` }} />
+            <span
+              className="relative rounded-full"
+              style={{
+                width: size * 0.62, height: size * 0.62,
+                background: "radial-gradient(circle, #FFF1C9 0%, #E8C878 55%, #C6A75E 100%)",
+                boxShadow: on ? "0 0 0 2px #1A1008, 0 0 0 3px #E8C878, 0 0 18px #E8C878" : "0 0 12px rgba(232,200,120,0.8)",
+              }}
+            />
+          </button>
+        );
+      })}
+
+      {/* Keterangan provinsi */}
+      <AnimatePresence>
+        {tip && tipInfo && (
+          <motion.div
+            key={tip.provinsi}
+            initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+            className="absolute z-20 -translate-x-1/2 pointer-events-none whitespace-nowrap px-3 py-1.5 rounded-lg border border-[#C6A75E]/40 bg-[#0D0A06]/90 backdrop-blur-sm"
+            style={tipInfo.y > 55
+              ? { left: `${Math.min(85, Math.max(15, tipInfo.x))}%`, bottom: `calc(${100 - tipInfo.y}% + 16px)` }
+              : { left: `${Math.min(85, Math.max(15, tipInfo.x))}%`, top: `calc(${tipInfo.y}% + 16px)` }}
+          >
+            <p className="text-[#E8C878] text-xs sm:text-sm font-semibold" style={{ fontFamily: "var(--font-philosopher)" }}>{tipInfo.name}</p>
+            <p className="text-[#F5EBDD]/70 text-[10px] sm:text-xs" style={{ fontFamily: "var(--font-inter)" }}>
+              {tip.seniman} seniman · {tip.karya > 0 ? `${tip.karya} karya` : "karya segera hadir"}
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function Chip({ on, onClick, children }: { on: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={on}
+      className={`shrink-0 px-3 sm:px-3.5 py-1.5 rounded-full border text-[11px] sm:text-xs tracking-wide transition-colors whitespace-nowrap ${
+        on ? "border-[#E8C878] bg-[#C6A75E]/20 text-[#F5EBDD]" : "border-[#C6A75E]/25 text-[#F5EBDD]/60 hover:border-[#C6A75E]/60 hover:text-[#F5EBDD]/90"
+      }`}
+      style={{ fontFamily: "var(--font-inter)" }}
+    >
+      {children}
+    </button>
+  );
+}
+
 export default function RoomNusantara() {
   const isMobile = useIsMobile();
   const registerParallax = useParallax(!isMobile);
   const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
   const [items, setItems] = useState<GalleryItem[] | null>(null);
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [prov, setProv] = useState<string | null>(null);
+  const [cat, setCat] = useState<string | null>(null);
 
   useEffect(() => {
     let alive = true;
     fetchProducts()
       .then((list) => { if (alive) setItems(list.length >= 6 ? list : galleryItems); })
       .catch(() => { if (alive) setItems(galleryItems); });
+    fetch(`${MAJACRAFT}/api/stats/public`).then((r) => r.json())
+      .then((j) => { if (alive && j?.success) setStats(j.data); })
+      .catch(() => {});
     return () => { alive = false; };
   }, []);
 
+  const live = !!items && items !== galleryItems;
+
+  /* Kategori + jumlah karya, dari karya yang dimuat (mengikuti filter provinsi) */
+  const categories = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const g of items ?? []) if (g.cat && (!prov || g.prov === prov)) m.set(g.cat, (m.get(g.cat) ?? 0) + 1);
+    return [...m].sort((a, b) => b[1] - a[1]);
+  }, [items, prov]);
+
+  const filtered = useMemo(
+    () => (items ?? []).filter((g) => (!prov || g.prov === prov) && (!cat || g.cat === cat)),
+    [items, prov, cat],
+  );
+
+  // Ganti provinsi → kategori yang tidak ada di provinsi itu dilepas
+  useEffect(() => { if (cat && !categories.some(([c]) => c === cat)) setCat(null); }, [categories, cat]);
+
   /* DomeGallery images array (src + alt) — dimemo agar bola tidak dibangun ulang */
-  const domeImages = useMemo(() => (items ?? []).map((g) => ({ src: g.image, alt: g.text })), [items]);
+  const domeImages = useMemo(() => filtered.map((g) => ({ src: g.image, alt: g.text })), [filtered]);
+  const useDome = filtered.length >= 8;
 
   /* When a dome tile is clicked, find the matching gallery item by src */
   const handleDomeClick = useCallback((src: string) => {
     const found = items?.find((g) => g.image === src);
     if (found) setSelectedItem(found);
   }, [items]);
+
+  const provName = prov ? provinceInfo(prov)?.name : null;
 
   return (
     <section className="room room-4 flex items-center justify-center room-vignette relative">
@@ -129,30 +256,22 @@ export default function RoomNusantara() {
       <ParticleField count={isMobile ? 10 : 20} color="#0F3B2E" minSize={1} maxSize={3} speed="slow" direction="random" />
 
       {/* Ambient glow — parallax */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        ref={registerParallax(-12, -12)}
-        style={{ willChange: "transform" }}
-      >
+      <div className="absolute inset-0 pointer-events-none" ref={registerParallax(-12, -12)} style={{ willChange: "transform" }}>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-[#0F3B2E] opacity-[0.06] blur-[120px] rounded-full" />
       </div>
 
       {/* Content */}
-      <div className="relative z-10 ml-12 sm:ml-16 md:ml-20 mr-4 sm:mr-8 md:mr-12 w-auto flex flex-col items-center h-full" style={{ justifyContent: "flex-start", paddingTop: isMobile ? "5rem" : "4rem" }}>
+      <div className="relative z-10 ml-12 sm:ml-16 md:ml-20 mr-4 sm:mr-8 md:mr-12 w-auto flex flex-col items-center h-full pt-16 sm:pt-10 pb-24 sm:pb-6">
         {/* ── Header ── */}
         <motion.div
-          className="text-center"
-          style={{ marginBottom: isMobile ? "0.25rem" : "0.5rem" }}
+          className="text-center mb-2 sm:mb-3"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
           viewport={{ once: true }}
         >
-          <span
-            className="text-[9px] sm:text-xs tracking-[0.4em] uppercase text-[#C6A75E]/50 block mb-1 sm:mb-2"
-            style={{ fontFamily: "var(--font-philosopher)" }}
-          >
-            Galeri Seni Nusantara
+          <span className="text-[9px] sm:text-xs tracking-[0.4em] uppercase text-[#C6A75E]/50 block mb-1 sm:mb-2" style={{ fontFamily: "var(--font-philosopher)" }}>
+            Peta Karya Nusantara
           </span>
           <BlurText
             text="Nusantara"
@@ -160,77 +279,86 @@ export default function RoomNusantara() {
             style={{ fontFamily: "var(--font-cinzel)" }}
             delay={0.2}
           />
-          <p
-            className="text-xs sm:text-base md:text-lg text-[#F5EBDD]/50 max-w-xl mx-auto"
-            style={{ fontFamily: "var(--font-cormorant)" }}
-          >
-            Jelajahi kekayaan seni dari setiap penjuru kepulauan
+          <p className="text-sm sm:text-lg md:text-xl text-[#F5EBDD]/70 max-w-2xl mx-auto min-h-[1.5em]" style={{ fontFamily: "var(--font-cormorant)" }}>
+            {stats ? (
+              <>
+                <span className="text-[#E8C878] font-semibold">{stats.karya}</span> karya dari{" "}
+                <span className="text-[#E8C878] font-semibold">{stats.pengrajin}</span> seniman di{" "}
+                <span className="text-[#E8C878] font-semibold">{stats.provinsi}</span> provinsi — dan terus bertambah.
+              </>
+            ) : "Jelajahi kekayaan seni dari setiap penjuru kepulauan"}
           </p>
         </motion.div>
 
-        {/* ── Indonesia Map PNG (decorative, no parallax) ── */}
-        <FadeIn direction="up" delay={0.3} duration={0.8}>
-          <div
-            className="relative w-full flex justify-center"
-            style={{ marginBottom: isMobile ? "0.5rem" : "0.25rem" }}
-          >
-            <div className="relative">
-              <img
-                src="/images/museum/nusantara/indonesia-map.png"
-                alt="Peta Indonesia"
-                className="w-[420px] sm:w-[500px] md:w-[680px] lg:w-[850px] h-auto opacity-30 select-none pointer-events-none"
-                style={{
-                  filter: "drop-shadow(0 0 40px rgba(198,167,94,0.15))",
-                }}
-                draggable={false}
-              />
-              {/* Gold glow behind map */}
-              <div className="absolute inset-0 bg-[#C6A75E] opacity-[0.04] blur-[60px] rounded-full" />
-            </div>
-          </div>
+        {/* ── Peta hidup ── */}
+        <FadeIn direction="up" delay={0.3} duration={0.8} className="w-full">
+          <LiveMap sebaran={stats?.sebaran ?? []} active={prov} onSelect={setProv} />
         </FadeIn>
 
-        {/* ── Tagline below map ── */}
         <motion.p
-          className="text-center text-sm sm:text-lg md:text-xl text-[#C6A75E]/40 tracking-widest"
-          style={{
-            fontFamily: "var(--font-philosopher)",
-            marginBottom: isMobile ? "0.5rem" : "0.75rem",
-          }}
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          viewport={{ once: true }}
+          className="text-center text-xs sm:text-base md:text-lg text-[#C6A75E]/55 tracking-wide sm:tracking-wider mt-1 sm:mt-2 mb-3 px-2 text-balance"
+          style={{ fontFamily: "var(--font-philosopher)" }}
+          initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} transition={{ delay: 0.6 }} viewport={{ once: true }}
         >
-          Dari Sabang sampai Merauke
+          Berawal dari tanah Majapahit, menyebar ke seluruh Nusantara
         </motion.p>
 
-        {/* ── Dome Gallery ── */}
+        {/* ── Filter ── */}
+        {live && (
+          <div className="w-[calc(100vw-4rem)] sm:w-full max-w-4xl flex flex-nowrap sm:flex-wrap sm:justify-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
+            {prov && (
+              <Chip on onClick={() => setProv(null)}>📍 {provName} ✕</Chip>
+            )}
+            <Chip on={!cat} onClick={() => setCat(null)}>Semua · {prov ? (items ?? []).filter((g) => g.prov === prov).length : (items ?? []).length}</Chip>
+            {categories.map(([c, n]) => (
+              <Chip key={c} on={cat === c} onClick={() => setCat(cat === c ? null : c)}>{c} · {n}</Chip>
+            ))}
+          </div>
+        )}
+
+        {/* ── Galeri ── */}
         <FadeIn direction="up" delay={0.5} duration={0.8}>
           <div
-            className="w-[95vw] sm:w-[85vw] md:w-[75vw] lg:w-[70vw]"
-            style={{
-              height: isMobile ? "340px" : "440px",
-              position: "relative",
-              marginTop: isMobile ? "1rem" : "1.5rem",
-            }}
+            className="w-[95vw] sm:w-[85vw] md:w-[75vw] lg:w-[70vw] relative mt-2"
+            style={{ height: isMobile ? "320px" : "380px" }}
           >
-            {items && <DomeGallery
-              images={domeImages}
-              fit={isMobile ? 0.5 : 0.55}
-              segments={isMobile ? 20 : 35}
-              minRadius={isMobile ? 250 : 450}
-              dragDampening={2}
-              grayscale={false}
-              overlayBlurColor="transparent"
-              imageBorderRadius="8px"
-              autoRotateSpeed={3}
-              onItemClick={handleDomeClick}
-            />}
+            {items && useDome && (
+              <DomeGallery
+                key={`${prov ?? "all"}|${cat ?? "all"}`}
+                images={domeImages}
+                fit={isMobile ? 0.5 : 0.55}
+                segments={isMobile ? 20 : 35}
+                minRadius={isMobile ? 250 : 450}
+                dragDampening={2}
+                grayscale={false}
+                overlayBlurColor="transparent"
+                imageBorderRadius="8px"
+                autoRotateSpeed={3}
+                onItemClick={handleDomeClick}
+              />
+            )}
+            {items && !useDome && (
+              <div className="h-full flex flex-col items-center justify-center gap-3">
+                {filtered.length > 0 ? (
+                  <div className="flex flex-wrap justify-center gap-3 max-w-3xl">
+                    {filtered.map((g) => (
+                      <button key={g.image} type="button" onClick={() => setSelectedItem(g)}
+                        className="w-28 sm:w-36 rounded-lg overflow-hidden border border-[#C6A75E]/25 bg-[#0D0A06] hover:border-[#C6A75E]/70 transition-colors text-left">
+                        <img src={g.image} alt={g.text} className="w-full aspect-square object-cover" loading="lazy" />
+                        <p className="px-2 py-1.5 text-[10px] sm:text-xs text-[#F5EBDD]/80 line-clamp-1 capitalize" style={{ fontFamily: "var(--font-inter)" }}>{g.text.toLowerCase()}</p>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-[#F5EBDD]/60 text-base sm:text-lg text-center max-w-md" style={{ fontFamily: "var(--font-cormorant)" }}>
+                    Seniman dari {provName ?? "provinsi ini"} sudah bergabung — karyanya segera hadir di MajaCraft.
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         </FadeIn>
       </div>
-
       {/* ── Detail Popup Overlay (portaled to body for correct centering) ── */}
       {typeof document !== "undefined" && createPortal(
         <AnimatePresence>
