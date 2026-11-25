@@ -295,7 +295,7 @@ function Proof({ index, stats, products, cert }: { index: number; stats: Stats |
           ))}
         </div>
       )}
-      {stats && <p className={label}><span className={num}><CountUp value={stats.karya} /></span> karya aktif dari <span className={num}><CountUp value={stats.pengrajin} /></span> pengrajin</p>}
+      {stats && <p className={label}><span className={num}><CountUp value={stats.karya} /></span> karya aktif · <span className={num}><CountUp value={stats.pengrajin} /></span> seniman bergabung</p>}
     </div>
   );
   if (index === 1) return (
@@ -333,7 +333,7 @@ function Proof({ index, stats, products, cert }: { index: number; stats: Stats |
           <span key={t} className="px-2.5 py-1 rounded-full border border-[#C6A75E]/30 text-[11px] text-[#E8D5A3]/90">{t}</span>
         ))}
       </div>
-      {stats && <p className={label}>Pengrajin dari <span className={num}><CountUp value={stats.provinsi} /></span> provinsi telah bergabung</p>}
+      {stats && <p className={label}>Seniman dari <span className={num}><CountUp value={stats.provinsi} /></span> provinsi telah bergabung</p>}
     </div>
   );
 }
@@ -383,7 +383,7 @@ export default function RoomEkosistem() {
 
   const STAT_ITEMS = stats ? [
     { v: stats.karya, l: "Karya aktif" },
-    { v: stats.pengrajin, l: "Pengrajin" },
+    { v: stats.pengrajin, l: "Seniman Bergabung" },
     { v: stats.provinsi, l: "Provinsi" },
     { v: stats.sertifikat, l: "Sertifikat tercatat" },
   ] : [];
