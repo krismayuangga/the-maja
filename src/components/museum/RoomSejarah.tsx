@@ -100,7 +100,7 @@ export default function RoomSejarah() {
           <motion.img
             src="/images/museum/branding/themaja-logo-600.png"
             alt="Logo The MAJA"
-            className="h-14 sm:h-16 md:h-20 w-auto object-contain mb-3"
+            className="h-14 sm:h-16 md:h-20 w-auto object-contain mb-2"
             style={{
               filter: "drop-shadow(0 0 20px rgba(198,167,94,0.4)) drop-shadow(0 0 50px rgba(198,167,94,0.15))",
             }}
@@ -110,6 +110,18 @@ export default function RoomSejarah() {
             viewport={{ once: true }}
             onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
           />
+
+          {/* The MAJA — di bawah logo */}
+          <motion.p
+            className="text-xs sm:text-sm md:text-base tracking-[0.5em] uppercase text-[#C6A75E]/75 mb-4 sm:mb-5 pl-[0.5em]"
+            style={{ fontFamily: "var(--font-cinzel)" }}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ duration: 1, delay: 0.3 }}
+            viewport={{ once: true }}
+          >
+            The MAJA
+          </motion.p>
 
           {/* Judul */}
           <motion.h2
@@ -148,17 +160,6 @@ export default function RoomSejarah() {
             />
           </motion.div>
 
-          {/* Subtitle */}
-          <motion.p
-            className="text-[9px] sm:text-xs md:text-sm tracking-[0.3em] uppercase text-[#C6A75E]/40 mt-1"
-            style={{ fontFamily: "var(--font-inter)" }}
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            transition={{ duration: 1.5, delay: 1.5 }}
-            viewport={{ once: true }}
-          >
-            The MAJA
-          </motion.p>
         </div>
 
         {/* === CENTER: Narasi MAJA (teks besar) === */}
