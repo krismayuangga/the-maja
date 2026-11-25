@@ -76,7 +76,6 @@ export default function SiteFooter({ className = "" }: { className?: string }) {
               <p>Dikelola oleh <span className="text-[#F5EBDD]/75">PT BSE Group Teknologi</span></p>
               <p>Nomor AHU <span className="font-mono">AHU-000405.AH.01.30.2024</span></p>
               <p>NIB <span className="font-mono">0807240028155</span></p>
-              <p>Jatipasar, Trowulan, Mojokerto, Jawa Timur</p>
               <p><a href="mailto:halo@themaja.com" className="text-[#F5EBDD]/70 hover:text-[#E8C878]">halo@themaja.com</a></p>
             </div>
           </div>
@@ -95,7 +94,6 @@ export default function SiteFooter({ className = "" }: { className?: string }) {
                 </a>
               ))}
             </div>
-            <p className="mt-3 text-sm text-[#F5EBDD]/50">@majacraft.id</p>
           </div>
         </div>
 
