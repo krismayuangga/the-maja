@@ -109,18 +109,18 @@ export default function Preloader({ onComplete }: PreloaderProps) {
             className="text-3xl md:text-4xl tracking-[0.4em] text-[#C6A75E] mb-1"
             style={{ fontFamily: "var(--font-cinzel)" }}
           >
-            MAJA
+            THE MAJA
           </motion.h1>
 
           {/* Subtitle */}
           <motion.p
             initial={{ opacity: 0 }}
-            animate={{ opacity: 0.5 }}
+            animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 0.5 }}
-            className="text-xs md:text-sm tracking-[0.3em] text-[#C6A75E]/50 mb-10 uppercase"
+            className="text-[10px] sm:text-xs md:text-sm tracking-[0.25em] sm:tracking-[0.3em] text-[#C6A75E]/80 mb-10 uppercase text-center px-6"
             style={{ fontFamily: "var(--font-inter)" }}
           >
-            Digital Museum
+            Ekosistem Seni &amp; Kerajinan Nusantara
           </motion.p>
 
           {/* Progress bar */}

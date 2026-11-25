@@ -2,7 +2,6 @@
 
 import React, { useRef, useEffect, useState, useCallback } from "react";
 import Preloader from "@/components/museum/Preloader";
-import CinematicOpening from "@/components/museum/CinematicOpening";
 import RoomSejarah from "@/components/museum/RoomSejarah";
 import RoomMasalah from "@/components/museum/RoomMasalah";
 import RoomSolusi from "@/components/museum/RoomSolusi";
@@ -26,23 +25,15 @@ const ROOM_NAMES = [
 export default function MuseumExperience() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [loadingComplete, setLoadingComplete] = useState(false);
-  const [introComplete, setIntroComplete] = useState(false);
   const [activeRoom, setActiveRoom] = useState(0);
   const isMobile = useIsMobile();
 
   const handleLoadingComplete = useCallback(() => {
     setLoadingComplete(true);
   }, []);
+  // Tanpa animasi pintu: museum langsung tampil setelah preloader selesai
+  const introComplete = loadingComplete;
 
-  const handleIntroComplete = useCallback(() => {
-    setIntroComplete(true);
-  }, []);
-
-  // Kunci scroll selama pintu masih tertutup
-  useEffect(() => {
-    document.body.style.overflow = introComplete ? "" : "hidden";
-    return () => { document.body.style.overflow = ""; };
-  }, [introComplete]);
 
   // === Scroll vertikal biasa: lacak ruang aktif via IntersectionObserver ===
   useEffect(() => {
@@ -82,10 +73,6 @@ export default function MuseumExperience() {
   // === Satu layout: ruang-ruang tersusun vertikal, scroll normal halaman ===
   return (
     <>
-      {/* CinematicOpening overlays on top of museum */}
-      {!introComplete && (
-        <CinematicOpening onComplete={handleIntroComplete} />
-      )}
       {introComplete && (
         <MuseumNav
           rooms={ROOM_NAMES}
