@@ -61,14 +61,14 @@ export default function Preloader({ onComplete }: PreloaderProps) {
               transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
             />
 
-            {/* Lambang Surya Majapahit — simbol MAJA */}
+            {/* Logo The MAJA */}
             <motion.div
               className="relative"
               style={{ perspective: "600px" }}
             >
               <motion.img
-                src="/images/museum/branding/maja-logo-3d.png"
-                alt="Lambang Surya Majapahit — MAJA"
+                src="/images/museum/branding/themaja-logo-600.png"
+                alt="Logo The MAJA"
                 className="w-[140px] h-[140px] sm:w-[180px] sm:h-[180px] md:w-[220px] md:h-[220px] object-contain drop-shadow-[0_0_30px_rgba(198,167,94,0.4)]"
                 animate={{ rotateY: [0, 360] }}
                 transition={{ duration: 6, repeat: Infinity, ease: "linear" }}

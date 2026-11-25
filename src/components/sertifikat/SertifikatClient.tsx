@@ -23,7 +23,7 @@ function Header() {
     <header className="flex items-center justify-between py-5 border-b border-[#C6A75E]/15">
       <Link href="/" className="flex items-center gap-2 text-[#C6A75E]" style={{ fontFamily: "var(--font-cinzel)" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/images/ukiran-maja.png" alt="" className="w-8 h-8 object-contain" />
+        <img src="/images/museum/branding/themaja-logo-600.png" alt="Logo The MAJA" className="w-9 h-9 object-contain" />
         <span className="tracking-[0.3em] text-sm">MAJA</span>
       </Link>
       <nav className="flex gap-4 text-xs tracking-widest uppercase text-[#F5EBDD]/60" style={{ fontFamily: "var(--font-inter)" }}>
