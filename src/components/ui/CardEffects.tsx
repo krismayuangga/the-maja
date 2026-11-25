@@ -329,7 +329,7 @@ export function GlowBorder({
         animate={animated ? { rotate: 360 } : {}}
         transition={animated ? { duration: 8, repeat: Infinity, ease: "linear" } : {}}
       />
-      <div className="relative z-10 bg-inherit" style={{ borderRadius: "inherit" }}>
+      <div className="relative z-10 bg-inherit h-full" style={{ borderRadius: "inherit" }}>
         {children}
       </div>
     </div>

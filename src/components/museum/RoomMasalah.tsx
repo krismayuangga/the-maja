@@ -4,14 +4,14 @@ import React from "react";
 import { motion } from "framer-motion";
 import useIsMobile from "@/hooks/useIsMobile";
 import useParallax from "@/hooks/useParallax";
-import { FadeIn, SplitText } from "@/components/ui/TextEffects";
+import { FadeIn } from "@/components/ui/TextEffects";
 import { TiltCard, Reveal, GlowBorder } from "@/components/ui/CardEffects";
 
 const problems = [
   {
-    stat: "Margin",
-    text: "Margin hilang ke perantara.",
-    detail: "Sebagian besar keuntungan seniman hilang untuk komisi galeri dan platform.",
+    stat: "Harga yang Adil",
+    text: "Rantai perantara panjang — pengrajin menerima sebagian kecil dari harga akhir karyanya.",
+    answer: "Jual langsung ke pembeli. Komisi platform hanya 7,5%, transparan.",
     image: "/images/museum/masalah/broken-painting-1.webp",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-5 h-5">
@@ -20,9 +20,9 @@ const problems = [
     ),
   },
   {
-    stat: "Percaya",
-    text: "Seniman takut tidak dibayar.",
-    detail: "Pembeli ragu bertransaksi langsung. Tidak ada perantara tepercaya yang melindungi kedua pihak.",
+    stat: "Rasa Aman",
+    text: "Pembeli takut tertipu, penjual takut tidak dibayar.",
+    answer: "Pembayaran melalui payment gateway resmi Midtrans. Dana baru diteruskan ke penjual setelah pesanan diterima pembeli.",
     image: "/images/museum/masalah/broken-painting-2.webp",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-5 h-5">
@@ -31,9 +31,9 @@ const problems = [
     ),
   },
   {
-    stat: "Asal-usul",
-    text: "Kepemilikan karya sulit dibuktikan.",
-    detail: "Karya fisik berpindah tangan tanpa catatan — asal-usul perolehannya hilang.",
+    stat: "Kepemilikan",
+    text: "Karya berpindah tangan tanpa catatan — kepemilikannya sulit dibuktikan.",
+    answer: "MAJA Certified: sertifikat kepemilikan tercatat di blockchain, dapat diperiksa siapa pun.",
     image: "/images/museum/masalah/broken-painting-3.webp",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-5 h-5">
@@ -42,9 +42,9 @@ const problems = [
     ),
   },
   {
-    stat: "Akses",
-    text: "Akses pasar terbatas.",
-    detail: "Pengrajin daerah sulit menjangkau pembeli di luar kotanya, apalagi pasar internasional.",
+    stat: "Jangkauan Pasar",
+    text: "Pembeli terbatas di kota sendiri — pasar yang lebih luas sulit dijangkau.",
+    answer: "Pasar nasional ke seluruh Indonesia, dan ke depan menuju pasar internasional.",
     image: "/images/museum/masalah/artist-silhouette.webp",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-5 h-5">
@@ -163,7 +163,7 @@ export default function RoomMasalah() {
 
       {/* Main content — centered with nav clearance */}
       <div
-        className="relative z-10 pl-14 sm:pl-16 md:pl-20 pr-6 sm:pr-8 md:pr-12 w-full box-border flex flex-col items-center justify-center min-h-[100dvh] pt-10 pb-24 md:min-h-0 md:h-full md:pt-0 md:pb-0 md:overflow-hidden"
+        className="relative z-10 px-5 sm:pl-16 md:pl-20 sm:pr-8 md:pr-12 w-full box-border flex flex-col items-center justify-center min-h-[100dvh] pt-12 pb-24 md:py-16"
       >
         {/* Section label */}
         <motion.div
@@ -178,30 +178,33 @@ export default function RoomMasalah() {
             className="text-[9px] sm:text-xs tracking-[0.4em] uppercase text-[#C6A75E]/50 block mb-1 sm:mb-2"
             style={{ fontFamily: "var(--font-philosopher)" }}
           >
-            The Broken Gallery
+            Ruang Tantangan
           </span>
           <div className="mb-1 sm:mb-2">
-            <SplitText
-              text="Mengapa Ini Harus Berubah"
-              className="text-xl sm:text-3xl md:text-5xl lg:text-6xl font-bold text-glow-gold"
+            <motion.h2
+              className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold text-glow-gold leading-tight"
               style={{ fontFamily: "var(--font-cinzel)", color: "#C6A75E" }}
-              delay={0.2}
-              stagger={0.05}
-            />
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 0.2 }}
+              viewport={{ once: true }}
+            >
+              Karya Hebat, Jalan yang Sulit
+            </motion.h2>
           </div>
           <p
-            className="text-sm sm:text-base md:text-lg text-[#F5EBDD]/50 max-w-xl mx-auto"
+            className="text-base sm:text-lg md:text-xl text-[#F5EBDD]/60 max-w-2xl mx-auto leading-relaxed mt-2"
             style={{ fontFamily: "var(--font-cormorant)" }}
           >
-            Masalah nyata yang dihadapi seniman dan kolektor
+            Empat hambatan yang membuat karya Nusantara sulit sampai ke tangan yang menghargainya &mdash; dan cara MAJA menjawabnya.
           </p>
         </motion.div>
 
         {/* Problem cards — compact centered grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-4 md:gap-5 max-w-6xl w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 max-w-6xl w-full items-stretch">
           {problems.map((problem, i) => (
-            <FadeIn key={i} direction="up" delay={i * 0.15} duration={0.8}>
-              <TiltCard maxTilt={isMobile ? 0 : 6} glare={!isMobile} glareOpacity={0.06}>
+            <FadeIn key={i} direction="up" delay={i * 0.15} duration={0.8} className="h-full">
+              <TiltCard maxTilt={isMobile ? 0 : 6} glare={!isMobile} glareOpacity={0.06} className="h-full">
                 <GlowBorder
                   color="#3A3530"
                   blur={isMobile ? 0 : 12}
@@ -219,7 +222,7 @@ export default function RoomMasalah() {
 
                       {/* Reveal effect wrapping the painting */}
                       <Reveal direction="left" delay={0.3 + i * 0.2} duration={0.6} color="#1A1510">
-                        <div className="relative w-full flex items-center justify-center p-2 sm:p-4 aspect-[4/4] sm:aspect-[4/5]">
+                        <div className="relative w-full flex items-center justify-center p-2 sm:p-3 aspect-[16/9] sm:aspect-[4/3]">
                           <img
                             src={problem.image}
                             alt={problem.text}
@@ -250,33 +253,43 @@ export default function RoomMasalah() {
                       </Reveal>
                     </div>
 
-                    {/* Text content area */}
-                    <div className="p-2 sm:p-4 md:p-5 flex flex-col flex-1">
-                      {/* Icon + Stat row */}
-                      <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 sm:mb-2">
-                        <span className="text-[#C6A75E]/50">{problem.icon}</span>
-                        <motion.span
-                          className="text-lg sm:text-2xl md:text-3xl font-bold"
+                    {/* Text: Tantangan → Jawaban MAJA */}
+                    <div className="p-4 md:p-5 flex flex-col flex-1">
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="text-[#C6A75E]/60">{problem.icon}</span>
+                        <motion.h3
+                          className="text-xl md:text-2xl font-bold leading-tight"
                           style={{ fontFamily: "var(--font-philosopher)", color: "#5A4A30" }}
                           whileInView={{ color: "#C6A75E" }}
                           transition={{ duration: 2, delay: 0.5 + i * 0.2 }}
                           viewport={{ once: true }}
                         >
                           {problem.stat}
-                        </motion.span>
+                        </motion.h3>
                       </div>
 
-                      {/* Headline */}
-                      <p className="text-sm sm:text-lg md:text-xl text-[#F5EBDD]/60 mb-0.5 sm:mb-1.5 font-semibold leading-snug"
-                        style={{ fontFamily: "var(--font-philosopher)" }}>
-                        {problem.text}
-                      </p>
+                      {/* Tantangan — redup */}
+                      <div className="flex-1">
+                        <p className="text-[10px] tracking-[0.3em] uppercase text-[#F5EBDD]/35 mb-1.5" style={{ fontFamily: "var(--font-inter)" }}>
+                          Tantangan
+                        </p>
+                        <p className="text-base md:text-lg text-[#F5EBDD]/55 leading-snug" style={{ fontFamily: "var(--font-cormorant)" }}>
+                          {problem.text}
+                        </p>
+                      </div>
 
-                      {/* Detail */}
-                      <p className="text-sm sm:text-lg md:text-xl text-[#F5EBDD]/50 leading-relaxed"
-                        style={{ fontFamily: "var(--font-cormorant)" }}>
-                        {problem.detail}
-                      </p>
+                      {/* Pemisah emas */}
+                      <div className="my-4 h-px w-full bg-gradient-to-r from-[#C6A75E]/50 via-[#C6A75E]/20 to-transparent" />
+
+                      {/* Jawaban MAJA — emas */}
+                      <div>
+                        <p className="text-[10px] tracking-[0.3em] uppercase text-[#C6A75E] mb-1.5" style={{ fontFamily: "var(--font-inter)" }}>
+                          Jawaban MAJA
+                        </p>
+                        <p className="text-base md:text-lg text-[#E8D5A3] leading-snug" style={{ fontFamily: "var(--font-cormorant)", fontWeight: 600 }}>
+                          {problem.answer}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </GlowBorder>
