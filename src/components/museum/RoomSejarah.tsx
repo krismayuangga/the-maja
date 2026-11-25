@@ -4,8 +4,6 @@ import React, { useRef } from "react";
 import { motion } from "framer-motion";
 import useIsMobile from "@/hooks/useIsMobile";
 import useParallax from "@/hooks/useParallax";
-import { SplitText } from "@/components/ui/TextEffects";
-import { Reveal, Holographic, TiltCard } from "@/components/ui/CardEffects";
 
 /* ── Typewriter bridge text ── */
 // Lightweight bridge text (no per-character typing)
@@ -96,13 +94,13 @@ export default function RoomSejarah() {
       {/* ========== MAIN CONTENT ========== */}
       <div className="relative z-10 flex flex-col items-center justify-between h-full w-full overflow-x-hidden box-border" style={{ padding: "2.5rem 1rem", paddingLeft: "1rem", paddingRight: "1rem" }}>
 
-        {/* === TOP: Surya Majapahit Logo + "MAJAPAHIT" === */}
+        {/* === TOP: Logo The MAJA + judul === */}
         <div className="flex flex-col items-center mb-2 sm:mb-3 md:mb-4">
-          {/* Surya Majapahit Logo */}
+          {/* Logo The MAJA */}
           <motion.img
-            src="/images/museum/branding/maja-logo-3d.png"
-            alt="Surya Majapahit"
-            className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 object-contain mb-2"
+            src="/images/museum/branding/themaja-logo-600.png"
+            alt="Logo The MAJA"
+            className="h-14 sm:h-16 md:h-20 w-auto object-contain mb-3"
             style={{
               filter: "drop-shadow(0 0 20px rgba(198,167,94,0.4)) drop-shadow(0 0 50px rgba(198,167,94,0.15))",
             }}
@@ -113,15 +111,17 @@ export default function RoomSejarah() {
             onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
           />
 
-          {/* MAJAPAHIT title */}
-          <SplitText
-            text="MAJAPAHIT"
-            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-[0.2em] sm:tracking-[0.25em] text-glow-gold"
+          {/* Judul */}
+          <motion.h2
+            className="text-center text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold tracking-[0.12em] sm:tracking-[0.18em] leading-snug text-glow-gold max-w-4xl"
             style={{ fontFamily: "var(--font-cinzel)", color: "#C6A75E" }}
-            delay={0.5}
-            stagger={0.06}
-            duration={0.7}
-          />
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.4 }}
+            viewport={{ once: true }}
+          >
+            Ekosistem Seni &amp; Kerajinan Nusantara
+          </motion.h2>
 
           {/* Decorative divider */}
           <motion.div
@@ -157,122 +157,31 @@ export default function RoomSejarah() {
             transition={{ duration: 1.5, delay: 1.5 }}
             viewport={{ once: true }}
           >
-            Kerajaan Nusantara · 1293—1527 M
+            The MAJA
           </motion.p>
         </div>
 
-        {/* === CENTER: Two columns — Left (Lontar) | Right (Sumpah Palapa text) === */}
-        <div className="flex flex-col md:flex-row items-center md:items-stretch gap-4 md:gap-8 lg:gap-12 max-w-6xl w-full overflow-hidden">
-
-          {/* LEFT COLUMN: Lontar image */}
-          <motion.div
-            className="flex flex-col items-center justify-center md:flex-shrink-0"
-            initial={{ opacity: 0, x: -40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1.2, delay: 0.8, ease: "easeOut" }}
-            viewport={{ once: true }}
+        {/* === CENTER: Narasi MAJA (teks besar) === */}
+        <motion.div
+          className="max-w-4xl w-full px-2 sm:px-6 text-center space-y-6 sm:space-y-8 my-6 md:my-4"
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1.2, delay: 0.6, ease: "easeOut" }}
+          viewport={{ once: true }}
+        >
+          <p
+            className="text-2xl sm:text-3xl md:text-4xl lg:text-[2.75rem] leading-snug text-[#F5EBDD]/85"
+            style={{ fontFamily: "var(--font-cormorant)" }}
           >
-            {/* Lontar image with holographic + tilt effect (same as NFT cert) */}
-            <Holographic intensity={0.15}>
-              <TiltCard maxTilt={isMobile ? 0 : 12} glare={!isMobile} glareOpacity={0.2}>
-                <motion.div
-                  className="relative rounded-sm overflow-hidden"
-                  style={{
-                    background: "linear-gradient(135deg, #1A1008 0%, #2C1A12 50%, #0D0A06 100%)",
-                    border: "2px solid rgba(198,167,94,0.5)",
-                    boxShadow: "0 0 40px rgba(198,167,94,0.15), inset 0 0 40px rgba(198,167,94,0.05)",
-                  }}
-                  whileHover={{ boxShadow: "0 0 60px rgba(198,167,94,0.3)" }}
-                >
-                  <Reveal direction="left" delay={1.2} duration={0.7} color="#2C1A12">
-                    <img
-                      src="/images/museum/sejarah/lontar-sumpah-palapa.png"
-                      alt="Visualisasi Lontar Sumpah Palapa"
-                      className="w-[260px] sm:w-[320px] md:w-[420px] lg:w-[480px] h-auto object-contain opacity-0 transition-opacity duration-1000"
-                      style={{ filter: "brightness(0.9) contrast(1.05) sepia(0.05)" }}
-                      onLoad={(e) => { (e.target as HTMLImageElement).style.opacity = "1"; }}
-                      onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
-                    />
-                  </Reveal>
-                </motion.div>
-              </TiltCard>
-            </Holographic>
-
-            {/* Label under lontar */}
-            <motion.p
-              className="text-[8px] sm:text-[10px] tracking-[0.3em] uppercase text-[#C6A75E]/30 mt-3"
-              style={{ fontFamily: "var(--font-inter)" }}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              transition={{ delay: 2 }}
-              viewport={{ once: true }}
-            >
-              Visualisasi Lontar Sumpah Palapa
-            </motion.p>
-          </motion.div>
-
-          {/* RIGHT COLUMN: Sumpah Palapa text — aligned to lontar height */}
-          <motion.div
-            className="flex-1 flex flex-col justify-center max-w-xl w-full px-2 sm:px-4 md:px-0"
-            initial={{ opacity: 0, x: isMobile ? 0 : 40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1.2, delay: 1.2, ease: "easeOut" }}
-            viewport={{ once: true }}
+            Dari ukiran Jepara hingga tenun Sumba, dari batik Pekalongan hingga noken Papua &mdash; setiap karya Nusantara menyimpan <span className="text-[#C6A75E] italic">tangan, waktu, dan cerita</span>.
+          </p>
+          <p
+            className="text-xl sm:text-2xl md:text-3xl lg:text-[2.1rem] leading-snug text-[#F5EBDD]/65"
+            style={{ fontFamily: "var(--font-cormorant)" }}
           >
-            {/* Kawi text — original oath */}
-            <div>
-              <motion.p
-                className="text-sm sm:text-sm tracking-[0.2em] uppercase text-[#C6A75E]/50 mb-3 sm:mb-4"
-                style={{ fontFamily: "var(--font-inter)" }}
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                transition={{ delay: 1.5 }}
-                viewport={{ once: true }}
-              >
-                Sumpah Palapa · Kawi
-              </motion.p>
-
-              <motion.p
-                className="text-lg sm:text-xl md:text-xl lg:text-2xl text-[#C6A75E]/70 italic leading-relaxed text-justify"
-                style={{ fontFamily: "var(--font-cormorant)" }}
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.6 }}
-                viewport={{ once: true }}
-              >
-                &ldquo;Sira Gajah Mada pepatih amangkubhumi tan ayun amukti palapa, sira Gajah Mada: Lamun huwus kalah nusantara isun amukti palapa...&rdquo;
-              </motion.p>
-            </div>
-
-            {/* Spacer */}
-            <div className="my-6 sm:my-8 md:my-6 w-full border-t border-[#C6A75E]/10" />
-
-            {/* Translation — Indonesian */}
-            <div>
-              <motion.p
-                className="text-sm sm:text-sm tracking-[0.15em] uppercase text-[#F5EBDD]/30 mb-3"
-                style={{ fontFamily: "var(--font-inter)" }}
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                transition={{ delay: 2.5 }}
-                viewport={{ once: true }}
-              >
-                Terjemahan
-              </motion.p>
-
-              <motion.p
-                className="text-base sm:text-lg md:text-lg lg:text-xl text-[#F5EBDD]/50 leading-relaxed text-justify"
-                style={{ fontFamily: "var(--font-cormorant)" }}
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.8 }}
-                viewport={{ once: true }}
-              >
-                &ldquo;Gajah Mada Patih Amangkubumi tidak akan melepaskan puasa. Ia berkata: Jika telah mengalahkan Nusantara, barulah ia melepaskan puasa...&rdquo;
-              </motion.p>
-            </div>
-          </motion.div>
-        </div>
+            MAJA menyatukannya dalam satu rumah: tempat karya dijual dengan adil, kepemilikannya tercatat, dan kisahnya sampai ke dunia.
+          </p>
+        </motion.div>
 
         {/* === BOTTOM CENTER: Bridge text (light animation) === */}
         <div ref={bridgeRef} className="w-full flex flex-col items-center mt-2 sm:mt-3">
