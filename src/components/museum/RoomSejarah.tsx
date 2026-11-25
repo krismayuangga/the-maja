@@ -163,20 +163,20 @@ export default function RoomSejarah() {
 
         {/* === CENTER: Narasi MAJA (teks besar) === */}
         <motion.div
-          className="max-w-4xl w-full px-2 sm:px-6 text-center space-y-6 sm:space-y-8 my-6 md:my-4"
+          className="max-w-4xl w-full px-3 sm:px-6 text-center space-y-5 sm:space-y-7 my-8 md:my-6"
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, delay: 0.6, ease: "easeOut" }}
           viewport={{ once: true }}
         >
           <p
-            className="text-2xl sm:text-3xl md:text-4xl lg:text-[2.75rem] leading-snug text-[#F5EBDD]/85"
+            className="text-[1.75rem] sm:text-4xl md:text-5xl lg:text-[3.25rem] leading-[1.2] text-[#F5EBDD]/90 max-w-3xl mx-auto text-balance"
             style={{ fontFamily: "var(--font-cormorant)" }}
           >
-            Dari ukiran Jepara hingga tenun Sumba, dari batik Pekalongan hingga noken Papua &mdash; setiap karya Nusantara menyimpan <span className="text-[#C6A75E] italic">tangan, waktu, dan cerita</span>.
+            Dari Sabang sampai Merauke, setiap karya seni dan kriya menyimpan <span className="text-[#C6A75E] italic whitespace-nowrap">tangan, waktu,</span> <span className="text-[#C6A75E] italic">dan cerita</span>.
           </p>
           <p
-            className="text-xl sm:text-2xl md:text-3xl lg:text-[2.1rem] leading-snug text-[#F5EBDD]/65"
+            className="text-lg sm:text-2xl md:text-[1.75rem] leading-relaxed text-[#F5EBDD]/60 max-w-2xl mx-auto text-balance"
             style={{ fontFamily: "var(--font-cormorant)" }}
           >
             MAJA menyatukannya dalam satu rumah: tempat karya dijual dengan adil, kepemilikannya tercatat, dan kisahnya sampai ke dunia.
