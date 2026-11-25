@@ -1,8 +1,6 @@
 "use client";
 
 import React, { useRef, useEffect, useState, useCallback } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Preloader from "@/components/museum/Preloader";
 import CinematicOpening from "@/components/museum/CinematicOpening";
 import RoomSejarah from "@/components/museum/RoomSejarah";
@@ -15,8 +13,6 @@ import RoomMasaDepan from "@/components/museum/RoomMasaDepan";
 import MuseumNav from "@/components/museum/MuseumNav";
 import useIsMobile from "@/hooks/useIsMobile";
 
-gsap.registerPlugin(ScrollTrigger);
-
 const ROOM_NAMES = [
   "Sejarah",
   "Masalah",
@@ -27,11 +23,8 @@ const ROOM_NAMES = [
   "Visi",
 ];
 
-const ROOM_COUNT = ROOM_NAMES.length;
-
 export default function MuseumExperience() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const wrapperRef = useRef<HTMLDivElement>(null);
   const [loadingComplete, setLoadingComplete] = useState(false);
   const [introComplete, setIntroComplete] = useState(false);
   const [activeRoom, setActiveRoom] = useState(0);
@@ -45,137 +38,48 @@ export default function MuseumExperience() {
     setIntroComplete(true);
   }, []);
 
-  // === DESKTOP: Horizontal scroll via GSAP with precise SNAP ===
+  // Kunci scroll selama pintu masih tertutup
   useEffect(() => {
-    if (!introComplete || isMobile) return;
+    document.body.style.overflow = introComplete ? "" : "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, [introComplete]);
 
-    const wrapper = wrapperRef.current;
+  // === Scroll vertikal biasa: lacak ruang aktif via IntersectionObserver ===
+  useEffect(() => {
+    if (!introComplete) return;
     const container = containerRef.current;
-    if (!wrapper || !container) return;
-
-    // Wait for layout to settle
-    const timer = setTimeout(() => {
-      const ctx = gsap.context(() => {
-        const totalScroll = window.innerWidth * (ROOM_COUNT - 1);
-
-        gsap.to(wrapper, {
-          x: () => -totalScroll,
-          ease: "none",
-          scrollTrigger: {
-            trigger: container,
-            pin: true,
-            scrub: 1,
-            end: () => `+=${totalScroll}`,
-            snap: {
-              snapTo: 1 / (ROOM_COUNT - 1),
-              duration: { min: 0.2, max: 0.8 },
-              delay: 0.1,
-              ease: "power1.inOut",
-            },
-            invalidateOnRefresh: true,
-            onUpdate: (self) => {
-              const progress = self.progress;
-              const idx = Math.min(
-                Math.round(progress * (ROOM_COUNT - 1)),
-                ROOM_COUNT - 1
-              );
-              setActiveRoom(idx);
-            },
-          },
+    if (!container) return;
+    const rooms = Array.from(container.querySelectorAll<HTMLElement>(":scope > .room"));
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            const idx = rooms.indexOf(e.target as HTMLElement);
+            if (idx >= 0) setActiveRoom(idx);
+          }
         });
-      }, container);
-
-      return () => ctx.revert();
-    }, 200);
-
-    return () => {
-      clearTimeout(timer);
-      ScrollTrigger.getAll().forEach((t) => t.kill());
-    };
+      },
+      { rootMargin: "-45% 0px -45% 0px" } // ruang yang melewati tengah layar = aktif
+    );
+    rooms.forEach((r) => io.observe(r));
+    return () => io.disconnect();
   }, [introComplete, isMobile]);
 
-  // === MOBILE: Track active room via scroll event on snap container ===
-  useEffect(() => {
-    if (!introComplete || !isMobile) return;
-
-    const mobileContainer = containerRef.current;
-    if (!mobileContainer) return;
-
-    const handleScroll = () => {
-      const scrollTop = mobileContainer.scrollTop;
-      const viewportH = mobileContainer.clientHeight;
-      const idx = Math.round(scrollTop / viewportH);
-      setActiveRoom(Math.min(Math.max(idx, 0), ROOM_COUNT - 1));
-    };
-
-    mobileContainer.addEventListener("scroll", handleScroll, { passive: true });
-    return () => mobileContainer.removeEventListener("scroll", handleScroll);
-  }, [introComplete, isMobile]);
-
-  // === NAVIGASI: Klik dot nav ===
+  // === NAVIGASI: klik dot nav → scroll halus ke ruang ===
   const navigateToRoom = useCallback(
     (index: number) => {
       if (!introComplete) return;
-
-      if (isMobile) {
-        // Mobile: scroll snap container to room
-        const mobileContainer = containerRef.current;
-        if (!mobileContainer) return;
-        const targetTop = index * mobileContainer.clientHeight;
-        mobileContainer.scrollTo({ top: targetTop, behavior: "smooth" });
-      } else {
-        // Desktop: calculate exact scroll position
-        const totalScroll = window.innerWidth * (ROOM_COUNT - 1);
-        const fraction = index / (ROOM_COUNT - 1);
-        const scrollTarget = fraction * totalScroll;
-
-        window.scrollTo({
-          top: scrollTarget,
-          behavior: "smooth",
-        });
-      }
+      const room = containerRef.current?.querySelectorAll<HTMLElement>(":scope > .room")[index];
+      room?.scrollIntoView({ behavior: "smooth", block: "start" });
     },
-    [introComplete, isMobile]
+    [introComplete]
   );
 
   if (!loadingComplete) {
     return <Preloader onComplete={handleLoadingComplete} />;
   }
 
-  // === MOBILE LAYOUT: Vertical scroll-snap ===
-  if (isMobile) {
-    return (
-      <>
-        {/* CinematicOpening overlays on top of museum */}
-        {!introComplete && (
-          <CinematicOpening onComplete={handleIntroComplete} />
-        )}
-        {introComplete && (
-          <MuseumNav
-            rooms={ROOM_NAMES}
-            activeRoom={activeRoom}
-            onNavigate={navigateToRoom}
-            isMobile={true}
-          />
-        )}
-        <div
-          ref={containerRef}
-          className="mobile-snap-container"
-          style={!introComplete ? { overflow: "hidden", touchAction: "none" } : undefined}
-        >
-          <RoomSejarah />
-          <RoomMasalah />
-          <RoomEkosistem />
-          <RoomSolusi />
-          <RoomNusantara />
-          <RoomGaleri />
-          <RoomMasaDepan />
-        </div>
-      </>
-    );
-  }
-
-  // === DESKTOP LAYOUT: Horizontal scroll with snap ===
+  // === Satu layout: ruang-ruang tersusun vertikal, scroll normal halaman ===
   return (
     <>
       {/* CinematicOpening overlays on top of museum */}
@@ -187,23 +91,17 @@ export default function MuseumExperience() {
           rooms={ROOM_NAMES}
           activeRoom={activeRoom}
           onNavigate={navigateToRoom}
-          isMobile={false}
+          isMobile={isMobile}
         />
       )}
-      <div ref={containerRef} className="relative overflow-hidden">
-        <div
-          ref={wrapperRef}
-          className="flex"
-          style={{ width: `${ROOM_COUNT * 100}vw`, height: "100vh" }}
-        >
-          <RoomSejarah />
-          <RoomMasalah />
-          <RoomEkosistem />
-          <RoomSolusi />
-          <RoomNusantara />
-          <RoomGaleri />
-          <RoomMasaDepan />
-        </div>
+      <div ref={containerRef} className="museum-vertical">
+        <RoomSejarah />
+        <RoomMasalah />
+        <RoomEkosistem />
+        <RoomSolusi />
+        <RoomNusantara />
+        <RoomGaleri />
+        <RoomMasaDepan />
       </div>
     </>
   );

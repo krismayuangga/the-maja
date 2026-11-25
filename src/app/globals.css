@@ -27,7 +27,7 @@
 
 html {
   overflow-x: hidden;
-  scroll-behavior: auto;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -59,23 +59,18 @@ h1, h2, h3, h4, h5, h6 {
   background: var(--color-gold-light);
 }
 
-/* Museum room base — always exactly one viewport */
+/* Museum room base — minimal satu layar, memanjang bila isinya lebih panjang (scroll vertikal biasa) */
 .room {
-  width: 100vw;
-  height: 100vh;
-  height: 100dvh;
-  flex-shrink: 0;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
   position: relative;
   overflow: hidden;
 }
 
-/* Room internal content: scrollable if content overflows */
+/* Isi ruang mengikuti tinggi konten — tidak ada scroll bersarang */
 .room > .room-content {
   width: 100%;
-  height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
 }
 
 /* Hide scrollbar inside rooms */
@@ -87,41 +82,10 @@ h1, h2, h3, h4, h5, h6 {
   scrollbar-width: none;
 }
 
-/* Mobile: snap container */
-.mobile-snap-container {
-  position: fixed;
-  inset: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  scroll-snap-type: y mandatory;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Mobile: hide main scrollbar, snap handles it */
-.mobile-snap-container::-webkit-scrollbar {
-  display: none;
-}
-.mobile-snap-container {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-@media (max-width: 767px) {
-  .room {
-    width: 100%;
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
-  }
-  /* Ruang yang isinya lebih panjang dari layar HP boleh memanjang (tidak terpotong) */
-  .room.room-auto {
-    height: auto;
-    min-height: 100dvh;
-    overflow: visible;
-  }
-  .room.room-auto > .room-content {
-    height: auto;
-    overflow: visible;
-  }
+/* Wadah ruang vertikal */
+.museum-vertical {
+  position: relative;
+  width: 100%;
 }
 
 /* Gold text glow */
