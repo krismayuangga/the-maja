@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import dynamic from "next/dynamic";
@@ -15,12 +15,54 @@ const DomeGallery = dynamic(
   { ssr: false }
 );
 
-/* Gallery items — 6 seni daerah Nusantara */
 interface GalleryItem {
-  image: string;
+  image: string;        // gambar tile (kecil)
+  full?: string;        // gambar popup (lebih besar)
   text: string;
   description: string;
+  meta?: string;        // toko · provinsi
+  price?: number;
+  sold?: boolean;
+  href?: string;        // tautan ke produk di MajaCraft
 }
+
+const MAJACRAFT = "https://majacraft.id";
+const optimized = (url: string, w: number) => `${MAJACRAFT}/_next/image?url=${encodeURIComponent(url)}&w=${w}&q=75`;
+const rupiah = (n: number) => "Rp " + n.toLocaleString("id-ID");
+const shortText = (t: string, max = 220) => {
+  // deskripsi produk bisa berisi HTML dari editor — buang tag & entitas umum
+  const clean = t
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
+    .replace(/\s+/g, " ").trim();
+  return clean.length > max ? clean.slice(0, clean.lastIndexOf(" ", max)) + "…" : clean;
+};
+
+type ApiProduct = {
+  name: string; slug: string; description: string | null; price: number; stock: number; isSoldOffline: boolean;
+  images: { url: string }[]; store: { name: string; province: string | null } | null;
+};
+
+/** Produk asli dari MajaCraft untuk galeri */
+async function fetchProducts(): Promise<GalleryItem[]> {
+  const res = await fetch(`${MAJACRAFT}/api/products?limit=50`);
+  const json = await res.json();
+  const items: ApiProduct[] = json?.data?.items ?? [];
+  return items
+    .filter((p) => p.images?.[0]?.url && !/\btest\b/i.test(p.name))
+    .map((p) => ({
+      image: optimized(p.images[0].url, 256),
+      full: optimized(p.images[0].url, 640),
+      text: p.name,
+      description: shortText(p.description ?? ""),
+      meta: [p.store?.name, p.store?.province].filter(Boolean).join(" · "),
+      price: p.price,
+      sold: p.isSoldOffline || p.stock === 0,
+      href: `${MAJACRAFT}/produk/${p.slug}`,
+    }));
+}
+
+/* Cadangan bila MajaCraft tidak dapat diakses — 6 seni daerah Nusantara */
 
 const galleryItems: GalleryItem[] = [
   {
@@ -59,15 +101,24 @@ export default function RoomNusantara() {
   const isMobile = useIsMobile();
   const registerParallax = useParallax(!isMobile);
   const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
+  const [items, setItems] = useState<GalleryItem[] | null>(null);
 
-  /* DomeGallery images array (src + alt) */
-  const domeImages = galleryItems.map((g) => ({ src: g.image, alt: g.text }));
+  useEffect(() => {
+    let alive = true;
+    fetchProducts()
+      .then((list) => { if (alive) setItems(list.length >= 6 ? list : galleryItems); })
+      .catch(() => { if (alive) setItems(galleryItems); });
+    return () => { alive = false; };
+  }, []);
+
+  /* DomeGallery images array (src + alt) — dimemo agar bola tidak dibangun ulang */
+  const domeImages = useMemo(() => (items ?? []).map((g) => ({ src: g.image, alt: g.text })), [items]);
 
   /* When a dome tile is clicked, find the matching gallery item by src */
   const handleDomeClick = useCallback((src: string) => {
-    const found = galleryItems.find((g) => g.image === src);
+    const found = items?.find((g) => g.image === src);
     if (found) setSelectedItem(found);
-  }, []);
+  }, [items]);
 
   return (
     <section className="room room-4 flex items-center justify-center room-vignette relative">
@@ -164,7 +215,7 @@ export default function RoomNusantara() {
               marginTop: isMobile ? "1rem" : "1.5rem",
             }}
           >
-            <DomeGallery
+            {items && <DomeGallery
               images={domeImages}
               fit={isMobile ? 0.5 : 0.55}
               segments={isMobile ? 20 : 35}
@@ -175,7 +226,7 @@ export default function RoomNusantara() {
               imageBorderRadius="8px"
               autoRotateSpeed={3}
               onItemClick={handleDomeClick}
-            />
+            />}
           </div>
         </FadeIn>
       </div>
@@ -198,7 +249,7 @@ export default function RoomNusantara() {
             />
             {/* Card */}
             <motion.div
-              className="relative z-10 w-[90vw] max-w-lg overflow-hidden"
+              className="relative z-10 w-[90vw] max-w-lg max-h-[90vh] overflow-y-auto"
               initial={{ scale: 0.85, opacity: 0, y: 30 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.85, opacity: 0, y: 30 }}
@@ -221,29 +272,55 @@ export default function RoomNusantara() {
               </button>
 
               {/* Image */}
-              <div className="relative w-full h-48 sm:h-56 md:h-64 bg-[#2C1A12]">
+              <div className="relative w-full h-56 sm:h-64 md:h-72 bg-[#0D0A06]">
                 <img
-                  src={selectedItem.image}
+                  src={selectedItem.full ?? selectedItem.image}
                   alt={selectedItem.text}
-                  className="w-full h-full object-cover"
+                  className={`w-full h-full ${selectedItem.href ? "object-contain" : "object-cover"}`}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#1A1008] via-transparent to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#1A1008] to-transparent" />
+                {selectedItem.sold && (
+                  <span className="absolute top-3 left-3 px-3 py-1 rounded-full text-[10px] tracking-[0.2em] uppercase bg-[#0D0A06]/80 border border-[#C6A75E]/40 text-[#C6A75E]" style={{ fontFamily: "var(--font-inter)" }}>Terjual</span>
+                )}
               </div>
 
               {/* Text content */}
               <div className="px-6 py-5 sm:px-8 sm:py-6">
+                {selectedItem.meta && (
+                  <p className="text-[10px] sm:text-xs tracking-[0.25em] uppercase text-[#C6A75E]/50 mb-1.5" style={{ fontFamily: "var(--font-inter)" }}>
+                    {selectedItem.meta}
+                  </p>
+                )}
                 <h3
-                  className="text-lg sm:text-xl md:text-2xl font-bold text-[#C6A75E] mb-3"
+                  className="text-lg sm:text-xl md:text-2xl font-bold text-[#C6A75E] mb-2 capitalize"
                   style={{ fontFamily: "var(--font-cinzel)" }}
                 >
                   {selectedItem.text}
                 </h3>
-                <p
-                  className="text-sm sm:text-base md:text-lg text-[#F5EBDD]/60 leading-relaxed"
-                  style={{ fontFamily: "var(--font-cormorant)" }}
-                >
-                  {selectedItem.description}
-                </p>
+                {selectedItem.price != null && (
+                  <p className="text-base sm:text-lg text-[#F5EBDD]/90 mb-3" style={{ fontFamily: "var(--font-inter)" }}>
+                    {rupiah(selectedItem.price)}
+                  </p>
+                )}
+                {selectedItem.description && (
+                  <p
+                    className="text-sm sm:text-base md:text-lg text-[#F5EBDD]/60 leading-relaxed line-clamp-4"
+                    style={{ fontFamily: "var(--font-cormorant)" }}
+                  >
+                    {selectedItem.description}
+                  </p>
+                )}
+                {selectedItem.href && (
+                  <a
+                    href={selectedItem.href}
+                    target="_blank"
+                    rel="noopener"
+                    className="mt-5 flex items-center justify-center gap-2 w-full py-3 rounded-lg border border-[#C6A75E]/60 bg-[#C6A75E]/10 text-[#C6A75E] text-xs sm:text-sm tracking-[0.2em] uppercase hover:bg-[#C6A75E]/20 transition-colors"
+                    style={{ fontFamily: "var(--font-cinzel)" }}
+                  >
+                    {selectedItem.sold ? "Lihat Karya di MajaCraft" : "Lihat Produk di MajaCraft"} →
+                  </a>
+                )}
               </div>
             </motion.div>
           </motion.div>
