@@ -63,22 +63,23 @@ const solutions = [
   },
 ];
 
-type LiveCert = { id: string; productName: string; store: string; thumb: string };
+/** Contoh nyata: satu karya yang sama di ketiga langkah */
+const EXAMPLE = {
+  name: "Patung Ganesha Batu Alam Klasik",
+  store: "Kinerja Craft",
+  certId: "MAJA-2026-KIXV32437F51",
+  productHref: `${MAJACRAFT}/produk/patung-ganesha-batu-alam-klasik`,
+};
 
-/** Sertifikat terbaru + jumlah sertifikat tercatat, langsung dari MajaCraft */
-function useLiveCertificate() {
-  const [cert, setCert] = useState<LiveCert | null>(null);
+/** Jumlah sertifikat tercatat, langsung dari MajaCraft */
+function useCertificateTotal() {
   const [total, setTotal] = useState<number | null>(null);
   useEffect(() => {
-    fetch(`${MAJACRAFT}/api/certificate?limit=1`).then((r) => r.json()).then((j) => {
-      const c = j?.data?.certificates?.[0] as { id: string; productName: string; sellerStore: string } | undefined;
-      if (c) setCert({ id: c.id, productName: c.productName, store: c.sellerStore, thumb: `${MAJACRAFT}/uploads/certificates/thumbs/${c.id}.jpg` });
-    }).catch(() => {});
     fetch(`${MAJACRAFT}/api/stats/public`).then((r) => r.json()).then((j) => {
       if (j?.success && typeof j.data?.sertifikat === "number") setTotal(j.data.sertifikat);
     }).catch(() => {});
   }, []);
-  return { cert, total };
+  return total;
 }
 
 const STEP_BOX = "w-full aspect-[3/4] rounded-sm relative overflow-hidden";
@@ -106,7 +107,7 @@ function StepArrow() {
 export default function RoomSolusi() {
   const isMobile = useIsMobile();
   const registerParallax = useParallax(!isMobile);
-  const { cert, total } = useLiveCertificate();
+  const total = useCertificateTotal();
   const tilt = isMobile ? 0 : 10;
 
   return (
@@ -160,12 +161,12 @@ export default function RoomSolusi() {
           {/* 1. Karya */}
           <div className="sm:w-44 md:w-48">
             <TiltCard maxTilt={tilt} glare={!isMobile}>
-              <div className={`${STEP_BOX} border-2 border-[#C6A75E]/30 bg-[#2C1A12]`}>
-                <img src="/images/museum/solusi/karya-kriya.webp" alt="Panel ukir kayu dan kain batik tulis" loading="lazy"
+              <a href={EXAMPLE.productHref} target="_blank" rel="noopener" className={`${STEP_BOX} block border-2 border-[#C6A75E]/30 bg-[#2C1A12]`}>
+                <img src="/images/museum/solusi/karya-ganesha.webp" alt={`${EXAMPLE.name} — ${EXAMPLE.store}`} loading="lazy"
                   className="absolute inset-0 w-full h-full object-cover opacity-90" />
-                <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/75 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/80 to-transparent" />
                 <span className={`${STEP_LABEL} text-[#E8D5A3]/90`} style={{ fontFamily: "var(--font-inter)" }}>1 · Karya</span>
-              </div>
+              </a>
             </TiltCard>
           </div>
 
@@ -176,7 +177,7 @@ export default function RoomSolusi() {
             <Holographic intensity={0.15}>
               <TiltCard maxTilt={tilt} glare={!isMobile} glareOpacity={0.2}>
                 <a
-                  href={cert ? `/sertifikat/?id=${cert.id}` : "/sertifikat/"}
+                  href={`/sertifikat/?id=${EXAMPLE.certId}`}
                   className={`${STEP_BOX} flex flex-col items-center justify-center gap-1.5 sm:gap-3 px-1.5 sm:px-3`}
                   style={{
                     background: "linear-gradient(160deg, #1A1008 0%, #2C1A12 55%, #0F3B2E 100%)",
@@ -185,20 +186,17 @@ export default function RoomSolusi() {
                   }}
                 >
                   <img
-                    src={cert?.thumb ?? "/images/museum/solusi/sertifikat-maja.jpg"}
-                    alt={cert ? `Sertifikat ${cert.productName}` : "Contoh sertifikat kepemilikan MAJA"}
+                    src="/images/museum/solusi/sertifikat-ganesha.webp"
+                    alt={`Sertifikat kepemilikan ${EXAMPLE.name}`}
                     loading="lazy"
                     className="w-full aspect-[3/2] object-cover rounded-[2px] shadow-[0_6px_20px_rgba(0,0,0,0.5)]"
-                    onError={(e) => { (e.target as HTMLImageElement).src = "/images/museum/solusi/sertifikat-maja.jpg"; }}
                   />
-                  {cert && (
-                    <div className="text-center w-full pb-4 sm:pb-5">
-                      <p className="text-[#F5EBDD]/85 text-[10px] sm:text-sm leading-tight line-clamp-2 capitalize" style={{ fontFamily: "var(--font-cormorant)" }}>
-                        {cert.productName.toLowerCase()}
-                      </p>
-                      <p className="hidden sm:block text-[#C6A75E]/60 text-[9px] md:text-[10px] mt-1 tracking-wider font-mono truncate">{cert.id}</p>
-                    </div>
-                  )}
+                  <div className="text-center w-full pb-4 sm:pb-5">
+                    <p className="text-[#F5EBDD]/85 text-[10px] sm:text-sm leading-tight line-clamp-2" style={{ fontFamily: "var(--font-cormorant)" }}>
+                      {EXAMPLE.name}
+                    </p>
+                    <p className="hidden sm:block text-[#C6A75E]/60 text-[9px] md:text-[10px] mt-1 tracking-wider font-mono truncate">{EXAMPLE.certId}</p>
+                  </div>
                   <span className={`${STEP_LABEL} text-[#C6A75E]/80`} style={{ fontFamily: "var(--font-inter)" }}>2 · Sertifikat</span>
                 </a>
               </TiltCard>
@@ -210,12 +208,12 @@ export default function RoomSolusi() {
           {/* 3. Diperiksa */}
           <div className="sm:w-44 md:w-48">
             <TiltCard maxTilt={tilt} glare={!isMobile}>
-              <div className={`${STEP_BOX} border-2 border-[#C6A75E]/30 bg-[#2C1A12]`}>
-                <img src="/images/museum/solusi/verifikasi-qr.webp" alt="Memindai QR sertifikat pada vas keramik" loading="lazy"
-                  className="absolute inset-0 w-full h-full object-cover opacity-90" />
-                <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/75 to-transparent" />
+              <a href={`/sertifikat/?id=${EXAMPLE.certId}`} className={`${STEP_BOX} block border-2 border-[#C6A75E]/30 bg-[#140D07]`}>
+                <img src="/images/museum/solusi/verifikasi-hp.webp" alt={`Halaman verifikasi sertifikat ${EXAMPLE.name} di ponsel`} loading="lazy"
+                  className="absolute inset-0 w-full h-full object-cover" />
+                <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/80 to-transparent" />
                 <span className={`${STEP_LABEL} text-[#E8D5A3]/90`} style={{ fontFamily: "var(--font-inter)" }}>3 · Diperiksa</span>
-              </div>
+              </a>
             </TiltCard>
           </div>
         </motion.div>
@@ -225,7 +223,7 @@ export default function RoomSolusi() {
           {total !== null && (
             <>
               <span className="text-[#E8C878] text-lg sm:text-xl font-semibold">{total}</span> karya telah tercatat di blockchain
-              {cert && <span className="hidden sm:inline"> · terbaru: {cert.store}</span>}
+              <span className="hidden sm:inline"> · contoh: {EXAMPLE.name}, {EXAMPLE.store}</span>
             </>
           )}
         </p>
