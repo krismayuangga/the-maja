@@ -34,7 +34,7 @@ const PILLARS = [
   },
   {
     step: "02", verb: "Tercatat", tag: "Sertifikasi", title: "MAJA Certified",
-    desc: "Kepemilikan karya orisinil tercatat permanen — termasuk karya yang dijual di luar MajaCraft.",
+    desc: "Kepemilikan karya orisinal tercatat permanen — termasuk karya yang dijual di luar MajaCraft.",
     href: `${MAJACRAFT}/certified`, cta: "Ajukan Sertifikat",
     icon: "M16 3l10 4v8c0 7-4.5 11-10 14C10.5 26 6 22 6 15V7l10-4zm-4 13l3 3 6-6",
   },

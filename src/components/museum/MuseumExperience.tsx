@@ -8,6 +8,7 @@ import RoomSolusi from "@/components/museum/RoomSolusi";
 import RoomNusantara from "@/components/museum/RoomNusantara";
 import RoomEkosistem from "@/components/museum/RoomEkosistem";
 import RoomMasaDepan from "@/components/museum/RoomMasaDepan";
+import SiteFooter from "@/components/site/SiteFooter";
 import MuseumNav from "@/components/museum/MuseumNav";
 import useIsMobile from "@/hooks/useIsMobile";
 
@@ -86,6 +87,10 @@ export default function MuseumExperience() {
         <RoomSolusi />
         <RoomNusantara />
         <RoomMasaDepan />
+      </div>
+      {/* Footer di luar daftar ruang → tidak memengaruhi navigasi ruang; sisi kiri diberi ruang untuk menu samping */}
+      <div className="sm:pl-44 lg:pl-48 bg-[#0A0806]">
+        <SiteFooter />
       </div>
     </>
   );

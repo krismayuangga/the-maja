@@ -5,7 +5,7 @@ import "./globals.css";
 const SITE_URL = "https://themaja.com";
 const SITE_TITLE = "MAJA — Rumah Ekosistem Seni & Kerajinan Nusantara";
 const SITE_DESCRIPTION =
-  "MAJA adalah induk ekosistem MajaCraft: marketplace karya pengrajin Nusantara, MAJA Certified — sertifikat kepemilikan phygital untuk karya orisinil, Ruang Budaya, dan komunitas pegiat seni.";
+  "MAJA adalah induk ekosistem MajaCraft: marketplace karya pengrajin Nusantara, MAJA Certified — sertifikat kepemilikan phygital untuk karya orisinal, Ruang Budaya, dan komunitas pegiat seni.";
 const OG_IMAGE = `${SITE_URL}/images/og-image.png`;
 
 export const metadata: Metadata = {
@@ -84,20 +84,29 @@ export const metadata: Metadata = {
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
-  name: "MAJA",
+  name: "The MAJA",
+  alternateName: "MAJA",
   url: SITE_URL,
-  logo: `${SITE_URL}/favicon.ico`,
+  logo: `${SITE_URL}/images/museum/branding/themaja-logo-600.png`,
   description: SITE_DESCRIPTION,
+  parentOrganization: {
+    "@type": "Organization",
+    name: "PT BSE Group Teknologi",
+    address: { "@type": "PostalAddress", addressLocality: "Trowulan, Mojokerto", addressRegion: "Jawa Timur", addressCountry: "ID" },
+  },
+  email: "halo@majacraft.id",
   sameAs: [
-    "https://twitter.com/themaborneo",
+    "https://majacraft.id",
+    "https://www.instagram.com/majacraft.id/",
+    "https://www.tiktok.com/@majacraft.id",
+    "https://www.facebook.com/profile.php?id=61591981286814",
+    "https://www.youtube.com/@MajaCraft",
   ],
-  foundingDate: "2024",
   knowsAbout: [
-    "Creative Economy",
-    "Blockchain Technology",
-    "Nusantara Cultural Heritage",
-    "Digital Art",
-    "NFT",
+    "Seni dan kerajinan Nusantara",
+    "Marketplace karya seni",
+    "Sertifikat kepemilikan karya",
+    "Ekonomi kreatif",
   ],
 };
 

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import SiteFooter from "@/components/site/SiteFooter";
 import React, { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
@@ -24,10 +25,10 @@ function Header() {
       <Link href="/" className="flex items-center gap-2 text-[#C6A75E]" style={{ fontFamily: "var(--font-cinzel)" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/images/museum/branding/themaja-logo-600.png" alt="Logo The MAJA" className="w-9 h-9 object-contain" />
-        <span className="tracking-[0.3em] text-sm">MAJA</span>
+        <span className="tracking-[0.25em] text-sm whitespace-nowrap">THE MAJA</span>
       </Link>
       <nav className="flex gap-4 text-xs tracking-widest uppercase text-[#F5EBDD]/60" style={{ fontFamily: "var(--font-inter)" }}>
-        <Link href="/" className="hover:text-[#C6A75E]">Museum</Link>
+        <Link href="/" className="hover:text-[#C6A75E]">Beranda</Link>
         <a href="https://majacraft.id/certified" target="_blank" rel="noopener" className="hover:text-[#C6A75E]">Ajukan</a>
         <a href="https://majacraft.id" target="_blank" rel="noopener" className="hover:text-[#C6A75E]">MajaCraft</a>
       </nav>
@@ -192,10 +193,9 @@ export default function SertifikatClient() {
       <div className="max-w-6xl mx-auto px-4">
         <Header />
         {id ? <CertDetail id={id} /> : <CertList initialQ={sp.get("q") ?? ""} />}
-        <footer className="py-8 mt-8 border-t border-[#C6A75E]/10 text-center text-xs text-[#F5EBDD]/30">
-          MAJA — Rumah Ekosistem Seni &amp; Kerajinan Nusantara · Data sertifikat dari majacraft.id
-        </footer>
+        <p className="py-6 mt-8 text-center text-xs text-[#F5EBDD]/30">Data sertifikat dari majacraft.id</p>
       </div>
+      <SiteFooter />
     </div>
   );
 }

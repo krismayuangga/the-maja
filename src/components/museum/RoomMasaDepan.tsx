@@ -8,20 +8,13 @@ import { SplitText } from "@/components/ui/TextEffects";
 import { ParticleField } from "@/components/ui/CardEffects";
 
 const visionItems = [
-  { num: "01", title: "Catatan Kepemilikan", desc: "MAJA Certified menjadi catatan kepemilikan karya orisinil yang dapat diperiksa siapa pun" },
-  { num: "02", title: "Pasar untuk Pengrajin", desc: "MajaCraft membuka akses pembeli nasional & internasional bagi pengrajin daerah" },
-  { num: "03", title: "Cerita Budaya", desc: "Museum Digital & Ruang Budaya merawat kisah di balik setiap karya" },
+  { num: "01", title: "Catatan Kepemilikan", desc: "MAJA Certified menjadi catatan kepemilikan karya orisinal yang dapat diperiksa siapa pun" },
+  { num: "02", title: "Pasar untuk Pengrajin", desc: "MajaCraft membuka akses pembeli ke seluruh Indonesia bagi pengrajin daerah, dan ke depan pasar internasional" },
+  { num: "03", title: "Cerita Budaya", desc: "themaja.com & Ruang Budaya merawat kisah di balik setiap karya" },
   { num: "04", title: "Komunitas & Regenerasi", desc: "Duta Daerah, Program Kampus, dan Kontributor menumbuhkan ekosistem dari bawah" },
   { num: "05", title: "Karya Nusantara Mendunia", desc: "Membawa karya budaya Indonesia ke panggung global, dengan pengrajin sebagai pusatnya" },
 ];
 
-/* Perjalanan MAJA — hanya fakta yang sudah terjadi */
-const journey = [
-  { when: "2025", what: "Brand MAJA lahir" },
-  { when: "Feb 2026", what: "MAJA Museum Digital" },
-  { when: "Jul 2026", what: "Marketplace MajaCraft diluncurkan" },
-  { when: "Nov 2026", what: "MAJA Certified & program komunitas" },
-];
 
 /* Typewriter quote component */
 function TypewriterQuote({ inView }: { inView: boolean }) {
@@ -180,7 +173,7 @@ export default function RoomMasaDepan() {
             className="text-xs sm:text-base md:text-lg text-[#F5EBDD]/50 max-w-xl mx-auto"
             style={{ fontFamily: "var(--font-cormorant)" }}
           >
-            Visi &amp; perjalanan ekosistem MAJA
+            Arah ekosistem MAJA ke depan
           </p>
         </motion.div>
 
@@ -265,27 +258,10 @@ export default function RoomMasaDepan() {
           </div>
         </motion.div>
 
-        {/* ── Perjalanan MAJA ── */}
-        <motion.div
-          className="w-full max-w-5xl grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3"
-          style={{ marginBottom: isMobile ? "1.5rem" : "2rem" }}
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1.2 }}
-          viewport={{ once: true }}
-        >
-          {journey.map((j) => (
-            <div key={j.when} className="border-l-2 border-[#C6A75E]/40 pl-3 py-1">
-              <p className="text-[10px] sm:text-xs tracking-[0.2em] uppercase text-[#C6A75E]" style={{ fontFamily: "var(--font-cinzel)" }}>{j.when}</p>
-              <p className="text-[11px] sm:text-sm text-[#F5EBDD]/70" style={{ fontFamily: "var(--font-inter)" }}>{j.what}</p>
-            </div>
-          ))}
-        </motion.div>
-
         {/* ── CTA Buttons ── */}
         <motion.div
           className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full max-w-5xl"
-          style={{ marginBottom: isMobile ? "6rem" : "2rem" }}
+          style={{ marginBottom: isMobile ? "2.5rem" : "2rem" }}
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 1.2 }}
@@ -314,7 +290,8 @@ export default function RoomMasaDepan() {
         >
           <div className="flex items-center justify-center gap-6 mb-5">
             <div className="w-20 sm:w-28 h-[1px] bg-gradient-to-r from-transparent to-[#C6A75E]/40" />
-            <span className="text-[#C6A75E]/60 text-4xl sm:text-5xl md:text-6xl" style={{ fontFamily: "serif" }}>ꦩꦗ</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/images/museum/branding/themaja-logo-600.png" alt="Logo The MAJA" loading="lazy" className="h-12 sm:h-14 md:h-16 w-auto opacity-80" />
             <div className="w-20 sm:w-28 h-[1px] bg-gradient-to-l from-transparent to-[#C6A75E]/40" />
           </div>
           <p className="text-sm sm:text-base md:text-lg text-[#C6A75E]/50 tracking-[0.35em] uppercase text-center" style={{ fontFamily: "var(--font-cinzel)" }}>
