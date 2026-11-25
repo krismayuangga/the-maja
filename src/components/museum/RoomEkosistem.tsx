@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
 import useIsMobile from "@/hooks/useIsMobile";
 import { ParticleField } from "@/components/ui/CardEffects";
@@ -8,11 +8,13 @@ import { ParticleField } from "@/components/ui/CardEffects";
 /**
  * Ruang "Ekosistem MAJA" — Siklus Karya.
  * Empat pilar tersusun sebagai satu siklus mengelilingi logo MAJA, masing-masing dengan bukti nyata
- * (angka & konten live dari MajaCraft).
+ * (angka & konten live dari MajaCraft). Seberkas cahaya emas mengalir dari panel ke panel mengikuti
+ * urutan siklus; panel tujuan menyala sesaat saat cahaya tiba.
  */
 
 const MAJACRAFT = "https://majacraft.id";
 const GOLD = "#C6A75E";
+const SEG_MS = 2000; // durasi cahaya berpindah dari satu panel ke panel berikutnya (1 putaran = 8 detik)
 
 type Stats = {
   karya: number; sertifikat: number; pengrajin: number; provinsi: number;
@@ -89,6 +91,194 @@ function useEcosystemData() {
   return { stats, products, cert };
 }
 
+/* ─────────────── Cahaya mengalir ─────────────── */
+
+function prefersReducedMotion() {
+  return typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+}
+
+/**
+ * Menjalankan siklus cahaya selama `wrapRef` terlihat di layar.
+ * onFrame(seg, t) dipanggil tiap frame: seg = segmen ke-berapa, t = progres 0..1 di segmen itu.
+ */
+function useFlowLoop(wrapRef: React.MutableRefObject<HTMLElement | null>, segments: number, onFrame: (seg: number, t: number) => void) {
+  const [enabled, setEnabled] = useState(true);
+  const frameRef = useRef(onFrame);
+  frameRef.current = onFrame;
+  useEffect(() => {
+    if (prefersReducedMotion()) { setEnabled(false); return; }
+    const el = wrapRef.current;
+    if (!el) return;
+    let raf = 0;
+    let running = false;
+    let origin = 0;
+    const loop = (now: number) => {
+      if (!origin) origin = now;
+      const phase = ((now - origin) / SEG_MS) % segments;
+      frameRef.current(Math.floor(phase), phase - Math.floor(phase));
+      raf = requestAnimationFrame(loop);
+    };
+    // hanya berjalan saat ruang terlihat — hemat baterai
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting && !running) { running = true; raf = requestAnimationFrame(loop); }
+      else if (!e.isIntersecting && running) { running = false; cancelAnimationFrame(raf); }
+    }, { threshold: 0.1 });
+    io.observe(el);
+    return () => { io.disconnect(); cancelAnimationFrame(raf); };
+  }, [wrapRef, segments]);
+  return enabled;
+}
+
+/** Panel mana yang menyala: panel asal di awal segmen, panel tujuan saat cahaya tiba */
+const activeFor = (seg: number, t: number, n: number) => (t > 0.88 ? (seg + 1) % n : t < 0.3 ? seg : -1);
+
+const TAIL = 7; // jumlah titik ekor komet
+
+/** Komet: kepala bercahaya + ekor yang memudar, digerakkan langsung lewat DOM (tanpa re-render per frame) */
+function Comet({ headRef, tailRefs }: { headRef: React.MutableRefObject<SVGCircleElement | null>; tailRefs: React.MutableRefObject<(SVGCircleElement | null)[]> }) {
+  return (
+    <g style={{ filter: "drop-shadow(0 0 6px rgba(243,223,162,0.9)) drop-shadow(0 0 14px rgba(198,167,94,0.6))" }}>
+      {Array.from({ length: TAIL }).map((_, k) => (
+        <circle key={k} ref={(el) => { tailRefs.current[k] = el; }} r={3.2 - k * 0.38} fill="#E8C878" opacity={0} />
+      ))}
+      <circle ref={headRef} r={4} fill="#FFF1C9" opacity={0} />
+    </g>
+  );
+}
+
+function placeComet(path: SVGPathElement | null, t: number, head: SVGCircleElement | null, tail: (SVGCircleElement | null)[], fade = 1) {
+  if (!path || !head) return;
+  const len = path.getTotalLength();
+  // ease in-out agar cahaya "berangkat" & "tiba" dengan lembut
+  const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+  const at = (u: number) => path.getPointAtLength(Math.max(0, Math.min(1, u)) * len);
+  const p = at(e);
+  // muncul di awal, padam saat masuk panel tujuan
+  const vis = Math.min(1, t / 0.08, (1 - t) / 0.1) * fade;
+  head.setAttribute("cx", String(p.x)); head.setAttribute("cy", String(p.y)); head.setAttribute("opacity", String(Math.max(0, vis)));
+  tail.forEach((c, k) => {
+    if (!c) return;
+    const q = at(e - (k + 1) * 0.035);
+    c.setAttribute("cx", String(q.x)); c.setAttribute("cy", String(q.y));
+    c.setAttribute("opacity", String(Math.max(0, vis * (0.75 - k * 0.1))));
+  });
+}
+
+/** DESKTOP — jalur lengkung antar panel (diukur dari posisi panel sebenarnya) */
+function FlowDesktop({ wrapRef, cardRefs, onActive }: {
+  wrapRef: React.MutableRefObject<HTMLDivElement | null>;
+  cardRefs: React.MutableRefObject<(HTMLDivElement | null)[]>;
+  onActive: (i: number) => void;
+}) {
+  const [geo, setGeo] = useState<{ w: number; h: number; d: string[] } | null>(null);
+  const pathRefs = useRef<(SVGPathElement | null)[]>([]);
+  const headRef = useRef<SVGCircleElement | null>(null);
+  const tailRefs = useRef<(SVGCircleElement | null)[]>([]);
+  const lastActive = useRef(-2);
+
+  // Ukur posisi 4 panel → 4 lengkung: kiri-atas → kanan-atas → kanan-bawah → kiri-bawah → kembali
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    if (!wrap) return;
+    const measure = () => {
+      const W = wrap.getBoundingClientRect();
+      const r = cardRefs.current.map((c) => c?.getBoundingClientRect());
+      if (r.some((x) => !x)) return;
+      const R = r.map((x) => ({ l: x!.left - W.left, r: x!.right - W.left, t: x!.top - W.top, b: x!.bottom - W.top, cx: x!.left - W.left + x!.width / 2, cy: x!.top - W.top + x!.height / 2 }));
+      const g = 8, bow = 34;
+      const q = (ax: number, ay: number, cx: number, cy: number, bx: number, by: number) => `M${ax},${ay} Q${cx},${cy} ${bx},${by}`;
+      const d = [
+        q(R[0].r + g, R[0].cy, (R[0].r + R[1].l) / 2, R[0].cy - bow * 2.2, R[1].l - g, R[1].cy),       // 01 → 02 (atas)
+        q(R[1].cx, R[1].b + g, R[1].cx + bow * 1.6, (R[1].b + R[2].t) / 2, R[2].cx, R[2].t - g),       // 02 → 03 (kanan)
+        q(R[2].l - g, R[2].cy, (R[2].l + R[3].r) / 2, R[2].cy + bow * 2.2, R[3].r + g, R[3].cy),       // 03 → 04 (bawah)
+        q(R[3].cx, R[3].t - g, R[3].cx - bow * 1.6, (R[3].t + R[0].b) / 2, R[0].cx, R[0].b + g),       // 04 → 01 (kiri)
+      ];
+      setGeo({ w: W.width, h: W.height, d });
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(wrap);
+    return () => ro.disconnect();
+  }, [wrapRef, cardRefs]);
+
+  const enabled = useFlowLoop(wrapRef, 4, useCallback((seg: number, t: number) => {
+    placeComet(pathRefs.current[seg], t, headRef.current, tailRefs.current);
+    const a = activeFor(seg, t, 4);
+    if (a !== lastActive.current) { lastActive.current = a; onActive(a); }
+  }, [onActive]));
+
+  if (!geo) return null;
+  return (
+    <svg className="absolute inset-0 pointer-events-none overflow-visible" width={geo.w} height={geo.h} viewBox={`0 0 ${geo.w} ${geo.h}`} aria-hidden="true">
+      <defs>
+        <linearGradient id="flowLine" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor={GOLD} stopOpacity="0.15" />
+          <stop offset="0.5" stopColor={GOLD} stopOpacity="0.45" />
+          <stop offset="1" stopColor={GOLD} stopOpacity="0.15" />
+        </linearGradient>
+      </defs>
+      {geo.d.map((d, k) => (
+        <motion.path key={k} ref={(el) => { pathRefs.current[k] = el; }} d={d} fill="none" stroke="url(#flowLine)" strokeWidth={1.2} strokeLinecap="round"
+          initial={{ pathLength: 0 }} whileInView={{ pathLength: 1 }} transition={{ duration: 0.9, delay: 0.3 + k * 0.25 }} viewport={{ once: true }} />
+      ))}
+      {/* Mata panah kecil di ujung jalur — tetap terbaca bila animasi dimatikan */}
+      {!enabled && geo.d.map((d, k) => {
+        const m = d.match(/ (-?[\d.]+),(-?[\d.]+)$/);
+        return m ? <circle key={`e${k}`} cx={m[1]} cy={m[2]} r={2.5} fill={GOLD} opacity={0.7} /> : null;
+      })}
+      {enabled && <Comet headRef={headRef} tailRefs={tailRefs} />}
+    </svg>
+  );
+}
+
+/** MOBILE — cahaya turun di garis timeline: 1 → 2 → 3 → 4, lalu kembali ke awal */
+function FlowMobile({ wrapRef, badgeRefs, onActive }: {
+  wrapRef: React.MutableRefObject<HTMLDivElement | null>;
+  badgeRefs: React.MutableRefObject<(HTMLSpanElement | null)[]>;
+  onActive: (i: number) => void;
+}) {
+  const [geo, setGeo] = useState<{ w: number; h: number; d: string[] } | null>(null);
+  const pathRefs = useRef<(SVGPathElement | null)[]>([]);
+  const headRef = useRef<SVGCircleElement | null>(null);
+  const tailRefs = useRef<(SVGCircleElement | null)[]>([]);
+  const lastActive = useRef(-2);
+
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    if (!wrap) return;
+    const measure = () => {
+      const W = wrap.getBoundingClientRect();
+      const b = badgeRefs.current.map((x) => x?.getBoundingClientRect());
+      if (b.some((x) => !x)) return;
+      const c = b.map((x) => ({ x: x!.left - W.left + x!.width / 2, y: x!.top - W.top + x!.height / 2, r: x!.height / 2 }));
+      const d = [0, 1, 2].map((k) => `M${c[k].x},${c[k].y + c[k].r + 4} L${c[k + 1].x},${c[k + 1].y - c[k + 1].r - 4}`);
+      setGeo({ w: W.width, h: W.height, d });
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(wrap);
+    return () => ro.disconnect();
+  }, [wrapRef, badgeRefs]);
+
+  // 3 segmen turun + 1 jeda (cahaya padam, siklus kembali ke langkah 1)
+  const enabled = useFlowLoop(wrapRef, 4, useCallback((seg: number, t: number) => {
+    if (seg < 3) placeComet(pathRefs.current[seg], t, headRef.current, tailRefs.current);
+    else placeComet(pathRefs.current[2], 1, headRef.current, tailRefs.current, 0);
+    const a = seg < 3 ? activeFor(seg, t, 4) : t > 0.75 ? 0 : -1;
+    if (a !== lastActive.current) { lastActive.current = a; onActive(a); }
+  }, [onActive]));
+
+  if (!geo || !enabled) return null;
+  return (
+    <svg className="absolute inset-0 pointer-events-none overflow-visible" width={geo.w} height={geo.h} viewBox={`0 0 ${geo.w} ${geo.h}`} aria-hidden="true">
+      {geo.d.map((d, k) => <path key={k} ref={(el) => { pathRefs.current[k] = el; }} d={d} fill="none" stroke="none" />)}
+      <Comet headRef={headRef} tailRefs={tailRefs} />
+    </svg>
+  );
+}
+
+/* ─────────────── Isi kartu ─────────────── */
+
 /** Bukti nyata di tiap pilar */
 function Proof({ index, stats, products, cert }: { index: number; stats: Stats | null; products: Thumb[]; cert: Thumb | null }) {
   const label = "text-xs text-[#F5EBDD]/55";
@@ -148,15 +338,17 @@ function Proof({ index, stats, products, cert }: { index: number; stats: Stats |
   );
 }
 
-function PillarCard({ p, i, children }: { p: (typeof PILLARS)[number]; i: number; children: React.ReactNode }) {
+function PillarCard({ p, i, active, children }: { p: (typeof PILLARS)[number]; i: number; active: boolean; children: React.ReactNode }) {
   return (
     <motion.div
-      className="relative h-full rounded-xl border border-[#C6A75E]/20 bg-[#15100A]/90 backdrop-blur-sm p-5 sm:p-6 flex flex-col hover:border-[#C6A75E]/45 transition-colors duration-500"
+      className={`relative h-full rounded-xl border bg-[#15100A]/90 backdrop-blur-sm p-5 sm:p-6 flex flex-col transition-[border-color,box-shadow] duration-700 ${
+        active ? "border-[#C6A75E]/70 shadow-[0_0_45px_rgba(198,167,94,0.22),inset_0_0_30px_rgba(198,167,94,0.06)]" : "border-[#C6A75E]/20 hover:border-[#C6A75E]/45"
+      }`}
       initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 + i * 0.12, duration: 0.6 }} viewport={{ once: true, amount: 0.3 }}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <span className="w-10 h-10 rounded-lg flex items-center justify-center border border-[#C6A75E]/30 bg-[#C6A75E]/[0.06] shrink-0">
+          <span className={`w-10 h-10 rounded-lg flex items-center justify-center border shrink-0 transition-colors duration-700 ${active ? "border-[#C6A75E]/70 bg-[#C6A75E]/[0.14]" : "border-[#C6A75E]/30 bg-[#C6A75E]/[0.06]"}`}>
             <svg viewBox="0 0 32 32" className="w-6 h-6" fill="none" stroke={GOLD} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"><path d={p.icon} /></svg>
           </span>
           <div>
@@ -165,7 +357,7 @@ function PillarCard({ p, i, children }: { p: (typeof PILLARS)[number]; i: number
           </div>
         </div>
         <span className="text-right shrink-0">
-          <span className="block text-2xl leading-none text-[#C6A75E]/35" style={{ fontFamily: "var(--font-cinzel)" }}>{p.step}</span>
+          <span className={`block text-2xl leading-none transition-colors duration-700 ${active ? "text-[#E8C878]" : "text-[#C6A75E]/35"}`} style={{ fontFamily: "var(--font-cinzel)", textShadow: active ? "0 0 18px rgba(232,200,120,0.6)" : "none" }}>{p.step}</span>
           <span className="block text-[10px] tracking-[0.2em] uppercase text-[#E8D5A3]/80 mt-1" style={{ fontFamily: "var(--font-inter)" }}>{p.verb}</span>
         </span>
       </div>
@@ -181,6 +373,13 @@ function PillarCard({ p, i, children }: { p: (typeof PILLARS)[number]; i: number
 export default function RoomEkosistem() {
   const isMobile = useIsMobile();
   const { stats, products, cert } = useEcosystemData();
+  const [active, setActive] = useState(-1);
+  const onActive = useCallback((i: number) => setActive(i), []);
+
+  const deskWrap = useRef<HTMLDivElement | null>(null);
+  const deskCards = useRef<(HTMLDivElement | null)[]>([]);
+  const mobWrap = useRef<HTMLDivElement | null>(null);
+  const mobBadges = useRef<(HTMLSpanElement | null)[]>([]);
 
   const STAT_ITEMS = stats ? [
     { v: stats.karya, l: "Karya aktif" },
@@ -219,61 +418,52 @@ export default function RoomEkosistem() {
             </motion.div>
           )}
 
-          {/* ── DESKTOP: siklus 2×2 mengelilingi logo ── */}
-          <div className="hidden md:block relative w-full max-w-5xl mt-12">
-            {/* Cincin emas penghubung */}
-            <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-              <motion.ellipse cx="50" cy="50" rx="36" ry="40" fill="none" stroke={GOLD} strokeOpacity="0.35" strokeWidth="0.25" strokeDasharray="1 1.2"
-                vectorEffect="non-scaling-stroke"
-                initial={{ pathLength: 0 }} whileInView={{ pathLength: 1 }} transition={{ duration: 2.2, ease: "easeInOut" }} viewport={{ once: true }} />
-            </svg>
-            <div className="relative grid grid-cols-2 gap-x-28 gap-y-20 items-stretch">
-              {PILLARS.map((p, i) => {
-                // urutan searah jarum jam: kiri-atas → kanan-atas → kanan-bawah → kiri-bawah
-                const order = ["order-1", "order-2", "order-4", "order-3"][i];
-                return (
-                  <div key={p.title} className={order}>
-                    <PillarCard p={p} i={i}><Proof index={i} stats={stats} products={products} cert={cert} /></PillarCard>
-                  </div>
-                );
-              })}
+          {/* ── DESKTOP: siklus 2×2 mengelilingi logo, cahaya mengalir antar panel ── */}
+          {!isMobile && (
+            <div ref={deskWrap} className="hidden md:block relative w-full max-w-5xl mt-12">
+              <div className="relative grid grid-cols-2 gap-x-28 gap-y-20 items-stretch">
+                {PILLARS.map((p, i) => {
+                  // urutan searah jarum jam: kiri-atas → kanan-atas → kanan-bawah → kiri-bawah
+                  const order = ["order-1", "order-2", "order-4", "order-3"][i];
+                  return (
+                    <div key={p.title} className={order} ref={(el) => { deskCards.current[i] = el; }}>
+                      <PillarCard p={p} i={i} active={active === i}><Proof index={i} stats={stats} products={products} cert={cert} /></PillarCard>
+                    </div>
+                  );
+                })}
+              </div>
+              <FlowDesktop wrapRef={deskWrap} cardRefs={deskCards} onActive={onActive} />
+              {/* Medali logo di tengah */}
+              <motion.div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-28 h-28 rounded-full flex flex-col items-center justify-center border border-[#C6A75E]/40 bg-[#100B06] shadow-[0_0_60px_rgba(198,167,94,0.18)]"
+                initial={{ opacity: 0, scale: 0.8 }} whileInView={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, delay: 0.3 }} viewport={{ once: true }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/images/museum/branding/themaja-logo-600.png" alt="The MAJA" className="w-14 h-auto" />
+                <span className="mt-1 text-[9px] tracking-[0.35em] uppercase text-[#C6A75E]/80" style={{ fontFamily: "var(--font-cinzel)" }}>The MAJA</span>
+              </motion.div>
             </div>
-            {/* Panah arah siklus */}
-            {[
-              { cls: "top-[22%] left-1/2 -translate-x-1/2", rot: 0 },
-              { cls: "top-1/2 right-[23%] -translate-y-1/2 translate-x-1/2", rot: 90 },
-              { cls: "bottom-[22%] left-1/2 -translate-x-1/2", rot: 180 },
-              { cls: "top-1/2 left-[23%] -translate-y-1/2 -translate-x-1/2", rot: 270 },
-            ].map((a, k) => (
-              <motion.svg key={k} className={`absolute ${a.cls} w-5 h-5 pointer-events-none`} viewBox="0 0 20 20" style={{ rotate: a.rot }}
-                initial={{ opacity: 0 }} whileInView={{ opacity: 0.8 }} transition={{ delay: 1.4 + k * 0.15 }} viewport={{ once: true }} aria-hidden="true">
-                <path d="M4 10h11M11 6l4 4-4 4" fill="none" stroke={GOLD} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-              </motion.svg>
-            ))}
-            {/* Medali logo di tengah */}
-            <motion.div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-28 h-28 rounded-full flex flex-col items-center justify-center border border-[#C6A75E]/40 bg-[#100B06] shadow-[0_0_60px_rgba(198,167,94,0.18)]"
-              initial={{ opacity: 0, scale: 0.8 }} whileInView={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, delay: 0.3 }} viewport={{ once: true }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/images/museum/branding/themaja-logo-600.png" alt="The MAJA" className="w-14 h-auto" />
-              <span className="mt-1 text-[9px] tracking-[0.35em] uppercase text-[#C6A75E]/80" style={{ fontFamily: "var(--font-cinzel)" }}>The MAJA</span>
-            </motion.div>
-          </div>
+          )}
 
-          {/* ── MOBILE: timeline vertikal ── */}
-          <div className="md:hidden w-full max-w-md mt-10 relative">
-            <div className="absolute left-[15px] top-2 bottom-8 w-px bg-gradient-to-b from-[#C6A75E]/60 via-[#C6A75E]/25 to-[#C6A75E]/60" />
-            <div className="space-y-5">
-              {PILLARS.map((p, i) => (
-                <div key={p.title} className="relative pl-10">
-                  <span className="absolute left-0 top-5 w-[31px] h-[31px] rounded-full border border-[#C6A75E]/50 bg-[#100B06] flex items-center justify-center text-[11px] text-[#C6A75E]" style={{ fontFamily: "var(--font-cinzel)" }}>{i + 1}</span>
-                  <PillarCard p={p} i={i}><Proof index={i} stats={stats} products={products} cert={cert} /></PillarCard>
-                </div>
-              ))}
+          {/* ── MOBILE: timeline vertikal, cahaya turun di garis ── */}
+          {isMobile && (
+            <div ref={mobWrap} className="w-full max-w-md mt-10 relative">
+              <div className="absolute left-[15px] top-2 bottom-8 w-px bg-gradient-to-b from-[#C6A75E]/60 via-[#C6A75E]/25 to-[#C6A75E]/60" />
+              <div className="space-y-5">
+                {PILLARS.map((p, i) => (
+                  <div key={p.title} className="relative pl-10">
+                    <span ref={(el) => { mobBadges.current[i] = el; }}
+                      className={`absolute left-0 top-5 w-[31px] h-[31px] rounded-full border flex items-center justify-center text-[11px] transition-all duration-500 ${
+                        active === i ? "border-[#E8C878] bg-[#3A2A12] text-[#FFF1C9] shadow-[0_0_18px_rgba(232,200,120,0.55)]" : "border-[#C6A75E]/50 bg-[#100B06] text-[#C6A75E]"
+                      }`} style={{ fontFamily: "var(--font-cinzel)" }}>{i + 1}</span>
+                    <PillarCard p={p} i={i} active={active === i}><Proof index={i} stats={stats} products={products} cert={cert} /></PillarCard>
+                  </div>
+                ))}
+              </div>
+              <FlowMobile wrapRef={mobWrap} badgeRefs={mobBadges} onActive={onActive} />
+              <p className="mt-5 pl-10 text-sm text-[#C6A75E]/70 italic" style={{ fontFamily: "var(--font-cormorant)" }}>
+                ↻ dan siklus berulang — pengrajin baru, karya baru.
+              </p>
             </div>
-            <p className="mt-5 pl-10 text-sm text-[#C6A75E]/70 italic" style={{ fontFamily: "var(--font-cormorant)" }}>
-              ↻ dan siklus berulang — pengrajin baru, karya baru.
-            </p>
-          </div>
+          )}
         </div>
       </div>
     </section>
