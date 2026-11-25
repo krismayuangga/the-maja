@@ -94,7 +94,8 @@ const jsonLd = {
     name: "PT BSE Group Teknologi",
     address: { "@type": "PostalAddress", addressLocality: "Trowulan, Mojokerto", addressRegion: "Jawa Timur", addressCountry: "ID" },
   },
-  email: "halo@majacraft.id",
+  email: "halo@themaja.com",
+  foundingDate: "2025",
   sameAs: [
     "https://majacraft.id",
     "https://www.instagram.com/majacraft.id/",

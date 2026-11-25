@@ -84,7 +84,7 @@ export default function PrivasiPage() {
           body: (
             <p>
               Sesuai Undang-Undang Nomor 27 Tahun 2022 tentang Pelindungan Data Pribadi, Anda dapat mengajukan pertanyaan atau
-              permintaan terkait data pribadi ke <a href="mailto:privasi@majacraft.id">privasi@majacraft.id</a>.
+              permintaan terkait data pribadi ke <a href="mailto:halo@themaja.com">halo@themaja.com</a>. Untuk data pribadi di layanan MajaCraft, hubungi <a href="mailto:privasi@majacraft.id">privasi@majacraft.id</a>.
             </p>
           ),
         },

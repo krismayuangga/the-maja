@@ -110,7 +110,7 @@ export default function SyaratPage() {
           body: (
             <p>
               PT BSE Group Teknologi — Jatipasar, Trowulan, Mojokerto, Jawa Timur.<br />
-              Email: <a href="mailto:halo@majacraft.id">halo@majacraft.id</a> · WhatsApp:{" "}
+              Email: <a href="mailto:halo@themaja.com">halo@themaja.com</a> · WhatsApp:{" "}
               <a href="https://wa.me/6285280002089" target="_blank" rel="noopener">+62 852-8000-2089</a>
             </p>
           ),

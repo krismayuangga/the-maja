@@ -12,11 +12,11 @@ const ekosistem = [
 ];
 
 const informasi = [
+  { label: "Tentang MAJA", href: "/tentang/", internal: true },
+  { label: "Kontak", href: "/kontak/", internal: true },
+  { label: "Bantuan MajaCraft", href: `${MC}/bantuan` },
   { label: "Syarat Penggunaan", href: "/syarat/", internal: true },
   { label: "Kebijakan Privasi", href: "/privasi/", internal: true },
-  { label: "Tentang MajaCraft", href: `${MC}/tentang` },
-  { label: "Kontak", href: `${MC}/kontak` },
-  { label: "Pusat Bantuan", href: `${MC}/bantuan` },
 ];
 
 const sosial = [
@@ -77,6 +77,7 @@ export default function SiteFooter({ className = "" }: { className?: string }) {
               <p>Nomor AHU <span className="font-mono">AHU-000405.AH.01.30.2024</span></p>
               <p>NIB <span className="font-mono">0807240028155</span></p>
               <p>Jatipasar, Trowulan, Mojokerto, Jawa Timur</p>
+              <p><a href="mailto:halo@themaja.com" className="text-[#F5EBDD]/70 hover:text-[#E8C878]">halo@themaja.com</a></p>
             </div>
           </div>
 
