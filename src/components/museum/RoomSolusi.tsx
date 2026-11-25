@@ -13,7 +13,7 @@ const MAJACRAFT = "https://majacraft.id";
 const solutions = [
   {
     icon: (
-      <svg viewBox="0 0 32 32" className="w-9 h-9 md:w-11 md:h-11">
+      <svg viewBox="0 0 32 32" className="w-6 h-6 md:w-7 md:h-7">
         <rect x="6" y="4" width="20" height="24" rx="2" fill="none" stroke="#C6A75E" strokeWidth="1.2" />
         <path d="M10 10 L22 10 M10 14 L18 14 M10 18 L20 18" stroke="#C6A75E" strokeWidth="0.8" opacity="0.5" />
         <circle cx="16" cy="24" r="2" fill="#C6A75E" opacity="0.6" />
@@ -25,7 +25,7 @@ const solutions = [
   },
   {
     icon: (
-      <svg viewBox="0 0 32 32" className="w-9 h-9 md:w-11 md:h-11">
+      <svg viewBox="0 0 32 32" className="w-6 h-6 md:w-7 md:h-7">
         <circle cx="16" cy="16" r="10" fill="none" stroke="#C6A75E" strokeWidth="1.2" />
         <path d="M16 6 Q20 12 16 16 Q12 20 16 26" stroke="#C6A75E" strokeWidth="0.8" fill="none" />
         <circle cx="16" cy="16" r="3" fill="#C6A75E" opacity="0.4" />
@@ -37,7 +37,7 @@ const solutions = [
   },
   {
     icon: (
-      <svg viewBox="0 0 32 32" className="w-9 h-9 md:w-11 md:h-11">
+      <svg viewBox="0 0 32 32" className="w-6 h-6 md:w-7 md:h-7">
         <path d="M8 14 Q8 8 14 8 L16 8 M18 8 L24 8 Q24 14 24 14" stroke="#C6A75E" strokeWidth="1.2" fill="none" />
         <path d="M8 18 Q8 24 14 24 L18 24 Q24 24 24 18" stroke="#C6A75E" strokeWidth="1.2" fill="none" />
         <rect x="12" y="12" width="8" height="8" rx="1" fill="#C6A75E" opacity="0.2" stroke="#C6A75E" strokeWidth="0.8" />
@@ -49,7 +49,7 @@ const solutions = [
   },
   {
     icon: (
-      <svg viewBox="0 0 32 32" className="w-9 h-9 md:w-11 md:h-11">
+      <svg viewBox="0 0 32 32" className="w-6 h-6 md:w-7 md:h-7">
         <rect x="4" y="12" width="10" height="14" rx="1" fill="none" stroke="#C6A75E" strokeWidth="1" />
         <rect x="18" y="8" width="10" height="14" rx="1" fill="none" stroke="#C6A75E" strokeWidth="1" />
         <path d="M14 18 L18 14" stroke="#C6A75E" strokeWidth="1" strokeDasharray="2 1" />
@@ -109,6 +109,13 @@ export default function RoomSolusi() {
   const registerParallax = useParallax(!isMobile);
   const total = useCertificateTotal();
   const tilt = isMobile ? 0 : 10;
+  const [q, setQ] = useState("");
+
+  const goSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const v = q.trim().replace(/^#?MC-(?=\d{4}-)/i, "MAJA-"); // ID versi cetak "#MC-…"
+    if (v) window.location.href = /^MAJA-/i.test(v) ? `/sertifikat/?id=${encodeURIComponent(v.toUpperCase())}` : `/sertifikat/?q=${encodeURIComponent(v)}`;
+  };
 
   return (
     <section className="room room-3 room-auto flex items-center justify-center room-vignette relative overflow-hidden">
@@ -126,16 +133,16 @@ export default function RoomSolusi() {
         {/* Judul */}
         <motion.div
           className="text-center"
-          style={{ marginBottom: "1.5rem" }}
+          style={{ marginBottom: "1.25rem" }}
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
           viewport={{ once: true }}
         >
-          <span className="text-sm sm:text-base md:text-lg tracking-[0.5em] uppercase text-[#C6A75E]/40 block mb-2 sm:mb-3" style={{ fontFamily: "var(--font-philosopher)" }}>
+          <span className="text-sm sm:text-base tracking-[0.5em] uppercase text-[#C6A75E]/40 block mb-2" style={{ fontFamily: "var(--font-philosopher)" }}>
             Ruang Sertifikasi
           </span>
-          <div className="mb-2 sm:mb-4">
+          <div className="mb-2 sm:mb-3">
             <SplitText
               text="MAJA Certified"
               className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-glow-gold"
@@ -159,7 +166,7 @@ export default function RoomSolusi() {
           viewport={{ once: true }}
         >
           {/* 1. Karya */}
-          <div className="sm:w-44 md:w-48">
+          <div className="sm:w-40 xl:w-44">
             <TiltCard maxTilt={tilt} glare={!isMobile}>
               <a href={EXAMPLE.productHref} target="_blank" rel="noopener" className={`${STEP_BOX} block border-2 border-[#C6A75E]/30 bg-[#2C1A12]`}>
                 <img src="/images/museum/solusi/karya-ganesha.webp" alt={`${EXAMPLE.name} — ${EXAMPLE.store}`} loading="lazy"
@@ -172,8 +179,8 @@ export default function RoomSolusi() {
 
           <StepArrow />
 
-          {/* 2. Sertifikat — sertifikat terbaru, live dari MajaCraft */}
-          <div className="sm:w-44 md:w-48">
+          {/* 2. Sertifikat */}
+          <div className="sm:w-40 xl:w-44">
             <Holographic intensity={0.15}>
               <TiltCard maxTilt={tilt} glare={!isMobile} glareOpacity={0.2}>
                 <a
@@ -206,7 +213,7 @@ export default function RoomSolusi() {
           <StepArrow />
 
           {/* 3. Diperiksa */}
-          <div className="sm:w-44 md:w-48">
+          <div className="sm:w-40 xl:w-44">
             <TiltCard maxTilt={tilt} glare={!isMobile}>
               <a href={`/sertifikat/?id=${EXAMPLE.certId}`} className={`${STEP_BOX} block border-2 border-[#C6A75E]/30 bg-[#140D07]`}>
                 <img src="/images/museum/solusi/verifikasi-hp.webp" alt={`Halaman verifikasi sertifikat ${EXAMPLE.name} di ponsel`} loading="lazy"
@@ -218,32 +225,32 @@ export default function RoomSolusi() {
           </div>
         </motion.div>
 
-        {/* Angka live */}
-        <p className="text-sm sm:text-base text-[#F5EBDD]/60 mb-6 sm:mb-8 text-center min-h-[1.5em]" style={{ fontFamily: "var(--font-cormorant)" }}>
+        {/* Angka live + tautan ke arsip lengkap */}
+        <p className="text-sm sm:text-base text-[#F5EBDD]/60 mb-5 sm:mb-6 text-center min-h-[1.5em]" style={{ fontFamily: "var(--font-cormorant)" }}>
           {total !== null && (
-            <>
-              <span className="text-[#E8C878] text-lg sm:text-xl font-semibold">{total}</span> karya telah tercatat di blockchain
-              <span className="hidden sm:inline"> · contoh: {EXAMPLE.name}, {EXAMPLE.store}</span>
-            </>
+            <><span className="text-[#E8C878] text-lg sm:text-xl font-semibold">{total}</span> karya telah tercatat di blockchain · </>
           )}
+          <Link href="/sertifikat/" className="text-[#C6A75E] hover:text-[#E8C878] underline decoration-[#C6A75E]/40 underline-offset-4 whitespace-nowrap">
+            Lihat semua sertifikat →
+          </Link>
         </p>
 
         {/* Kartu fitur */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5 max-w-6xl w-full">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 max-w-5xl w-full">
           {solutions.map((s, i) => (
             <FadeIn key={s.title} direction="up" delay={0.5 + i * 0.15} duration={0.6} className="h-full">
               <SpotlightCard
                 className="border border-[#C6A75E]/20 bg-[#1A1008]/60 backdrop-blur-sm hover:border-[#C6A75E]/50 transition-all duration-500 hover:bg-[#2C1A12]/60 h-full"
                 spotlightColor="rgba(198, 167, 94, 0.1)"
               >
-                <div className="p-4 sm:p-5 md:p-6 text-center">
-                  <div className="w-14 h-14 md:w-16 md:h-16 mx-auto mb-3 sm:mb-4 rounded-full border border-[#C6A75E]/25 bg-[#C6A75E]/[0.06] flex items-center justify-center">
+                <div className="p-3.5 sm:p-4 md:p-5 text-center">
+                  <div className="w-11 h-11 md:w-12 md:h-12 mx-auto mb-2 sm:mb-3 rounded-full border border-[#C6A75E]/25 bg-[#C6A75E]/[0.06] flex items-center justify-center">
                     {s.icon}
                   </div>
-                  <h3 className="text-base sm:text-lg md:text-xl font-semibold text-[#C6A75E] mb-1 sm:mb-2 tracking-wide" style={{ fontFamily: "var(--font-philosopher)" }}>
+                  <h3 className="text-[15px] sm:text-base md:text-lg font-semibold text-[#C6A75E] mb-1 tracking-wide leading-tight" style={{ fontFamily: "var(--font-philosopher)" }}>
                     {s.title}
                   </h3>
-                  <p className="text-base sm:text-lg md:text-xl text-[#F5EBDD]/55 leading-relaxed" style={{ fontFamily: "var(--font-cormorant)" }}>
+                  <p className="text-[15px] sm:text-base md:text-[17px] text-[#F5EBDD]/55 leading-snug" style={{ fontFamily: "var(--font-cormorant)" }}>
                     {s.desc}
                   </p>
                 </div>
@@ -252,24 +259,27 @@ export default function RoomSolusi() {
           ))}
         </div>
 
-        {/* CTA — ajukan sertifikat di MajaCraft */}
+        {/* Cek sertifikat (pencarian) + ajukan sertifikat */}
         <motion.div
-          className="flex flex-col sm:flex-row items-center gap-3 mt-6 sm:mt-8"
+          className="flex flex-col md:flex-row items-stretch md:items-center gap-3 mt-5 sm:mt-6 w-full max-w-[22rem] md:max-w-3xl"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6 }}
           viewport={{ once: true }}
         >
+          <form onSubmit={goSearch} className="flex flex-1 gap-2" role="search">
+            <input value={q} onChange={(e) => setQ(e.target.value)} aria-label="Cari sertifikat"
+              placeholder="ID sertifikat atau nama karya"
+              className="flex-1 min-w-0 h-11 px-4 rounded-xl bg-[#1A1008]/80 border border-[#C6A75E]/30 text-[#F5EBDD] placeholder:text-[#F5EBDD]/30 text-sm focus:outline-none focus:border-[#C6A75E]"
+              style={{ fontFamily: "var(--font-inter)" }} />
+            <button className="h-11 px-5 rounded-xl border border-[#C6A75E]/60 text-[#C6A75E] text-xs tracking-widest uppercase hover:bg-[#C6A75E]/10 transition-colors"
+              style={{ fontFamily: "var(--font-cinzel)" }}>Cek</button>
+          </form>
           <a href={`${MAJACRAFT}/certified`} target="_blank" rel="noopener"
-            className="px-6 sm:px-10 py-3 border-2 border-[#C6A75E]/60 text-[#C6A75E] rounded-xl tracking-widest uppercase text-xs sm:text-sm hover:bg-[#C6A75E]/10 transition-colors"
+            className="h-11 px-6 md:px-8 flex items-center justify-center rounded-xl bg-[#C6A75E]/15 border-2 border-[#C6A75E]/60 text-[#E8D5A3] tracking-widest uppercase text-xs sm:text-sm hover:bg-[#C6A75E]/25 transition-colors whitespace-nowrap"
             style={{ fontFamily: "var(--font-cinzel)" }}>
             Ajukan Sertifikat
           </a>
-          <Link href="/sertifikat/"
-            className="px-6 sm:px-10 py-3 border border-[#C6A75E]/30 text-[#F5EBDD]/70 rounded-xl tracking-widest uppercase text-xs sm:text-sm hover:border-[#C6A75E]/60 transition-colors"
-            style={{ fontFamily: "var(--font-cinzel)" }}>
-            Cek Sertifikat
-          </Link>
         </motion.div>
         <p className="mt-3 mb-24 sm:mb-0 text-[11px] sm:text-xs text-[#F5EBDD]/40 max-w-xl text-center" style={{ fontFamily: "var(--font-inter)" }}>
           MAJA Certified mencatat kepemilikan sah atas karya orisinal — bukan penilaian keaslian maupun nilai karya.

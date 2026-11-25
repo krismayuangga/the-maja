@@ -7,7 +7,6 @@ import RoomMasalah from "@/components/museum/RoomMasalah";
 import RoomSolusi from "@/components/museum/RoomSolusi";
 import RoomNusantara from "@/components/museum/RoomNusantara";
 import RoomEkosistem from "@/components/museum/RoomEkosistem";
-import RoomGaleri from "@/components/museum/RoomGaleri";
 import RoomMasaDepan from "@/components/museum/RoomMasaDepan";
 import MuseumNav from "@/components/museum/MuseumNav";
 import useIsMobile from "@/hooks/useIsMobile";
@@ -18,7 +17,6 @@ const ROOM_NAMES = [
   "Ekosistem",
   "Certified",
   "Nusantara",
-  "Galeri",
   "Visi",
 ];
 
@@ -87,7 +85,6 @@ export default function MuseumExperience() {
         <RoomEkosistem />
         <RoomSolusi />
         <RoomNusantara />
-        <RoomGaleri />
         <RoomMasaDepan />
       </div>
     </>
