@@ -186,12 +186,6 @@ h1, h2, h3, h4, h5, h6 {
   50% { transform: scale(1.02); }
 }
 
-/* Spin slow (for token coin) */
-@keyframes spin-slow {
-  from { transform: rotateY(0deg); }
-  to { transform: rotateY(360deg); }
-}
-
 /* Image reveal wipe */
 @keyframes wipe-reveal {
   from { clip-path: inset(0 100% 0 0); }

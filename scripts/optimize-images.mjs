@@ -42,10 +42,6 @@ const imageConfigs = {
   "nusantara/toraja-sulawesi.webp":  { width: 600, height: 400, format: "webp", quality: 75 },
   "nusantara/noken-papua.webp":      { width: 600, height: 400, format: "webp", quality: 75 },
 
-  // Ekonomi
-  "ekonomi/maja-coin-front.png": { width: 800, height: 800, format: "png",  quality: 85, keepTransparency: true },
-  "ekonomi/maja-coin-back.png":  { width: 800, height: 800, format: "png",  quality: 85, keepTransparency: true },
-
   // Masa Depan
   "masa-depan/digital-sky.webp": { width: 3840, height: 1080, format: "webp", quality: 72 },
 

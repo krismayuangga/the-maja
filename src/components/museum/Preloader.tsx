@@ -46,14 +46,14 @@ export default function Preloader({ onComplete }: PreloaderProps) {
           {/* Ambient glow */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full bg-[#C6A75E] opacity-[0.03] blur-[100px]" />
 
-          {/* Coin logo with 3D spin */}
+          {/* Logo dengan putaran 3D */}
           <motion.div
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, ease: "easeOut" }}
             className="mb-8 relative"
           >
-            {/* Glow behind coin */}
+            {/* Cahaya di belakang logo */}
             <motion.div
               className="absolute inset-[-30px] rounded-full"
               style={{ background: "radial-gradient(circle, rgba(198,167,94,0.15) 0%, rgba(198,167,94,0.05) 40%, transparent 70%)" }}
@@ -76,7 +76,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
               />
             </motion.div>
 
-            {/* Particle ring around coin */}
+            {/* Cincin partikel di sekitar logo */}
             {[...Array(8)].map((_, i) => (
               <motion.div
                 key={i}

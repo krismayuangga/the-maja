@@ -45,9 +45,7 @@ Situs **tidak** memakai akun, formulir, cookie, maupun analitik.
 | Waktu | Tahap |
 |---|---|
 | Juni 2025 | Gagasan MAJA; repositori & landing page pertama |
-| Januari 2026 | Purwarupa game edukasi bertema Majapahit |
 | Februari 2026 | **MAJA Digital Museum** tayang di themaja.com — museum digital interaktif seni & budaya Nusantara |
-| Februari–Maret 2026 | Kajian konsep token digital (lihat [`arsip/`](arsip/)); konsep ini **tidak lagi menjadi bagian dari Ekosistem MAJA** |
 | Juli 2026 | Peluncuran marketplace **MajaCraft** |
 | Agustus 2026 | Sertifikat **MAJA Certified** pertama terbit di BNB Smart Chain |
 | November 2026 | themaja.com dibangun ulang menjadi **induk ekosistem** dengan data live |
@@ -76,7 +74,6 @@ src/components/museum/   enam ruang halaman utama + navigasi
 src/components/site/     header, footer, halaman legal, angka live
 src/components/ui/       efek teks, kartu, galeri bola
 public/images/           aset gambar (webp)
-arsip/                   dokumen tahap eksplorasi (tidak mencerminkan produk saat ini)
 ```
 
 ---
