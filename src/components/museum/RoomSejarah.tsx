@@ -47,7 +47,10 @@ export default function RoomSejarah() {
 
       {/* Background image support */}
       <img
-        src="/images/museum/sejarah/relief-texture.webp"
+        src="/images/museum/sejarah/relief-1440.webp"
+        srcSet="/images/museum/sejarah/relief-720.webp 720w, /images/museum/sejarah/relief-1440.webp 1440w"
+        sizes="100vw"
+        decoding="async"
         alt=""
         className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-1000 mix-blend-overlay"
         onLoad={(e) => { (e.target as HTMLImageElement).style.opacity = "0.15"; }}
@@ -58,7 +61,7 @@ export default function RoomSejarah() {
       <div
         className="absolute inset-0 opacity-[0.06]"
         style={{
-          backgroundImage: `url('/images/ukiran-maja.png')`,
+          backgroundImage: `url('/images/ukiran-maja.webp')`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           mixBlendMode: "overlay",

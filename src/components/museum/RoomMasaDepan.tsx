@@ -78,7 +78,7 @@ export default function RoomMasaDepan() {
       <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A10] via-[#0D0A06] to-[#1A1008]" />
 
       {/* Digital sky background image */}
-      <img
+      <img loading="lazy" decoding="async"
         src="/images/museum/masa-depan/digital-sky.webp"
         alt=""
         className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-1000"

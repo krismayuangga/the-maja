@@ -233,9 +233,21 @@ export function ParticleField({
     );
   }, [count, speed, minSize, maxSize, direction]);
 
+  // Partikel hanya dianimasikan saat ruangnya terlihat → hemat CPU di HP
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    const io = new IntersectionObserver(([e]) => setVisible(e.isIntersecting));
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   return (
-    <div className={`absolute inset-0 pointer-events-none overflow-hidden ${className}`}>
-      {particles.map((p) => (
+    <div ref={wrapRef} className={`absolute inset-0 pointer-events-none overflow-hidden ${className}`}>
+      {visible && particles.map((p) => (
         <motion.div
           key={p.id}
           className="absolute rounded-full"

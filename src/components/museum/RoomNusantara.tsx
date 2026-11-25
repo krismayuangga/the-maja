@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useEffect, useMemo } from "react";
+import React, { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import dynamic from "next/dynamic";
@@ -50,6 +50,9 @@ type ApiProduct = {
 type Sebaran = { provinsi: string; seniman: number; karya: number };
 type Stats = { karya: number; pengrajin: number; provinsi: number; sebaran?: Sebaran[] };
 
+/** Ubin bola tampil ±60–90px: layar biasa cukup 128px, layar tajam (HP/retina) 256px */
+const tileW = () => (typeof window !== "undefined" && window.devicePixelRatio > 1.5 ? 256 : 128);
+
 /** Produk asli dari MajaCraft untuk galeri */
 async function fetchProducts(): Promise<GalleryItem[]> {
   // API membatasi 50 per halaman → ambil semua halaman agar galeri tidak berulang
@@ -62,7 +65,7 @@ async function fetchProducts(): Promise<GalleryItem[]> {
   return items
     .filter((p) => p.images?.[0]?.url && !/\btest\b/i.test(p.name))
     .map((p) => ({
-      image: optimized(p.images[0].url, 256),
+      image: optimized(p.images[0].url, tileW()),
       full: optimized(p.images[0].url, 640),
       text: p.name,
       description: shortText(p.description ?? ""),
@@ -123,7 +126,9 @@ function LiveMap({ sebaran, active, onSelect }: {
   return (
     <div className="relative w-full max-w-[22rem] sm:max-w-[520px] md:max-w-[600px] lg:max-w-[620px] mx-auto select-none">
       <img
-        src="/images/museum/nusantara/indonesia-map.png"
+        src="/images/museum/nusantara/indonesia-map.webp"
+        loading="lazy"
+        decoding="async"
         alt="Peta sebaran seniman MAJA di Indonesia"
         className="w-full h-auto opacity-[0.28] pointer-events-none"
         style={{ filter: "drop-shadow(0 0 40px rgba(198,167,94,0.15))" }}
@@ -207,7 +212,19 @@ export default function RoomNusantara() {
   const [prov, setProv] = useState<string | null>(null);
   const [cat, setCat] = useState<string | null>(null);
 
+  /* Muat 152 foto karya hanya saat pengunjung mendekati ruang ini (hemat kuota & memori) */
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const [near, setNear] = useState(false);
   useEffect(() => {
+    const el = sectionRef.current;
+    if (!el || near) return;
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setNear(true); io.disconnect(); } }, { rootMargin: "150% 0px" });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [near]);
+
+  useEffect(() => {
+    if (!near) return;
     let alive = true;
     fetchProducts()
       .then((list) => { if (alive) setItems(list.length >= 6 ? list : galleryItems); })
@@ -216,7 +233,7 @@ export default function RoomNusantara() {
       .then((j) => { if (alive && j?.success) setStats(j.data); })
       .catch(() => {});
     return () => { alive = false; };
-  }, []);
+  }, [near]);
 
   const live = !!items && items !== galleryItems;
 
@@ -248,7 +265,7 @@ export default function RoomNusantara() {
   const provName = prov ? provinceInfo(prov)?.name : null;
 
   return (
-    <section className="room room-4 flex items-center justify-center room-vignette relative">
+    <section ref={sectionRef} className="room room-4 flex items-center justify-center room-vignette relative">
       {/* Deep warm background */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#0F3B2E]/20 via-[#1A1008] to-[#2C1A12]" />
 

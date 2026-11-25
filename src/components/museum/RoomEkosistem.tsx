@@ -85,7 +85,7 @@ function useEcosystemData() {
     }).catch(() => {});
     fetch(`${MAJACRAFT}/api/certificate?limit=1`).then((r) => r.json()).then((j) => {
       const c = j?.data?.certificates?.[0] as { id: string; productName: string } | undefined;
-      if (c) setCert({ src: `${MAJACRAFT}/uploads/certificates/thumbs/${c.id}.jpg`, alt: c.productName, href: `/sertifikat/?id=${c.id}` });
+      if (c) setCert({ src: optimized(`/uploads/certificates/thumbs/${c.id}.jpg`, 384), alt: c.productName, href: `/sertifikat/?id=${c.id}` });
     }).catch(() => {});
   }, []);
   return { stats, products, cert };
@@ -316,7 +316,7 @@ function Proof({ index, stats, products, cert }: { index: number; stats: Stats |
         {a.cover && (
           <span className="w-16 h-12 sm:w-20 sm:h-14 rounded-md overflow-hidden border border-[#C6A75E]/20 bg-[#0D0A06] shrink-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={abs(a.cover)} alt="" loading="lazy" className="w-full h-full object-cover" />
+            <img src={optimized(a.cover, 256)} onError={(e) => { const i = e.currentTarget; if (!i.dataset.raw) { i.dataset.raw = "1"; i.src = abs(a.cover!); } }} alt="" loading="lazy" className="w-full h-full object-cover" />
           </span>
         )}
         <span className="min-w-0">
@@ -437,7 +437,7 @@ export default function RoomEkosistem() {
               <motion.div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-28 h-28 rounded-full flex flex-col items-center justify-center border border-[#C6A75E]/40 bg-[#100B06] shadow-[0_0_60px_rgba(198,167,94,0.18)]"
                 initial={{ opacity: 0, scale: 0.8 }} whileInView={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, delay: 0.3 }} viewport={{ once: true }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/images/museum/branding/themaja-logo-600.png" alt="The MAJA" className="w-14 h-auto" />
+                <img loading="lazy" src="/images/museum/branding/themaja-logo-600.png" alt="The MAJA" className="w-14 h-auto" />
                 <span className="mt-1 text-[9px] tracking-[0.35em] uppercase text-[#C6A75E]/80" style={{ fontFamily: "var(--font-cinzel)" }}>The MAJA</span>
               </motion.div>
             </div>

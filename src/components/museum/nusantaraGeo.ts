@@ -1,5 +1,5 @@
 /**
- * Titik provinsi untuk peta /images/museum/nusantara/indonesia-map.png (2317×872).
+ * Titik provinsi untuk peta /images/museum/nusantara/indonesia-map (asli 2317×872; persen → berlaku untuk ukuran apa pun).
  * Isi peta (tanpa ruang kosong) ≈ bujur 95.0–141.0 BT, lintang 6.1 LU – 11.0 LS
  * → proyeksi equirectangular sederhana, hasil dalam persen terhadap ukuran gambar.
  */

@@ -68,7 +68,7 @@ export default function RoomMasalah() {
         ref={registerParallax(-8, -8)}
         className="absolute inset-0 opacity-[0.04]"
         style={{
-          backgroundImage: `url('/images/ukiran-maja.png')`,
+          backgroundImage: `url('/images/ukiran-maja.webp')`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           mixBlendMode: "overlay",
@@ -223,7 +223,7 @@ export default function RoomMasalah() {
                       {/* Reveal effect wrapping the painting */}
                       <Reveal direction="left" delay={0.3 + i * 0.2} duration={0.6} color="#1A1510">
                         <div className="relative w-full flex items-center justify-center p-2 sm:p-3 aspect-[16/9] sm:aspect-[4/3]">
-                          <img
+                          <img loading="lazy" decoding="async"
                             src={problem.image}
                             alt={problem.text}
                             className="w-full h-full object-contain opacity-0 transition-opacity duration-700 drop-shadow-lg"

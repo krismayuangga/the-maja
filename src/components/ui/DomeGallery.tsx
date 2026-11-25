@@ -289,10 +289,16 @@ export default function DomeGallery({
   /* ── Auto-rotate ── */
   useEffect(() => {
     if (!autoRotateSpeed || autoRotateSpeed === 0) return;
-    let raf: number;
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    let raf = 0;
     let lastTime = performance.now();
+    // Putar hanya saat bola terlihat di layar → hemat CPU & baterai
+    const start = () => { if (!raf) { lastTime = performance.now(); raf = requestAnimationFrame(step); } };
+    const stop = () => { if (raf) { cancelAnimationFrame(raf); raf = 0; } };
+    const io = new IntersectionObserver(([e]) => (e.isIntersecting ? start() : stop()));
+    if (rootRef.current) io.observe(rootRef.current);
     const step = (now: number) => {
-      const dt = (now - lastTime) / 1000; // seconds
+      const dt = Math.min(0.1, (now - lastTime) / 1000); // seconds
       lastTime = now;
       // Skip if dragging or an image is focused
       if (!draggingRef.current && !focusedElRef.current && !inertiaRAF.current) {
@@ -302,8 +308,8 @@ export default function DomeGallery({
       }
       raf = requestAnimationFrame(step);
     };
-    raf = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(raf);
+    if (!rootRef.current) start();
+    return () => { io.disconnect(); stop(); };
   }, [autoRotateSpeed]);
 
   const stopInertia = useCallback(() => {
